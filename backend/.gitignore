@@ -1,0 +1,7 @@
+venv/
+frontend/node_modules/
+frontend/build/
+.env
+*.sqlite3
+__pycache__/
+*.pyc

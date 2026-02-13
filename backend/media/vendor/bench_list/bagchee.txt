@@ -1,0 +1,208 @@
+# Bagchee Documentation
+
+## Overview
+
+This project is a **Full‑Stack E‑Commerce Admin & User Management System** built using **React.js (Frontend)** and **Node.js + Express (Backend)**. The system is designed with a **mobile‑first**, **fully responsive**, and **future‑scalable** architecture so that both admins and users can easily manage and use the platform.
+
+---
+
+## Core Technologies
+
+### Frontend
+
+* **React.js** – Component‑based UI development
+* **Tailwind CSS** – Responsive and utility‑first styling
+* **State Management** – React Hooks (`useState`, `useEffect`)
+* **API Handling** – `axios` with centralized configuration
+
+### Backend
+
+* **Node.js** – Server‑side JavaScript runtime
+* **Express.js** – REST API framework
+* **MongoDB** – NoSQL database
+* **Mongoose** – Schema and model management
+
+### UI & UX Libraries
+
+* **Rich Text Editor** – `jodit-react`
+* **Notifications** – `react-hot-toast`
+* **Icons & Loaders** – `lucide-react`
+
+---
+
+## Rich Text Editor (Jodit)
+
+* Fully responsive HTML editor
+* Used for **Descriptions**, **Help Pages**, and **Terms & Conditions**
+
+
+---
+
+## Backend Architecture (Node.js & Express)
+
+The backend is designed in a **modular and reusable** way, making it easy to add new features in the future.
+
+### A. Image Handling (Server Side)
+
+* Image uploads are handled on the server
+* Option to replace or remove existing images
+* Existing images are fetched via API and previewed on the frontend
+
+### B. API Modules (Controllers & Routes)
+
+Each module has separate **Controllers**, **Routes**, and **Schemas** for better structure and maintainability.
+
+### 1. Payments Module
+
+Used to manage payment methods such as Credit Card, UPI, COD, etc.
+
+**Pages**:
+
+* `PaymentsList.jsx` – Table view with status toggle and delete action
+* `AddPayments.jsx` – Create a new payment method (Image + Rich Text)
+* `EditPayments.jsx` – Update existing payment details with image preview
+
+**Key Features**:
+
+* Jodit Rich Text Editor for descriptions
+* Active / Inactive status management using radio buttons
+* Image upload with live preview
+
+### 2. Shipping Options Module
+
+Used to manage different shipping methods and rates.
+
+**Pages**:
+
+* `ShippingOptionsList.jsx` – List view
+* `AddShippingOptions.jsx`
+* `EditShippingOptions.jsx`
+
+**Key Features**:
+
+* Region‑based shipping rates
+* Multi‑currency support (USD, EUR, INR)
+
+---
+
+## Admin Panel Modules
+
+The admin panel is used to control and manage the complete e‑commerce system.
+
+### A. Catalog Management (Product System)
+
+This is the most important module where products and their attributes are managed.
+
+**Products**:
+
+* Title, Price, Images
+* Linked with Categories, Authors, and Publishers
+* Product Types and Formats
+
+**Supporting Modules** (Dropdown‑based):
+
+* Categories – Category structure management
+* Tags – SEO and search optimization
+* Formats – Hardcover, Paperback, PDF, Audio
+* Labels – New Arrival, Best Seller
+* Languages – Hindi, English, etc.
+* Authors – Book writers database
+* Actors – Cast details for Movies/DVDs
+* Publishers – Publishing houses
+* Series – Book series management
+
+**Reviews**:
+
+* Approve, reject, or delete user reviews
+
+### B.  Order Management
+
+**Orders**:
+
+* Complete order list with status (Pending, Processing, Shipped, Delivered)
+
+**Couriers**:
+
+* Shipping partner management
+
+**Shipping Rates**:
+
+* Multi‑currency support
+
+### C. Help Pages
+
+* Privacy Policy
+* Terms & Conditions
+* FAQ
+
+(Content managed using Jodit Rich Text Editor)
+
+---
+
+## User Dashboard Modules
+
+The frontend user area where customers can manage their personal data.
+
+### A. User Profile & Security
+
+* Edit profile details (First Name, Last Name, Phone Number)
+* Secure password change functionality
+
+### B. Address Book
+
+* Save multiple addresses (Home / Office)
+* Edit and delete options for faster checkout
+
+---
+
+## Frontend Architecture (React.js)
+
+The frontend is developed using a **mobile‑first** approach.
+
+### A. UI & Styling
+
+* **Tailwind CSS** for utility‑based styling
+* Theme Colors: Cream and Primary Blue
+
+**Responsiveness**:
+
+* Tables use `overflow-x-auto` for horizontal scrolling on mobile screens
+* Toolbars stack vertically on mobile and display horizontally on desktop
+
+### B. Key Components
+
+#### 1. List Pages (Data Tables)
+
+**Examples**:
+
+* `PaymentsList.jsx`
+* `ShippingOptionsList.jsx`
+* `UsersList.jsx`
+
+**Features**:
+
+* Mobile‑friendly pagination
+* Edit and delete actions with confirmation alerts
+* Loading spinner (`Loader2`) during API requests
+
+#### 2. Add / Edit Forms
+
+**Examples**:
+
+* `AddPayments.jsx`
+* `EditPayments.jsx`
+
+**Features**:
+
+* Live image preview on file selection
+* Existing image fetched from the database
+* Option to remove or replace images
+* Rich Text Editor for additional content
+
+---
+
+## Utilities & Configurations
+
+* **Axios Instance** – `utils/axiosConfig.js`
+* Centralized API base URL configuration
+* Reusable request and error handling logic

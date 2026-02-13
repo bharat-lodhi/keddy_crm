@@ -1,0 +1,46 @@
+form input
+----------
+
+Name *
+
+Email *
+
+Phone Number *
+
+What best describes your business? *
+option-
+SaaS
+Ecommerce
+Agency
+Local business
+Startup
+Other:
+
+What is your main goal with email? *
+option-
+Grow my business
+Promote products or services
+Generate more sales
+Send newsletters or announcements
+Other:
+
+Are you currently using email marketing? *
+option- 
+Yes, already sending emails
+Tried before but stopped
+Not yet, planning to start
+
+How many emails do you plan to send per day? *
+optoin- 
+Under 1,000
+1,000–5,000
+5,000–10,000
+10,000+
+
+Biggest challenge you are facing with email (optional) *
+option-
+Spam issues
+Low open rates
+Domain problems
+Not sure where to start
+Other:
