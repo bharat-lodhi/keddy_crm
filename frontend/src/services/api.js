@@ -1,4 +1,6 @@
-const API_BASE = "http://localhost:8000";
+const API_BASE = "https://crm.keddytech.in";
+
+// const API_BASE = "http://localhost:8000";
 
 export async function apiRequest(url, method = "GET", data = null) {
     const options = {
@@ -27,23 +29,3 @@ export async function apiRequest(url, method = "GET", data = null) {
     const response = await fetch(API_BASE + url, options);
     return response.json();
 }
-
-
-// const API_BASE = "http://localhost:8000";
-
-// export async function apiRequest(url, method = "GET", data = null) {
-//     const options = {
-//         method,
-//         headers: {
-//             "Content-Type": "application/json",
-//         },
-//         credentials: "include", // IMPORTANT for session
-//     };
-
-//     if (data) {
-//         options.body = JSON.stringify(data);
-//     }
-
-//     const response = await fetch(API_BASE + url, options);
-//     return response.json();
-// }
