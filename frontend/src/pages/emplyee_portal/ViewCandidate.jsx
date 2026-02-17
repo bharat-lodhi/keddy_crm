@@ -101,6 +101,7 @@ function DetailedViewCandidate() {
                         <DetailRow label="Phone Number" value={candidate.candidate_number} />
                         <DetailRow label="Experience (Manual)" value={candidate.years_of_experience_manual} />
                         <DetailRow label="Experience (System)" value={candidate.years_of_experience_calculated + " Yrs"} />
+                        <DetailRow label="Submitted By" value={candidate.created_by_name} />
                         <DetailRow label="Created At" value={new Date(candidate.created_at).toLocaleString()} />
                     </div>
                 </div>
@@ -130,6 +131,8 @@ function DetailedViewCandidate() {
                         <DetailRow label="Vendor Company" value={candidate.vendor_company_name || "N/A"} />
                         <DetailRow label="Vendor Phone" value={candidate.vendor_number} />
                         <DetailRow label="Vendor Rate" value={`₹${candidate.vendor_rate}`} />
+                        <DetailRow label="Client Name" value={candidate.client_name || "N/A"} />
+                        <DetailRow label="Client Company" value={candidate.client_company_name || "N/A"} />
                         <DetailRow label="Client Rate" value={`₹${candidate.client_rate}`} />
                     </div>
                 </div>

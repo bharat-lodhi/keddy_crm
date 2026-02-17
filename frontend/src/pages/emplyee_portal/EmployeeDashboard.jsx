@@ -128,25 +128,6 @@ function EmployeeDashboard() {
             </div>
 
 
-            {/* Stats Grid */}
-            {/* <div style={styles.statsGrid}>
-                {[
-                    { label: "Total Pipeline",val:stats.total_pipelines, icon: <Icons.Pipeline />, col: "#25343F" },
-                    { label: "Today's Profiles", val: stats.today_profiles, icon: <Icons.UserPlus />, col: "#25343F" },
-                    { label: "Today Submitted", val: stats.today_submitted_profiles, icon: <Icons.Send />, col: "#FF9B51" },
-                    { label: "Total Vendors", val: stats.total_vendors, icon: <Icons.Vendor />, col: "#25343F" },
-                    { label: "Total Clients", val: stats.total_clients, icon: <Icons.Client />, col: "#25343F" },
-                    { label: "Total Profiles", val: stats.total_profiles, icon: <Icons.Users />, col: "#25343F" },
-                    
-                    
-                ].map((s, i) => (
-                    <div key={i} style={styles.statCard}>
-                        <div><p style={styles.statLabel}>{s.label}</p><h3 style={{...styles.statValue, color: s.col}}>{s.val || 0}</h3></div>
-                        <div style={{...styles.iconCircle, color: s.col, backgroundColor: s.col === '#FF9B51' ? 'rgba(255,155,81,0.1)' : 'rgba(37,52,63,0.05)'}}>{s.icon}</div>
-                    </div>
-                ))}
-            </div> */}
-
 
             <div style={styles.statsGrid}>
                 {[
@@ -190,6 +171,7 @@ function EmployeeDashboard() {
                             <th style={styles.th}>Candidate</th><th style={styles.th}>Tech</th><th style={styles.th}>Exp</th>
                             <th style={styles.th}>Client</th>
                             <th style={styles.th}>Vendor & Contact</th>
+                            <th style={styles.th}>Vendor Rate</th>
                             <th style={styles.th}>Status & Remark</th><th style={styles.th}>Action</th>
                         </tr>
                     </thead>
@@ -201,7 +183,7 @@ function EmployeeDashboard() {
                                 <td style={styles.td}>{c.years_of_experience_manual || "0"} Yrs</td>
                                 <td style={styles.td}>{c.client || "N/A"}</td>
                                 <td style={styles.td}><b>{truncate(c.vendor, 15)}</b><br/><small style={styles.subStatus}>{c.vendor_number || "N/A"}</small></td>
-                                
+                                <td style={styles.td}>₹{c.vendor_rate}</td>
                                 <td style={styles.td}>
                                     <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
                                         <span style={styles.badge}>{c.main_status}</span>
@@ -222,17 +204,25 @@ function EmployeeDashboard() {
                     <thead style={styles.tableHeader}>
                         <tr>
                             <th style={styles.th}>Candidate</th><th style={styles.th}>Tech</th><th style={styles.th}>Exp</th>
-                            <th style={styles.th}>Vendor & Contact</th><th style={styles.th}>Status & Remark</th><th style={styles.th}>Action</th>
+                            <th style={styles.th}>Client</th>
+                            <th style={styles.th}>Vendor & Contact</th>
+                            <th style={styles.th}>Vendor Rate</th>
+                            
+                            <th style={styles.th}>Status & Remark</th><th style={styles.th}>Action</th>
                         </tr>
                     </thead>
+
                     <tbody>
                         {verifiedCandidates.map((c, i) => (
                             <tr key={i} style={styles.tableRow} onClick={() => navigate(`/employee/candidate/view/${c.id}`)}>
                                 <td style={styles.td}><b>{c.candidate_name}</b></td>
                                 <td style={styles.td}>{truncate(c.technology, 100)}</td>
                                 <td style={styles.td}>{c.years_of_experience_manual || "0"} Yrs</td>
+                                <td style={styles.td}>{c.client || "N/A"}</td>
                                 <td style={styles.td}><b>{truncate(c.vendor, 15)}</b><br/><small style={styles.subStatus}>{c.vendor_number || "N/A"}</small></td>
+                                <td style={styles.td}>₹{c.vendor_rate}</td>
                                 <td style={styles.td}>
+                                    
                                     <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
                                         <span style={{...styles.badge, background:'#E3F2FD', color:'#1976D2'}}>{c.main_status}</span>
                                         {c.remark && <div style={styles.remarkIcon} title={c.remark}><Icons.Remark /></div>}
@@ -252,7 +242,10 @@ function EmployeeDashboard() {
                     <thead style={styles.tableHeader}>
                         <tr>
                             <th style={styles.th}>Candidate</th><th style={styles.th}>Tech</th><th style={styles.th}>Exp</th>
-                            <th style={styles.th}>Vendor & Contact</th><th style={styles.th}>Action</th>
+                            <th style={styles.th}>Client</th>
+                            <th style={styles.th}>Vendor & Contact</th>
+                            <th style={styles.th}>Vendor Rate</th>
+                            <th style={styles.th}>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -261,7 +254,10 @@ function EmployeeDashboard() {
                                 <td style={styles.td}><b>{c.candidate_name}</b></td>
                                 <td style={styles.td}>{truncate(c.technology, 100)}</td>
                                 <td style={styles.td}>{c.years_of_experience_manual || "0"} Yrs</td>
+
+                                <td style={styles.td}>{c.client || "N/A"}</td>
                                 <td style={styles.td}><b>{truncate(c.vendor, 15)}</b><br/><small style={styles.subStatus}>{c.vendor_number || "N/A"}</small></td>
+                                <td style={styles.td}>₹{c.vendor_rate}</td>
                                 <td style={styles.td}>
                                     {!c.verification_status ? (
                                         <button style={styles.submitBtn} onClick={(e) => handleVerify(e, c.id)}>Submit</button>
@@ -284,9 +280,6 @@ function EmployeeDashboard() {
                             <label style={styles.modalLabel}>Main Status</label>
                             <select style={styles.select} value={editForm.main_status} onChange={e => setEditForm({...editForm, main_status: e.target.value})}>
 
-                                {/* <option value="SCREENING">SCREENING</option><option value="L1">L1</option>
-                                <option value="L2">L2</option><option value="CLIENT_ROUND">CLIENT ROUND</option>
-                                <option value="SELECTED">SELECTED</option><option value="REJECTED">REJECTED</option> */}
 
                                 <option value="SCREENING">Screening</option>
                                 <option value="L1">L1</option>

@@ -1,7 +1,7 @@
-const API_BASE = "https://crm.keddytech.in";
+// const API_BASE = "https://crm.keddytech.in";
 
 
-// const API_BASE = "http://localhost:8000";    //abc
+const API_BASE = "http://localhost:8000";
 
 export async function apiRequest(url, method = "GET", data = null) {
     const options = {
