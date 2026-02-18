@@ -12,4 +12,13 @@ urlpatterns = [
     # Pipeline Candidates (sabhi employees pipeline)
     path("api/subadmin/dashboard/pipeline/", views.active_pipeline_candidates, name="subadmin-pipeline"),
     
+    #=================User-management=================
+    # LIST (employees only) + CREATE (any role)
+    path("api/users/", views.SubAdminUserListCreateAPIView.as_view(), name="subadmin-users"),
+
+    # UPDATE (employee only)
+    path("api/users/<int:pk>/", views.SubAdminUserUpdateAPIView.as_view(), name="subadmin-user-update"),
+
+    #=================================================
+    
 ]

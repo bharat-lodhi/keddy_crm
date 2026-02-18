@@ -188,15 +188,17 @@ function DetailedViewCandidate() {
                         <div style={styles.inputGroup}>
                             <label style={styles.modalLabel}>Main Status</label>
                             <select style={styles.select} value={editForm.main_status} onChange={e => setEditForm({...editForm, main_status: e.target.value})}>
+                                <option value="SUBMITTED">Submitted</option>
                                 <option value="SCREENING">Screening</option>
                                 <option value="L1">L1</option>
                                 <option value="L2">L2</option>
                                 <option value="L3">L3</option>
                                 <option value="OTHER">Other</option>
-                                <option value="SELECTED">Selected</option>
-                                <option value="HOLD">Hold</option>
-                                <option value="NOT_MATCHED">Not Matched</option>
+                                <option value="OFFERED">Offered</option>
+                                <option value="ONBORD">Onbord</option>
+                                <option value="ON_HOLD">On Hold</option>
                                 <option value="REJECTED">Rejected</option>
+                                <option value="WITHDRAWN">Withdrawn</option>
                             </select>
                         </div>
                         <div style={styles.inputGroup}>
@@ -204,12 +206,16 @@ function DetailedViewCandidate() {
                             <select style={styles.select} value={editForm.sub_status} onChange={e => setEditForm({...editForm, sub_status: e.target.value})}>
                                 <option value="NONE">None</option>
                                 <option value="SCHEDULED">Scheduled</option>
-                                <option value="DONE_WAIT_FOR_THE_UPDATE">Done, Wait For Update</option>
-                                <option value="SELECTED_WAIT_FOR_NEXT_ROUND">Selected, Wait for Next Round</option>
-                                <option value="FINAL_SELECTED">Final Selected</option>
-                                <option value="HOLD">Hold</option>
+                                <option value="COMPLETED">Completed</option>
+                                <option value="FEEDBACK_PENDING">Feedback Pending</option>
+                                <option value="CLEARED">Cleared</option>
                                 <option value="REJECTED">Rejected</option>
-                                <option value="POSTPONED">Postponed</option>
+                                <option value="ON_HOLD">On Hold</option>
+                                <option value="POSTPONED">Postponed</option>    
+                                <option value="NO_SHOW">No Show</option>
+                                
+                                <option value="INTERVIEW_PENDING">Interview Pending</option>
+                                
                             </select>
                         </div>
                         <div style={styles.inputGroup}>

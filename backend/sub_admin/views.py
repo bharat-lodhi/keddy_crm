@@ -8,6 +8,12 @@ from rest_framework.response import Response
 
 from employee_portal.models import Vendor, Client, Candidate
 from employee_portal.serializers import TodayCandidateSerializer
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
+from rest_framework import generics
+from .serializers import UserCreateSerializer
+
 
 # Create your views here.
 @api_view(["GET"])
@@ -106,3 +112,33 @@ def active_pipeline_candidates(request):
 
     serializer = TodayCandidateSerializer(queryset, many=True)
     return Response(serializer.data)
+
+
+#==============User Management=================
+from rest_framework.permissions import BasePermission
+from rest_framework.authentication import TokenAuthentication
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
+
+class IsSubAdmin(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.role == "SUB_ADMIN"
+
+
+class SubAdminUserListCreateAPIView(generics.ListCreateAPIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsSubAdmin]
+    serializer_class = UserCreateSerializer
+
+    def get_queryset(self):
+        return User.objects.filter(role="EMPLOYEE").order_by("-id")
+
+class SubAdminUserUpdateAPIView(generics.RetrieveUpdateAPIView):
+    authentication_classes = [JWTAuthentication]
+    serializer_class = UserCreateSerializer
+    permission_classes = [IsSubAdmin]
+
+    def get_queryset(self):
+        return User.objects.filter(role="EMPLOYEE")
+
+# ==================================================================

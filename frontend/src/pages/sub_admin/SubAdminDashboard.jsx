@@ -136,28 +136,34 @@ function SubAdminDashboard() {
                         <div style={styles.inputGroup}>
                             <label style={styles.modalLabel}>Main Status</label>
                             <select style={styles.select} value={editForm.main_status} onChange={e => setEditForm({...editForm, main_status: e.target.value})}>
+                                <option value="SUBMITTED">Submitted</option>
                                 <option value="SCREENING">Screening</option>
                                 <option value="L1">L1</option>
                                 <option value="L2">L2</option>
                                 <option value="L3">L3</option>
                                 <option value="OTHER">Other</option>
-                                <option value="SELECTED">Selected</option>
-                                <option value="HOLD">Hold</option>
-                                <option value="NOT_MATCHED">Not Matched</option>
+                                <option value="OFFERED">Offered</option>
+                                <option value="ONBORD">Onbord</option>
+                                <option value="ON_HOLD">On Hold</option>
                                 <option value="REJECTED">Rejected</option>
+                                <option value="WITHDRAWN">Withdrawn</option>
                             </select>
                         </div>
+
                         <div style={styles.inputGroup}>
                             <label style={styles.modalLabel}>Sub Status</label>
                             <select style={styles.select} value={editForm.sub_status} onChange={e => setEditForm({...editForm, sub_status: e.target.value})}>
                                 <option value="NONE">None</option>
                                 <option value="SCHEDULED">Scheduled</option>
-                                <option value="DONE_WAIT_FOR_THE_UPDATE">Done, Wait For Update</option>
-                                <option value="SELECTED_WAIT_FOR_NEXT_ROUND">Selected, Wait for Next Round</option>
-                                <option value="FINAL_SELECTED">Final Selected</option>
-                                <option value="HOLD">Hold</option>
+                                <option value="COMPLETED">Completed</option>
+                                <option value="FEEDBACK_PENDING">Feedback Pending</option>
+                                <option value="CLEARED">Cleared</option>
                                 <option value="REJECTED">Rejected</option>
-                                <option value="POSTPONED">Postponed</option>
+                                <option value="ON_HOLD">On Hold</option>
+                                <option value="POSTPONED">Postponed</option>    
+                                <option value="NO_SHOW">No Show</option>
+                                
+                                <option value="INTERVIEW_PENDING">Interview Pending</option>
                             </select>
                         </div>
                         <div style={styles.inputGroup}>
@@ -175,22 +181,100 @@ function SubAdminDashboard() {
     );
 }
 
+// const CandidateTable = ({ data, navigate, truncate, onEdit }) => (
+//     <table style={styles.table}>
+//         <thead style={styles.tableHeader}>
+//             <tr>
+//                 <th style={styles.th}>Date</th>
+//                 <th style={styles.th}>Submitted By & Submitted To</th>
+//                 <th style={styles.th}>Candidate</th><th style={styles.th}>Tech</th><th style={styles.th}>Exp</th>
+//                 <th style={styles.th}>Client</th><th style={styles.th}>Vendor & Contact</th>
+//                 <th style={styles.th}>Vendor Rate</th><th style={styles.th}>Status & Remark</th><th style={styles.th}>Action</th>
+//             </tr>
+//         </thead>
+//         <tbody>
+//             {data && data.length > 0 ? data.map((c) => (
+//                 <tr key={c.id} style={styles.tableRow} onClick={() => navigate(`/employee/candidate/view/${c.id}`)}>
+//                     <td style={styles.td}>
+//                         <div style={{fontWeight: "700"}}>{c.candidate_name}</div>
+//                         <div style={{fontSize: "11px", color: "#7F8C8D"}}>{c.candidate_email || "No Email"}</div>
+//                     </td>
+
+//                     <td style={styles.td}>{c.technology || "N/A"}</td>
+//                     <td style={styles.td}>{c.years_of_experience_manual} Yrs</td>
+//                     <td style={styles.td}>{c.vendor_company_name || "N/A"}</td>
+//                     <td style={styles.td}>
+//                         <b>{truncate(c.vendor, 15)}</b><br/>
+//                         <small style={{fontSize: "11px", color: "#7F8C8D"}}>{c.vendor_number || "N/A"}</small>
+//                     </td>
+//                     <td style={styles.td}>₹{c.vendor_rate}</td>
+//                     <td style={styles.td}>
+//                         <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
+//                             <span style={styles.badge}>{c.main_status}</span>
+//                             {c.remark && <div style={styles.remarkIcon} title={c.remark}><Icons.Remark /></div>}
+//                         </div>
+//                         <small style={styles.subStatus}>{c.sub_status}</small>
+//                     </td>
+//                     <td style={styles.td}>
+//                         <button style={styles.editBtn} onClick={(e) => onEdit(e, c)}>
+//                             <Icons.Edit />
+//                         </button>
+//                     </td>
+//                 </tr>
+//             )) : (
+//                 <tr><td colSpan="8" style={{textAlign: "center", padding: "20px"}}>No candidates found.</td></tr>
+//             )}
+//         </tbody>
+//     </table>
+// );
+
 const CandidateTable = ({ data, navigate, truncate, onEdit }) => (
     <table style={styles.table}>
         <thead style={styles.tableHeader}>
             <tr>
-                <th style={styles.th}>Candidate</th><th style={styles.th}>Tech</th><th style={styles.th}>Exp</th>
-                <th style={styles.th}>Client</th><th style={styles.th}>Vendor & Contact</th>
-                <th style={styles.th}>Vendor Rate</th><th style={styles.th}>Status & Remark</th><th style={styles.th}>Action</th>
+                {/* 1. Date Field */}
+                <th style={styles.th}>Date</th>
+                {/* 2. Team Info Field */}
+                <th style={styles.th}>Created By & Submitted To</th>
+                <th style={styles.th}>Candidate</th>
+                <th style={styles.th}>Tech</th>
+                <th style={styles.th}>Exp</th>
+                <th style={styles.th}>Client</th>
+                <th style={styles.th}>Vendor & Contact</th>
+                <th style={styles.th}>Vendor Rate</th>
+                <th style={styles.th}>Status & Remark</th>
+                <th style={styles.th}>Action</th>
             </tr>
         </thead>
         <tbody>
             {data && data.length > 0 ? data.map((c) => (
                 <tr key={c.id} style={styles.tableRow} onClick={() => navigate(`/employee/candidate/view/${c.id}`)}>
+                    
+                    {/* Date Logic: created_at se date nikal kar dikhayenge */}
+                    <td style={styles.td}>
+                        <div style={{fontWeight: "600", fontSize: "13px"}}>
+                            {new Date(c.created_at).toLocaleDateString('en-GB')}
+                        </div>
+                        <div style={{fontSize: "11px", color: "#7F8C8D"}}>
+                            {new Date(c.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                        </div>
+                    </td>
+
+                    {/* Team Info: Created By & Submitted To */}
+                    <td style={styles.td}>
+                        <div style={{fontSize: "13px"}}>
+                            <span style={{color: "#7F8C8D"}}>By:</span> <b>{c.created_by_name || "N/A"}</b>
+                        </div>
+                        <div style={{fontSize: "11px", marginTop: "4px"}}>
+                            <span style={{color: "#7F8C8D"}}>To:</span> <span style={{color: "#27AE60", fontWeight: "600"}}>{c.submitted_to_name || "N/A"}</span>
+                        </div>
+                    </td>
+
                     <td style={styles.td}>
                         <div style={{fontWeight: "700"}}>{c.candidate_name}</div>
                         <div style={{fontSize: "11px", color: "#7F8C8D"}}>{c.candidate_email || "No Email"}</div>
                     </td>
+                    
                     <td style={styles.td}>{c.technology || "N/A"}</td>
                     <td style={styles.td}>{c.years_of_experience_manual} Yrs</td>
                     <td style={styles.td}>{c.vendor_company_name || "N/A"}</td>
@@ -213,11 +297,12 @@ const CandidateTable = ({ data, navigate, truncate, onEdit }) => (
                     </td>
                 </tr>
             )) : (
-                <tr><td colSpan="8" style={{textAlign: "center", padding: "20px"}}>No candidates found.</td></tr>
+                <tr><td colSpan="10" style={{textAlign: "center", padding: "20px"}}>No candidates found.</td></tr>
             )}
         </tbody>
     </table>
 );
+
 
 const Section = ({ title, children }) => (
     <div style={styles.sectionContainer}>

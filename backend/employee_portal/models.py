@@ -124,28 +124,36 @@ class Candidate(models.Model):
 
     # ================= STATUS =================
     class MainStatus(models.TextChoices):
+        SUBMITTED = "SUBMITTED", "Submitted"
         SCREENING = "SCREENING", "Screening"
         L1 = "L1", "L1"
         L2 = "L2", "L2"
         L3 = "L3", "L3"
         OTHER = "OTHER", "Other"
-        NOT_MATCHED = "NOT_MATCHED", "Not Matched"
-        HOLD = "HOLD", "Hold"
+        OFFERED = "OFFERED","Offered"
+        ONBORD = "ONBORD", "onbord"
+        ON_HOLD  ="ON_HOLD", "On Hold"
+        WITHDRAWN = "WITHDRAWN", "Withdrawn"
         REJECTED ="REJECTED","Rejected"
-        SELECTED = "SELECTED", "Selected"
+
 
     class SubStatus(models.TextChoices):
         NONE = "NONE", "None"
-        DONE_WAIT_FOR_THE_UPDATE = "DONE_WAIT_FOR_THE_UPDATE", "Done,Wait For The Update"
-        FINAL_SELECTED = "FINAL_SELECTED", "Final Selected"
         SCHEDULED = "SCHEDULED","Scheduled"
-        SELECTED_WAIT_FOR_NEXT_ROUND = "SELECTED_WAIT_FOR_NEXT_ROUND","Selected Wait For Next Round"
-        HOLD = "HOLD","Hold"
-        # WAIT_FOR_THE_UPDATE = "WAIT_FOR_THE_UPDATE","Wait For The Update"
+        COMPLETED = "COMPLETED","Completed"
+        FEEDBACK_PENDING = "FEEDBACK_PENDING", "Feedback Pending"
+        CLEARED = "CLEARED" , "CLEARED"
         REJECTED = "REJECTED","Rejected"
         POSTPONED = "POSTPONED","Postponed"
+        NO_SHOW = "NO_SHOW" , "No Show"
+        ON_HOLD  ="ON_HOLD", "On Hold"
+        INTERVIEW_PENDING = "INTERVIEW_PENDING" , "Interview Pending"
 
-    main_status = models.CharField(max_length=100, choices=MainStatus.choices, default=MainStatus.SCREENING)
+        # WAIT_FOR_THE_UPDATE = "WAIT_FOR_THE_UPDATE","Wait For The Update"
+        
+        
+
+    main_status = models.CharField(max_length=100, choices=MainStatus.choices, default=MainStatus.SUBMITTED)
     sub_status = models.CharField(max_length=100, choices=SubStatus.choices, default=SubStatus.NONE)
 
     # ================= VERIFICATION =================

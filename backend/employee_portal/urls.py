@@ -32,4 +32,7 @@ urlpatterns = [
     path("dashboard/today-candidates/", views.today_user_candidates, name="today-candidates"),
     path("dashboard/today-verified-candidates/", views.today_verified_candidates, name="today-verified-candidates"),
     path("dashboard/active-pipeline-candidates/", views.active_pipeline_candidates, name="active-pipeline-candidates"),
+    path("dashboard/team/today-submissions/", views.today_team_submissions),
+    path("team/all-submissions/", views.all_team_submissions),
+
 ]

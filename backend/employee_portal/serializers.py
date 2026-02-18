@@ -345,7 +345,9 @@ class DashboardStatsSerializer(serializers.Serializer):
 class TodayCandidateSerializer(serializers.ModelSerializer):
     vendor = serializers.CharField(source="vendor.company_name", read_only=True)
     client = serializers.CharField(source="client.company_name", read_only=True)
-
+    submitted_to_name = serializers.SerializerMethodField()
+    created_by_name = serializers.SerializerMethodField()
+    
     class Meta:
         model = Candidate
         fields = [
@@ -374,5 +376,18 @@ class TodayCandidateSerializer(serializers.ModelSerializer):
             "created_at",
             "submitted_to",
             "changed_by",
+            "created_by",
+            "submitted_to",
+            "submitted_to_name",
+            "created_by_name"      
         ]
+    def get_submitted_to_name(self, obj):
+        if obj.submitted_to:
+            return f"{obj.submitted_to.first_name} {obj.submitted_to.last_name}"
+        return None
+    
+    def get_created_by_name(self, obj):
+            if obj.created_by:
+                return f"{obj.created_by.first_name} {obj.created_by.last_name}".strip()
+            return ""
 
