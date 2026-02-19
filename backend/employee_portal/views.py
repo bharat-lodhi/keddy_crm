@@ -414,7 +414,8 @@ def dashboard_stats(request):
     ).count()
     
     total_pipelines = Candidate.objects.filter(
-        created_by=user,verification_status=True
+        Q(created_by=user) | Q(submitted_to=user),
+        verification_status=True
     ).filter(
         Q(main_status__iexact="SCREENING") |
         Q(main_status__iexact="L1") |
@@ -423,7 +424,6 @@ def dashboard_stats(request):
         Q(main_status__iexact="OTHER")
     ).select_related("vendor", "client").count()
     
-
     data = {
         "user_name": user.get_full_name() or user.email,
         "total_vendors": total_vendors,
@@ -474,13 +474,34 @@ def today_verified_candidates(request):
 from django.db.models import Q
 
 
+# @api_view(["GET"])
+# @permission_classes([IsAuthenticated])
+# def active_pipeline_candidates(request):
+#     user = request.user
+
+#     candidates = Candidate.objects.filter(
+#         created_by=user,verification_status=True
+#     ).filter(
+#         Q(main_status__iexact="SCREENING") |
+#         Q(main_status__iexact="L1") |
+#         Q(main_status__iexact="L2") |
+#         Q(main_status__iexact="L3") |
+#         Q(main_status__iexact="OTHER")
+#     ).select_related("vendor", "client").order_by("-created_at")
+
+#     serializer = TodayCandidateSerializer(candidates, many=True)
+#     return Response(serializer.data)
+
+from django.db.models import Q
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def active_pipeline_candidates(request):
     user = request.user
 
     candidates = Candidate.objects.filter(
-        created_by=user,verification_status=True
+        Q(created_by=user) | Q(submitted_to=user),
+        verification_status=True
     ).filter(
         Q(main_status__iexact="SCREENING") |
         Q(main_status__iexact="L1") |
@@ -492,11 +513,29 @@ def active_pipeline_candidates(request):
     serializer = TodayCandidateSerializer(candidates, many=True)
     return Response(serializer.data)
 
+
 from django.utils.timezone import now
 from datetime import timedelta
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+
+# @api_view(["GET"])
+# @permission_classes([IsAuthenticated])
+# def today_team_submissions(request):
+#     user = request.user
+#     today = now().date()
+
+#     candidates = Candidate.objects.filter(
+#         submitted_to=user,
+#         created_at__date=today,
+#         verification_status=True
+#     ).exclude(
+#         created_by=user
+#     ).select_related("vendor", "client").order_by("-created_at")
+
+#     serializer = TodayCandidateSerializer(candidates, many=True)
+#     return Response(serializer.data)
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
@@ -506,14 +545,29 @@ def today_team_submissions(request):
 
     candidates = Candidate.objects.filter(
         submitted_to=user,
-        created_at__date=today,
-        verification_status=True
+        created_at__date=today
     ).exclude(
         created_by=user
     ).select_related("vendor", "client").order_by("-created_at")
 
     serializer = TodayCandidateSerializer(candidates, many=True)
     return Response(serializer.data)
+
+
+# @api_view(["GET"])
+# @permission_classes([IsAuthenticated])
+# def all_team_submissions(request):
+#     user = request.user
+
+#     candidates = Candidate.objects.filter(
+#         submitted_to=user,
+#         verification_status=True
+#     ).exclude(
+#         created_by=user
+#     ).select_related("vendor", "client").order_by("-created_at")
+
+#     serializer = TodayCandidateSerializer(candidates, many=True)
+#     return Response(serializer.data)
 
 
 @api_view(["GET"])
@@ -522,12 +576,10 @@ def all_team_submissions(request):
     user = request.user
 
     candidates = Candidate.objects.filter(
-        submitted_to=user,
-        verification_status=True
+        submitted_to=user
     ).exclude(
         created_by=user
     ).select_related("vendor", "client").order_by("-created_at")
 
     serializer = TodayCandidateSerializer(candidates, many=True)
     return Response(serializer.data)
-

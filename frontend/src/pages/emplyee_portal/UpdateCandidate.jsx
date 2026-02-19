@@ -46,7 +46,7 @@ function UpdateCandidate() {
             "candidate_name", "candidate_email", "candidate_number",
             "years_of_experience_manual", "years_of_experience_calculated",
             "skills", "technology", "vendor_company_name", "vendor_number",
-            "vendor_rate", "client", "client_rate", "main_status",
+            "vendor_rate", "vendor_rate_type", "client", "client_rate", "client_rate_type", "main_status",
             "sub_status", "verification_status", "is_blocklisted",
             "blocklisted_reason", "remark", "extra_details"
         ];
@@ -128,6 +128,23 @@ function UpdateCandidate() {
                             <label style={styles.label}>Vendor Rate</label>
                             <input name="vendor_rate" style={styles.input} value={form.vendor_rate || ""} onChange={handleChange} />
                         </div>
+
+                        <div style={styles.inputGroup}>
+                            <label style={styles.label}>Vendor Rate Type</label>
+                            <select
+                                name="vendor_rate_type"
+                                style={styles.input}
+                                value={form.vendor_rate_type || ""}
+                                onChange={handleChange}
+                            >
+                                <option value="">Select Type</option>
+                                <option value="LPM">LPM</option>
+                                <option value="KPM">KPM</option>
+                                <option value="PHR">PHR</option>
+                                <option value="LPA">LPA</option>
+                            </select>
+                        </div>
+
                         <div style={styles.inputGroup}>
                             <label style={styles.label}>Select Client</label>
                             <select name="client" style={styles.input} value={form.client || ""} onChange={handleChange}>
@@ -139,6 +156,22 @@ function UpdateCandidate() {
                             <label style={styles.label}>Client Rate</label>
                             <input name="client_rate" style={styles.input} value={form.client_rate || ""} onChange={handleChange} />
                         </div>
+                        <div style={styles.inputGroup}>
+                            <label style={styles.label}>Client Rate Type</label>
+                            <select
+                                name="client_rate_type"
+                                style={styles.input}
+                                value={form.client_rate_type || ""}
+                                onChange={handleChange}
+                            >
+                                <option value="">Select Type</option>
+                                <option value="LPM">LPM</option>
+                                <option value="KPM">KPM</option>
+                                <option value="PHR">PHR</option>
+                                <option value="LPA">LPA</option>
+                            </select>
+                        </div>
+
                     </div>
                 </div>
 

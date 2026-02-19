@@ -15,6 +15,24 @@ const Icons = {
     Remark: () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF9B51" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
 };
 
+    const getStatusStyles = (status) => {
+            switch (status) {
+                case "SUBMITTED": return { bg: "#E8F4FD", text: "#1976D2" }; // Light Blue
+                case "SCREENING": return { bg: "#ffee005e", text: "#383333" }; // Light Purple
+                case "L1": return { bg: "#6365f146", text: "#1976D2" };        // Light Teal
+                case "L2": return { bg: "#022da367", text: "#101933" };        // Light Green
+                case "L3": return { bg: "#31df39a8", text: "#183f1a" };  
+                case "OTHER": return { bg: "#00ff0da9", text: "#183f1a" };         // Light Lime
+                case "OFFERED": return { bg: "#FFF9C4", text: "#F57F17" };   // Light Yellow
+                case "ONBORD": return { bg: "#C8E6C9", text: "#1B5E20" };    // Strong Green
+                case "ON_HOLD": return { bg: "#FFF3E0", text: "#E65100" };   // Light Orange
+                case "REJECTED": return { bg: "#FFEBEE", text: "#C62828" };  // Light Red
+                case "WITHDRAWN": return { bg: "#ECEFF1", text: "#455A64" }; // Blue Grey
+                default: return { bg: "#FFFFFF", text: "#334155" };          // Default White
+            }
+        };
+
+
 function SubAdminDashboard() {
     const navigate = useNavigate();
     const [stats, setStats] = useState({});
@@ -235,7 +253,7 @@ const CandidateTable = ({ data, navigate, truncate, onEdit }) => (
                 {/* 1. Date Field */}
                 <th style={styles.th}>Date</th>
                 {/* 2. Team Info Field */}
-                <th style={styles.th}>Created By & Submitted To</th>
+                <th style={styles.th}>Submitted To & Created By</th>
                 <th style={styles.th}>Candidate</th>
                 <th style={styles.th}>Tech</th>
                 <th style={styles.th}>Exp</th>
@@ -246,11 +264,10 @@ const CandidateTable = ({ data, navigate, truncate, onEdit }) => (
                 <th style={styles.th}>Action</th>
             </tr>
         </thead>
-        <tbody>
+        {/* <tbody>
             {data && data.length > 0 ? data.map((c) => (
                 <tr key={c.id} style={styles.tableRow} onClick={() => navigate(`/employee/candidate/view/${c.id}`)}>
                     
-                    {/* Date Logic: created_at se date nikal kar dikhayenge */}
                     <td style={styles.td}>
                         <div style={{fontWeight: "600", fontSize: "13px"}}>
                             {new Date(c.created_at).toLocaleDateString('en-GB')}
@@ -260,29 +277,27 @@ const CandidateTable = ({ data, navigate, truncate, onEdit }) => (
                         </div>
                     </td>
 
-                    {/* Team Info: Created By & Submitted To */}
                     <td style={styles.td}>
                         <div style={{fontSize: "13px"}}>
-                            <span style={{color: "#7F8C8D"}}>By:</span> <b>{c.created_by_name || "N/A"}</b>
+                            <span style={{color: "#7F8C8D"}}>To:</span> <b>{c.submitted_to_name || "N/A"}</b>
                         </div>
                         <div style={{fontSize: "11px", marginTop: "4px"}}>
-                            <span style={{color: "#7F8C8D"}}>To:</span> <span style={{color: "#27AE60", fontWeight: "600"}}>{c.submitted_to_name || "N/A"}</span>
+                            <span style={{color: "#7F8C8D"}}>By:</span> <b style={{color: "#27AE60", fontWeight: "600"}}>{c.created_by_name || "N/A"}</b>
                         </div>
                     </td>
 
                     <td style={styles.td}>
                         <div style={{fontWeight: "700"}}>{c.candidate_name}</div>
-                        <div style={{fontSize: "11px", color: "#7F8C8D"}}>{c.candidate_email || "No Email"}</div>
                     </td>
                     
                     <td style={styles.td}>{c.technology || "N/A"}</td>
                     <td style={styles.td}>{c.years_of_experience_manual} Yrs</td>
-                    <td style={styles.td}>{c.vendor_company_name || "N/A"}</td>
+                    <td style={styles.td}>{c.client || "N/A"}</td>
                     <td style={styles.td}>
                         <b>{truncate(c.vendor, 15)}</b><br/>
                         <small style={{fontSize: "11px", color: "#7F8C8D"}}>{c.vendor_number || "N/A"}</small>
                     </td>
-                    <td style={styles.td}>₹{c.vendor_rate}</td>
+                    <td style={styles.td}>₹{c.vendor_rate} {c.vendor_rate_type || ""}</td>
                     <td style={styles.td}>
                         <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
                             <span style={styles.badge}>{c.main_status}</span>
@@ -299,7 +314,77 @@ const CandidateTable = ({ data, navigate, truncate, onEdit }) => (
             )) : (
                 <tr><td colSpan="10" style={{textAlign: "center", padding: "20px"}}>No candidates found.</td></tr>
             )}
-        </tbody>
+        </tbody> */}
+
+            <tbody>
+                {data && data.length > 0 ? data.map((c) => {
+                    // Status ke base par style nikal rahe hain
+                    const statusStyle = getStatusStyles(c.main_status);
+
+                    return (
+                        <tr 
+                            key={c.id} 
+                            // Row ka background color dynamic kar diya
+                            style={{ ...styles.tableRow, backgroundColor: statusStyle.bg }} 
+                            onClick={() => navigate(`/employee/candidate/view/${c.id}`)}
+                        >
+                            
+                            {/* Date Logic */}
+                            <td style={styles.td}>
+                                <div style={{fontWeight: "600", fontSize: "13px"}}>
+                                    {new Date(c.created_at).toLocaleDateString('en-GB')}
+                                </div>
+                                <div style={{fontSize: "11px", color: "#7F8C8D"}}>
+                                    {new Date(c.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                </div>
+                            </td>
+
+                            {/* Team Info */}
+                            <td style={styles.td}>
+                                <div style={{fontSize: "13px"}}>
+                                    <span style={{color: "#7F8C8D"}}>To:</span> <b>{c.submitted_to_name || "N/A"}</b>
+                                </div>
+                                <div style={{fontSize: "11px", marginTop: "4px"}}>
+                                    <span style={{color: "#7F8C8D"}}>By:</span> <b style={{color: "#27AE60", fontWeight: "600"}}>{c.created_by_name || "N/A"}</b>
+                                </div>
+                            </td>
+
+                            <td style={styles.td}>
+                                <div style={{fontWeight: "700"}}>{c.candidate_name}</div>
+                            </td>
+                            
+                            <td style={styles.td}>{c.technology || "N/A"}</td>
+                            <td style={styles.td}>{c.years_of_experience_manual} Yrs</td>
+                            <td style={styles.td}>{c.client || "N/A"}</td>
+                            <td style={styles.td}>
+                                <b>{truncate(c.vendor, 15)}</b><br/>
+                                <small style={{fontSize: "11px", color: "#7F8C8D"}}>{c.vendor_number || "N/A"}</small>
+                            </td>
+                            <td style={styles.td}>₹{c.vendor_rate} {c.vendor_rate_type || ""}</td>
+                            <td style={styles.td}>
+                                <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
+                                    {/* Badge ka text color status ke hisaab se */}
+                                    <span style={{...styles.badge, color: statusStyle.text, fontWeight: '800'}}>
+                                        {c.main_status}
+                                    </span>
+                                    {c.remark && <div style={styles.remarkIcon} title={c.remark}><Icons.Remark /></div>}
+                                </div>
+                                {/* Sub status ka color change kiya */}
+                                <small style={{ ...styles.subStatus, color: statusStyle.text, fontWeight: '700' }}>
+                                    {c.sub_status}
+                                </small>
+                            </td>
+                            <td style={styles.td}>
+                                <button style={styles.editBtn} onClick={(e) => onEdit(e, c)}>
+                                    <Icons.Edit />
+                                </button>
+                            </td>
+                        </tr>
+                    );
+                }) : (
+                    <tr><td colSpan="10" style={{textAlign: "center", padding: "20px"}}>No candidates found.</td></tr>
+                )}
+            </tbody>
     </table>
 );
 
@@ -348,6 +433,8 @@ const styles = {
 };
 
 export default SubAdminDashboard;
+
+
 
 
 

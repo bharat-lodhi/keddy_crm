@@ -130,10 +130,10 @@ function DetailedViewCandidate() {
                     <div style={styles.infoBox}>
                         <DetailRow label="Vendor Company" value={candidate.vendor_company_name || "N/A"} />
                         <DetailRow label="Vendor Phone" value={candidate.vendor_number} />
-                        <DetailRow label="Vendor Rate" value={`₹${candidate.vendor_rate}`} />
+                        <DetailRow label="Vendor Rate" value={`₹${candidate.vendor_rate} ${candidate.vendor_rate_type || ""}`}  />
                         <DetailRow label="Client Name" value={candidate.client_name || "N/A"} />
                         <DetailRow label="Client Company" value={candidate.client_company_name || "N/A"} />
-                        <DetailRow label="Client Rate" value={`₹${candidate.client_rate}`} />
+                        <DetailRow label="Client Rate" value={`₹${candidate.client_rate} ${candidate.client_rate_type || ""}`} />
                     </div>
                 </div>
 

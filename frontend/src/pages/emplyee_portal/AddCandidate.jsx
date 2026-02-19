@@ -230,8 +230,26 @@ function AddCandidate() {
                         </div>
                         <div style={styles.inputGroup}>
                             <label style={styles.label}>Vendor Rate (Expected)</label>
-                            <input name="vendor_rate" onChange={handleChange} style={styles.input} placeholder="Rate in INR" />
+                            <input name="vendor_rate" onChange={handleChange} style={styles.input} placeholder="Rate in INR" required />
                         </div>
+
+                        <div style={styles.inputGroup}>
+                            <label style={styles.label}>Vendor Rate Type</label>
+                            <select
+                                name="vendor_rate_type"
+                                value={form.vendor_rate_type || ""}
+                                onChange={handleChange}
+                                style={styles.input}
+                                required
+                            >
+                                <option value="">Select Type</option>
+                                <option value="LPM">LPM</option>
+                                <option value="KPM">KPM</option>
+                                <option value="PHR">PHR</option>
+                                <option value="LPA">LPA</option>
+                            </select>
+                        </div>
+
                     </div>
                 </div>
 

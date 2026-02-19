@@ -88,6 +88,11 @@ User = settings.AUTH_USER_MODEL
 
 
 class Candidate(models.Model):
+    class RateType(models.TextChoices):
+        LPM = "LPM", "LPM"
+        KPM = "KPM", "KPM"
+        PHR = "PHR", "PHR"
+        LPA = "LPA", "LPA"
 
     # ================= RESUME =================
     resume = models.FileField(upload_to="candidates/resumes/", blank=True, null=True)
@@ -108,11 +113,22 @@ class Candidate(models.Model):
     vendor_company_name = models.CharField(max_length=255, blank=True, null=True)
     vendor_number = models.CharField(max_length=20, blank=True, null=True)
     vendor_rate = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    vendor_rate_type = models.CharField(
+        max_length=10,
+        choices=RateType.choices,
+        blank=True,
+        null=True
+    )
 
     # ================= CLIENT DETAILS =================
     client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True, blank=True, related_name="candidates")
     client_rate = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-
+    client_rate_type = models.CharField(
+        max_length=10,
+        choices=RateType.choices,
+        blank=True,
+        null=True
+    )
     # ================= INTERNAL SUBMISSION =================
     submitted_to = models.ForeignKey(
         User,
@@ -150,7 +166,6 @@ class Candidate(models.Model):
         INTERVIEW_PENDING = "INTERVIEW_PENDING" , "Interview Pending"
 
         # WAIT_FOR_THE_UPDATE = "WAIT_FOR_THE_UPDATE","Wait For The Update"
-        
         
 
     main_status = models.CharField(max_length=100, choices=MainStatus.choices, default=MainStatus.SUBMITTED)
