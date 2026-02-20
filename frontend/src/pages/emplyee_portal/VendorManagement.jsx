@@ -60,15 +60,14 @@ function VendorList() {
     };
 
     return ( <
-        BaseLayout > { /* Top Navigation & Actions */ } <
-        div style = { styles.topBar } >
-        <
-        button onClick = {
-            () => navigate("/employee") }
-        style = { styles.backBtn } > ←Back to Dashboard < /button> <
-        div style = { styles.searchContainer } >
-        <
-        input type = "text"
+        BaseLayout > { /* Top Navigation & Actions */ } 
+        <div style = { styles.topBar } >
+        <button onClick = {
+            () => navigate("/employee")
+        }
+        style = { styles.backBtn } > ←Back to Dashboard < /button> <div style = { styles.searchContainer } >
+        
+        <input type = "text"
         placeholder = "Search vendors (name, tech...)"
         style = { styles.searchInput }
         value = { searchQuery }
@@ -78,14 +77,15 @@ function VendorList() {
                 setCurrentPage(1); // Reset to page 1 on new search
             }
         }
-        /> <
-        /div> <
+        /> < /
+        div > <
         button onClick = {
-            () => navigate("/employee/vendor/add") }
+            () => navigate("/employee/vendor/add")
+        }
         style = { styles.addBtn } >
         +Add Vendor <
-        /button> <
-        /div>
+        /button> < /
+        div >
 
         <
         div style = { styles.section } >
@@ -108,8 +108,9 @@ function VendorList() {
         th style = { styles.th } > Specialized Tech < /th> <
         th style = { styles.th } > Onsite < /th> <
         th style = {
-            {...styles.th, textAlign: "center" } } > Actions < /th> <
-        /tr> <
+            {...styles.th, textAlign: "center" }
+        } > Actions < /th> < /
+        tr > <
         /thead> <
         tbody > {
             loading ? ( <
@@ -117,8 +118,9 @@ function VendorList() {
                 <
                 td colSpan = "7"
                 style = {
-                    { textAlign: "center", padding: "40px" } } > Loading vendors... < /td> <
-                /tr>
+                    { textAlign: "center", padding: "40px" }
+                } > Loading vendors... < /td> < /
+                tr >
             ) : vendors.length > 0 ? (
                 vendors.map((vendor) => ( <
                     tr key = { vendor.id }
@@ -133,23 +135,26 @@ function VendorList() {
                     td style = { styles.td } >
                     <
                     span style = { vendor.provide_onsite ? styles.badgeYes : styles.badgeNo } > { vendor.provide_onsite ? "YES" : "NO" } <
-                    /span> <
-                    /td> <
+                    /span> < /
+                    td > <
                     td style = { styles.actionTd } >
                     <
                     button style = { styles.viewBtn }
                     onClick = {
-                        () => navigate(`/employee/vendor/view/${vendor.id}`) } >
+                        () => navigate(`/employee/vendor/view/${vendor.id}`)
+                    } >
                     View < /button> <
                     button style = { styles.editBtn }
                     onClick = {
-                        () => navigate(`/employee/vendor/edit/${vendor.id}`) } >
+                        () => navigate(`/employee/vendor/edit/${vendor.id}`)
+                    } >
                     Edit < /button> <
                     button style = { styles.deleteBtn }
                     onClick = {
-                        () => handleDelete(vendor.id, vendor.name) } >
-                    Delete < /button> <
-                    /td> <
+                        () => handleDelete(vendor.id, vendor.name)
+                    } >
+                    Delete < /button> < /
+                    td > <
                     /tr>
                 ))
             ) : ( <
@@ -157,12 +162,13 @@ function VendorList() {
                 <
                 td colSpan = "7"
                 style = {
-                    { textAlign: "center", padding: "40px" } } > No vendors found. < /td> <
-                /tr>
+                    { textAlign: "center", padding: "40px" }
+                } > No vendors found. < /td> < /
+                tr >
             )
         } <
-        /tbody> <
-        /table> <
+        /tbody> < /
+        table > <
         /div>
 
         { /* Dynamic Pagination Section */ } <
@@ -170,28 +176,33 @@ function VendorList() {
         <
         button disabled = {!hasPrev || loading }
         onClick = {
-            () => setCurrentPage(prev => prev - 1) }
+            () => setCurrentPage(prev => prev - 1)
+        }
         style = {
-            {...styles.pageStep, opacity: hasPrev ? 1 : 0.5 } } >
+            {...styles.pageStep, opacity: hasPrev ? 1 : 0.5 }
+        } >
         Previous < /button>
 
         <
         div style = { styles.pageNumbers } >
         <
         button style = {
-            {...styles.pageNum, ...styles.activePage } } > { currentPage } < /button> <
-        /div>
+            {...styles.pageNum, ...styles.activePage }
+        } > { currentPage } < /button> < /
+        div >
 
         <
         button disabled = {!hasNext || loading }
         onClick = {
-            () => setCurrentPage(prev => prev + 1) }
+            () => setCurrentPage(prev => prev + 1)
+        }
         style = {
-            {...styles.pageStep, opacity: hasNext ? 1 : 0.5 } } >
-        Next < /button> <
-        /div> <
-        /div> <
-        /BaseLayout>
+            {...styles.pageStep, opacity: hasNext ? 1 : 0.5 }
+        } >
+        Next < /button> < /
+        div > <
+        /div> < /
+        BaseLayout >
     );
 }
 
@@ -222,6 +233,8 @@ const styles = {
 };
 
 export default VendorList;
+
+
 
 
 

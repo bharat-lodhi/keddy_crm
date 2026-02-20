@@ -28,10 +28,22 @@ import CandidateList from "./pages/emplyee_portal/CandidateList";
 import ViewCandidate from "./pages/emplyee_portal/ViewCandidate";
 import UpdateCandidate from "./pages/emplyee_portal/UpdateCandidate";
 import UserCandidatelist from "./pages/emplyee_portal/UserCandidateList";
+import SubmittedProfiles from "./pages/emplyee_portal/SubmittedProfiles";
 
 // ================= Pool =================
 import PoolSelect from "./pages/emplyee_portal/Pool";
 import VendorManagement from "./pages/emplyee_portal/VendorManagement";
+
+// ===================Sub-Admin============================
+import AllCandidateList from "./pages/sub_admin/allCandidateList";
+import AllVendorList from "./pages/sub_admin/AllVendorList";
+import SubAdminAddVendor from "./pages/sub_admin/subadminAddVendor";
+import EditVendorSubAdmin from "./pages/sub_admin/EditVendor";
+import SubAdminAddCandidate from "./pages/sub_admin/SubAdminAddCandidate";
+import SubAdminViewCandidate from "./pages/sub_admin/SubAdminViewCandidate";
+import SubAdminEditCandidate from "./pages/sub_admin/SubAdminEditCandidate";
+import VendorViewSubAdmin from "./pages/sub_admin/VendorView";
+// ========================================================
 
 function App() {
     return (
@@ -58,6 +70,8 @@ function App() {
                 <Route path="/employee/candidate/edit/:id" element={<ProtectedRoute><UpdateCandidate /></ProtectedRoute>} />
                 <Route path="/employee/user-candidates" element={<ProtectedRoute><UserCandidatelist /></ProtectedRoute>} />
 
+                <Route path="/employee/submitted-profiles" element={<ProtectedRoute><SubmittedProfiles /></ProtectedRoute>} />
+
                 <Route path="/employee/vendors" element={<ProtectedRoute><VendorManagement /></ProtectedRoute>} />
                 <Route path="/employee/user-vendors" element={<ProtectedRoute><UserVendorManagement /></ProtectedRoute>} />
                 <Route path="/employee/pool" element={<ProtectedRoute><PoolSelect /></ProtectedRoute>} />
@@ -70,9 +84,20 @@ function App() {
                 <Route path="/employee/clients" element={<ProtectedRoute><ClientList /></ProtectedRoute>} />
                 <Route path="/employee/client/add" element={<ProtectedRoute><AddClient /></ProtectedRoute>} />
 
+                {/* ======================SUB-ADMIN========================================= */}
                 <Route path="/sub-admin" element={<ProtectedRoute><SubAdminDashboard /></ProtectedRoute>} />
-                
+                <Route path="/sub-admin/all-candidates" element={<ProtectedRoute><AllCandidateList /></ProtectedRoute>} />
+                <Route path="/sub-admin/all-Vendors" element={<ProtectedRoute><AllVendorList /></ProtectedRoute>} />
+                <Route path="/sub-admin/add-vendor" element={<ProtectedRoute><SubAdminAddVendor /></ProtectedRoute>} />
+                <Route path="/sub-admin/edit-vendor/:id" element={<ProtectedRoute><EditVendorSubAdmin /></ProtectedRoute>} />
+                <Route path="/sub-admin/add-candidate" element={<ProtectedRoute><SubAdminAddCandidate /></ProtectedRoute>} />
+                <Route path="/sub-admin/candidate/view/:id" element={<ProtectedRoute><SubAdminViewCandidate /></ProtectedRoute>} />
+                <Route path="/sub-admin/candidate/edit/:id" element={<ProtectedRoute><SubAdminEditCandidate /></ProtectedRoute>} />
+                <Route path="/sub-admin/vendor/view/:id" element={<ProtectedRoute><VendorViewSubAdmin /></ProtectedRoute>} />
+                {/* ======================================================================== */}
+
                 <Route path="/central-admin" element={<ProtectedRoute><CentralAdminDashboard /></ProtectedRoute>} />
+
 
             </Routes>
         </BrowserRouter>

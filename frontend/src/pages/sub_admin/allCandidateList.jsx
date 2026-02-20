@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiRequest } from "../../services/api";
-import BaseLayout from "../components/emp_base";
+import BaseLayout from "../components/SubAdminLayout";
 
 function CandidateList() {
     const navigate = useNavigate();
@@ -22,7 +22,7 @@ function CandidateList() {
         setLoading(true);
         try {
             // API call with params
-            let url = `/employee-portal/api/user/candidates/list/?page=${page}`;
+            let url = `/sub-admin/api/admin-candidates/?page=${page}`;
             if (search) url += `&search=${search}`;
             if (tech) url += `&technology=${tech}`;
 
@@ -42,9 +42,9 @@ function CandidateList() {
             <div style={styles.header}>
                 <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
                     <button onClick={() => navigate(-1)} style={styles.backBtn}>← Back</button>
-                    <h2 style={styles.title}>Candidates ({count})</h2>
+                    <h2 style={styles.title}>Candidate Pool ({count})</h2>
                 </div>
-                <button onClick={() => navigate("/employee/candidates/add")} style={styles.addBtn}>+ Add Candidate</button>
+                <button onClick={() => navigate("/sub-admin/add-candidate")} style={styles.addBtn}>+ Add Candidate</button>
             </div>
 
             {/* Filter Bar */}
@@ -103,7 +103,7 @@ function CandidateList() {
                                     <a href={can.resume} target="_blank" rel="noreferrer" style={styles.resumeLink}>View PDF</a>
                                 </td>
                                 <td style={styles.td}>
-                                    <button onClick={() => navigate(`/employee/candidate/view/${can.id}`)} style={styles.viewBtn}>View</button>
+                                    <button onClick={() => navigate(`/sub-admin/candidate/view/${can.id}`)} style={styles.viewBtn}>View</button>
                                 </td>
                             </tr>
                         ))}

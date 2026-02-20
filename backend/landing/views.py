@@ -84,6 +84,41 @@ class LoginAPIView(APIView):
         )
         
 
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+from django.contrib.auth import logout
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
+
+
+class LogoutAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            refresh_token = request.data.get("refresh")
+
+            if refresh_token:
+                token = RefreshToken(refresh_token)
+                token.blacklist()   # blacklist refresh token
+
+        except TokenError:
+            return Response(
+                {"error": "Invalid or expired token"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Django session logout
+        logout(request)
+
+        return Response(
+            {"message": "Logout successful"},
+            status=status.HTTP_200_OK
+        )
+
+
 # User = get_user_model()
 
 

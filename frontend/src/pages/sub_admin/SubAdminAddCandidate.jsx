@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiRequest } from "../../services/api";
-import BaseLayout from "../components/emp_base";
+import BaseLayout from "../components/SubAdminLayout";
 
 function AddCandidate() {
     const navigate = useNavigate();
@@ -185,7 +185,7 @@ function AddCandidate() {
                 <div style={styles.section}>
                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px'}}>
                         <h3 style={styles.secTitle}>3. Vendor Information</h3>
-                        <button type="button" onClick={() => navigate("/employee/vendor/add")} style={styles.addVendorBtn}>+ Add Vendor</button>
+                        <button type="button" onClick={() => navigate("/sub-admin/add-vendor")} style={styles.addVendorBtn}>+ Add Vendor</button>
                     </div>
                     <div style={styles.grid}>
                         <div style={{...styles.inputGroup, position: 'relative'}}>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { apiRequest } from "../../services/api";
-import BaseLayout from "../components/emp_base";
+import BaseLayout from "../components/SubAdminLayout";
 
 // Dashboard se Icons reuse kar rahe hain
 const Icons = {
@@ -83,7 +83,7 @@ function DetailedViewCandidate() {
                     <button onClick={() => setShowModal(true)} style={styles.updateStatusBtn}>
                         <Icons.Edit /> Update Status
                     </button>
-                    <button onClick={() => navigate(`/employee/candidate/edit/${id}`)} style={styles.editBtn}>Edit Profile</button>
+                    <button onClick={() => navigate(`/sub-admin/candidate/edit/${id}`)} style={styles.editBtn}>Edit Profile</button>
                     <span style={candidate.is_blocklisted ? styles.blockBadge : styles.activeBadge}>
                         {candidate.is_blocklisted ? "Blocklisted" : "Active"}
                     </span>

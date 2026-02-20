@@ -69,8 +69,6 @@ class VendorUpdateAPIView(APIView):
             status=status.HTTP_200_OK
         )
 
-
-
 class VendorFullListAPIView(ListAPIView):
     authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = (IsAuthenticated,)
@@ -125,7 +123,6 @@ class UserVendorFullListAPIView(ListAPIView):
             )
 
         return queryset
-    
 
 class VendorDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -135,7 +132,6 @@ class VendorDetailAPIView(APIView):
 
         serializer = VendorSingleDetailSerializer(vendor)
         return Response(serializer.data)
-
 
 class VendorDeleteAPIView(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication,)
@@ -289,8 +285,6 @@ from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter, SearchFilter
 
-from .candidate_filters import CandidateFilter
-
 
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
@@ -320,6 +314,71 @@ class CandidateListAPIView(generics.ListAPIView):
 
     ordering_fields = "__all__"
 
+# views.py
+
+from django.db.models import Q
+from rest_framework import generics
+from rest_framework.permissions import IsAuthenticated
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import OrderingFilter, SearchFilter
+
+from .serializers import CandidateListSerializer
+
+class SubmittedProfilesView(generics.ListAPIView):
+    serializer_class = CandidateListSerializer
+    permission_classes = [IsAuthenticated]
+
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    filterset_class = CandidateFilter
+
+    search_fields = [
+        "candidate_name",
+        "candidate_email",
+        "skills",
+        "technology",
+        "vendor_company_name",
+    ]
+
+    ordering_fields = "__all__"
+
+    def get_queryset(self):
+        user = self.request.user
+
+        return (
+            Candidate.objects.filter(
+                Q(created_by=user) | Q(submitted_to=user),
+                verification_status=True,
+                client__isnull=False,
+            )
+            .select_related("vendor", "client")
+            .order_by("-created_at")
+        )
+
+# class UserCandidateListAPIView(generics.ListAPIView):
+#     serializer_class = CandidateListSerializer
+#     permission_classes = (IsAuthenticated,)
+
+#     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+#     filterset_class = CandidateFilter
+
+#     search_fields = [
+#         "candidate_name",
+#         "candidate_email",
+#         "skills",
+#         "technology",
+#         "vendor_company_name",
+#     ]
+
+#     ordering_fields = "__all__"
+
+#     def get_queryset(self):
+#         return Candidate.objects.filter(
+#             created_by=self.request.user
+#         ).order_by("-id")
+
+
+from django.db.models import Q
+
 class UserCandidateListAPIView(generics.ListAPIView):
     serializer_class = CandidateListSerializer
     permission_classes = (IsAuthenticated,)
@@ -338,9 +397,32 @@ class UserCandidateListAPIView(generics.ListAPIView):
     ordering_fields = "__all__"
 
     def get_queryset(self):
+        user = self.request.user
+
         return Candidate.objects.filter(
-            created_by=self.request.user
+            Q(created_by=user) |
+            Q(submitted_to=user, client__isnull=False)
         ).order_by("-id")
+
+# from django.db.models import Q
+# from rest_framework.decorators import api_view, permission_classes
+# from rest_framework.permissions import IsAuthenticated
+# from rest_framework.response import Response
+
+# # Submitted profile new navbar option
+# @api_view(["GET"])
+# @permission_classes([IsAuthenticated])
+# def submitted_profiles(request):
+#     user = request.user
+
+#     candidates = Candidate.objects.filter(
+#         Q(created_by=user) | Q(submitted_to=user),
+#         verification_status=True,
+#         client__isnull=False
+#     ).select_related("vendor", "client").order_by("-created_at")
+
+#     serializer = TodayCandidateSerializer(candidates, many=True)
+#     return Response(serializer.data)
 
 
 class CandidateUpdateAPIView(generics.RetrieveUpdateAPIView):
@@ -389,17 +471,74 @@ from rest_framework.response import Response
 from employee_portal.models import Vendor, Client, Candidate
 from .serializers import DashboardStatsSerializer
 
+from django.utils.timezone import now
+from datetime import timedelta
+
+# @api_view(["GET"])
+# @permission_classes([IsAuthenticated])
+# def dashboard_stats(request):
+#     user = request.user
+#     today = now().date()
+#     two_days_ago = now() - timedelta(days=2)
+
+#     total_vendors = Vendor.objects.filter(created_by=user).count()
+#     total_clients = Client.objects.filter(created_by=user).count()
+#     total_profiles = Candidate.objects.filter(created_by=user).count()
+
+#     today_profiles = Candidate.objects.filter(
+#         created_by=user,
+#         created_at__date=today
+#     ).count()
+
+#     today_submitted_profiles = Candidate.objects.filter(
+#         created_by=user,
+#         created_at__date=today,
+#         verification_status=True
+#     ).count()
+
+#     # ✅ UPDATED PIPELINE COUNT
+#     total_pipelines = Candidate.objects.filter(
+#         Q(created_by=user) | Q(submitted_to=user),
+#         verification_status=True
+#     ).filter(
+#         Q(main_status__iexact="SCREENING") |
+#         Q(main_status__iexact="L1") |
+#         Q(main_status__iexact="L2") |
+#         Q(main_status__iexact="L3") |
+#         Q(main_status__iexact="OTHER")
+#     ).exclude(
+#         sub_status="REJECTED"
+#     ).filter(
+#         Q(sub_status="ON_HOLD", created_at__gte=two_days_ago) |
+#         ~Q(sub_status="ON_HOLD")
+#     ).count()
+
+#     data = {
+#         "user_name": user.get_full_name() or user.email,
+#         "total_vendors": total_vendors,
+#         "total_clients": total_clients,
+#         "total_profiles": total_profiles,
+#         "today_profiles": today_profiles,
+#         "today_submitted_profiles": today_submitted_profiles,
+#         "total_pipelines": total_pipelines,
+#     }
+
+#     serializer = DashboardStatsSerializer(data)
+#     return Response(serializer.data)
+
+from django.db.models import Q
+from django.utils.timezone import now
+from datetime import timedelta
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def dashboard_stats(request):
     user = request.user
     today = now().date()
+    two_days_ago = now() - timedelta(days=2)
 
     total_vendors = Vendor.objects.filter(created_by=user).count()
-    # total_clients = Client.objects.filter(created_at__isnull=False).count()
     total_clients = Client.objects.filter(created_by=user).count()
-
     total_profiles = Candidate.objects.filter(created_by=user).count()
 
     today_profiles = Candidate.objects.filter(
@@ -407,12 +546,16 @@ def dashboard_stats(request):
         created_at__date=today
     ).count()
 
+    # ✅ UPDATED TODAY SUBMITTED COUNT (Same Logic as today_verified_candidates)
     today_submitted_profiles = Candidate.objects.filter(
-        created_by=user,
         created_at__date=today,
         verification_status=True
+    ).filter(
+        Q(created_by=user) |
+        Q(submitted_to=user, client__isnull=False)
     ).count()
-    
+
+    # ✅ Pipeline logic remains same
     total_pipelines = Candidate.objects.filter(
         Q(created_by=user) | Q(submitted_to=user),
         verification_status=True
@@ -422,8 +565,13 @@ def dashboard_stats(request):
         Q(main_status__iexact="L2") |
         Q(main_status__iexact="L3") |
         Q(main_status__iexact="OTHER")
-    ).select_related("vendor", "client").count()
-    
+    ).exclude(
+        sub_status="REJECTED"
+    ).filter(
+        Q(sub_status="ON_HOLD", created_at__gte=two_days_ago) |
+        ~Q(sub_status="ON_HOLD")
+    ).count()
+
     data = {
         "user_name": user.get_full_name() or user.email,
         "total_vendors": total_vendors,
@@ -431,11 +579,10 @@ def dashboard_stats(request):
         "total_profiles": total_profiles,
         "today_profiles": today_profiles,
         "today_submitted_profiles": today_submitted_profiles,
-        "total_pipelines":total_pipelines,
+        "total_pipelines": total_pipelines,
     }
 
-    serializer = DashboardStatsSerializer(data)
-    return Response(serializer.data)
+    return Response(data)
 
 from .serializers import TodayCandidateSerializer
 
@@ -455,6 +602,24 @@ def today_user_candidates(request):
     return Response(serializer.data)
 
 
+# @api_view(["GET"])
+# @permission_classes([IsAuthenticated])
+# def today_verified_candidates(request):
+#     user = request.user
+#     today = now().date()
+
+#     candidates = Candidate.objects.filter(
+#         created_by=user,
+#         created_at__date=today,
+#         verification_status=True
+#     ).select_related("vendor", "client").order_by("-created_at")
+
+#     serializer = TodayCandidateSerializer(candidates, many=True)
+#     return Response(serializer.data)
+
+from django.db.models import Q
+from django.utils.timezone import now
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def today_verified_candidates(request):
@@ -462,16 +627,21 @@ def today_verified_candidates(request):
     today = now().date()
 
     candidates = Candidate.objects.filter(
-        created_by=user,
         created_at__date=today,
         verification_status=True
+    ).filter(
+        # ✅ Case 1
+        Q(created_by=user)
+        |
+        # ✅ Case 2
+        Q(
+            submitted_to=user,
+            client__isnull=False
+        )
     ).select_related("vendor", "client").order_by("-created_at")
 
     serializer = TodayCandidateSerializer(candidates, many=True)
     return Response(serializer.data)
-
-
-from django.db.models import Q
 
 
 # @api_view(["GET"])
@@ -494,10 +664,34 @@ from django.db.models import Q
 
 from django.db.models import Q
 
+# @api_view(["GET"])
+# @permission_classes([IsAuthenticated])
+# def active_pipeline_candidates(request):
+#     user = request.user
+
+#     candidates = Candidate.objects.filter(
+#         Q(created_by=user) | Q(submitted_to=user),
+#         verification_status=True
+#     ).filter(
+#         Q(main_status__iexact="SCREENING") |
+#         Q(main_status__iexact="L1") |
+#         Q(main_status__iexact="L2") |
+#         Q(main_status__iexact="L3") |
+#         Q(main_status__iexact="OTHER")
+#     ).select_related("vendor", "client").order_by("-created_at")
+
+#     serializer = TodayCandidateSerializer(candidates, many=True)
+#     return Response(serializer.data)
+
+
+from django.utils.timezone import now
+from datetime import timedelta
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def active_pipeline_candidates(request):
     user = request.user
+    two_days_ago = now() - timedelta(days=2)
 
     candidates = Candidate.objects.filter(
         Q(created_by=user) | Q(submitted_to=user),
@@ -508,6 +702,11 @@ def active_pipeline_candidates(request):
         Q(main_status__iexact="L2") |
         Q(main_status__iexact="L3") |
         Q(main_status__iexact="OTHER")
+    ).exclude(
+        sub_status="REJECTED"
+    ).filter(
+        Q(sub_status="ON_HOLD", created_at__gte=two_days_ago) |
+        ~Q(sub_status="ON_HOLD")
     ).select_related("vendor", "client").order_by("-created_at")
 
     serializer = TodayCandidateSerializer(candidates, many=True)
@@ -536,6 +735,7 @@ from rest_framework.response import Response
 
 #     serializer = TodayCandidateSerializer(candidates, many=True)
 #     return Response(serializer.data)
+
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])

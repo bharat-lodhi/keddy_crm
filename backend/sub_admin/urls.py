@@ -18,7 +18,13 @@ urlpatterns = [
 
     # UPDATE (employee only)
     path("api/users/<int:pk>/", views.SubAdminUserUpdateAPIView.as_view(), name="subadmin-user-update"),
-
-    #=================================================
+    
+    #=================All-profiles=============================
+    path("api/admin-candidates/",views.AdminCandidateListAPIView.as_view(),name="admin-candidate-list",),
+    # All Vendors
+    path("api/admin-vendors/",views.AdminVendorFullListAPIView.as_view(),name="admin-vendor-list",),
+    #  all Client list
+    path("api/admin-clients/",views.AdminClientListAPIView.as_view(),name="admin-client-list", ),
+    #==========================================================
     
 ]

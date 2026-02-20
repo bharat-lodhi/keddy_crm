@@ -26,6 +26,7 @@ urlpatterns = [
     path("api/user/candidates/list/", views.UserCandidateListAPIView.as_view(), name="user-candidate-list"),   # User Based
     path("candidates/<int:pk>/update/", views.CandidateUpdateAPIView.as_view(), name="candidate-update"),
     path("api/candidates/<int:pk>/", views.CandidateDetailAPIView.as_view(), name="candidate-detail"),
+    path("api/submitted-profiles/",views.SubmittedProfilesView.as_view(),name="submitted-profiles",),
     
     #========================DashBoard==================================================
     path("dashboard/stats/", views.dashboard_stats, name="dashboard-stats"),

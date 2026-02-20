@@ -58,8 +58,7 @@ function Register() {
             )
         }
 
-        <
-        form onSubmit = { handleSubmit }
+        <form onSubmit = { handleSubmit }
         style = { styles.form } >
         <
         div style = { styles.row } >
@@ -77,8 +76,7 @@ function Register() {
         onChange = { handleChange }
         required /
         >
-        <
-        /div>
+        </div>
 
         <
         input style = { styles.input }
@@ -106,8 +104,7 @@ function Register() {
         required /
         >
 
-        <
-        button style = { styles.button }
+        <button style = { styles.button }
         type = "submit"
         disabled = { loading }
         onMouseOver = {

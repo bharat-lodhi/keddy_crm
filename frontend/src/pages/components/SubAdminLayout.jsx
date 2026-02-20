@@ -26,10 +26,10 @@ const SubAdminLayout = ({ children }) => {
     // Sub-Admin specific menu items
     const menuItems = [
         { label: "Overview", path: "/sub-admin" },
-        { label: "Team Members", path: "/sub-admin/team" },
+        // { label: "Team Members", path: "/sub-admin/team" },
         { label: "All Candidates", path: "/sub-admin/all-candidates" },
-        { label: "Approvals", path: "/sub-admin/approvals" },
-        { label: "Vendors", path: "/sub-admin/vendors" },
+        { label: "Clients", path: "/sub-admin/clients" },
+        { label: "Vendors", path: "/sub-admin/all-Vendors" },
     ];
 
     return (

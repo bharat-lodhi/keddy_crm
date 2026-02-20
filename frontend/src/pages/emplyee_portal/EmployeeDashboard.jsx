@@ -191,18 +191,18 @@ function EmployeeDashboard() {
 
 const getStatusStyles = (status) => {
     switch (status) {
-        case "SUBMITTED": return { bg: "#E8F4FD", text: "#1976D2" }; // Light Blue
-        case "SCREENING": return { bg: "#ffee005e", text: "#383333" }; // Light Purple
-        case "L1": return { bg: "#6365f146", text: "#1976D2" };        // Light Teal
-        case "L2": return { bg: "#022da367", text: "#101933" };        // Light Green
+        case "SUBMITTED": return { bg: "#E8F4FD", text: "#1976D2" }; 
+        case "SCREENING": return { bg: "#ffee005e", text: "#383333" }; 
+        case "L1": return { bg: "#6365f146", text: "#1976D2" };       
+        case "L2": return { bg: "#D6DBF0", text: "#101933" };        
         case "L3": return { bg: "#31df39a8", text: "#183f1a" };  
-        case "OTHER": return { bg: "#00ff0da9", text: "#183f1a" };         // Light Lime
-        case "OFFERED": return { bg: "#FFF9C4", text: "#F57F17" };   // Light Yellow
-        case "ONBORD": return { bg: "#C8E6C9", text: "#1B5E20" };    // Strong Green
-        case "ON_HOLD": return { bg: "#FFF3E0", text: "#E65100" };   // Light Orange
-        case "REJECTED": return { bg: "#FFEBEE", text: "#C62828" };  // Light Red
-        case "WITHDRAWN": return { bg: "#ECEFF1", text: "#455A64" }; // Blue Grey
-        default: return { bg: "#FFFFFF", text: "#334155" };          // Default White
+        case "OTHER": return { bg: "#00ff0da9", text: "#183f1a" };        
+        case "OFFERED": return { bg: "#FFF9C4", text: "#F57F17" };   
+        case "ONBORD": return { bg: "#C8E6C9", text: "#1B5E20" };    
+        case "ON_HOLD": return { bg: "#FFF3E0", text: "#E65100" };   
+        case "REJECTED": return { bg: "#FFEBEE", text: "#C62828" }; 
+        case "WITHDRAWN": return { bg: "#ECEFF1", text: "#455A64" }; 
+        default: return { bg: "#FFFFFF", text: "#334155" };      
     }
 };
 
