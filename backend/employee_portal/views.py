@@ -130,7 +130,7 @@ class VendorDetailAPIView(APIView):
     def get(self, request, vendor_id):
         vendor = get_object_or_404(Vendor, id=vendor_id)
 
-        serializer = VendorSingleDetailSerializer(vendor)
+        serializer = VendorSingleDetailSerializer(vendor,context={"request": request})
         return Response(serializer.data)
 
 class VendorDeleteAPIView(APIView):

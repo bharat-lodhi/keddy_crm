@@ -58,7 +58,9 @@ from .models import Vendor
 
 class VendorDetailSerializer(serializers.ModelSerializer):
     uploaded_by = serializers.SerializerMethodField()
+    created_by = serializers.SerializerMethodField()
     created_by_name = serializers.CharField(source="created_by.first_name", read_only=True)
+    profile_count = serializers.SerializerMethodField()
     class Meta:
         model = Vendor
         fields = [
@@ -83,9 +85,11 @@ class VendorDetailSerializer(serializers.ModelSerializer):
 
             "bench_list",
             "uploaded_by",
+            "created_by",
             "created_at",
             "updated_at",
             "created_by_name",
+            "profile_count",
         ]
 
     def get_uploaded_by(self, obj):
@@ -96,10 +100,24 @@ class VendorDetailSerializer(serializers.ModelSerializer):
                 "role": obj.uploaded_by.role,
             }
         return None
+    
+    def get_created_by(self, obj):
+        if obj.created_by:
+            return {
+                "id": obj.created_by.id,
+                "email": obj.created_by.email,
+                "role": obj.created_by.role,
+            }
+        return None
+    
+    def get_profile_count(self, obj):
+        return obj.candidates.count()
 
 class VendorSingleDetailSerializer(serializers.ModelSerializer):
     uploaded_by = serializers.SerializerMethodField()
+    created_by = serializers.SerializerMethodField()
     created_by_name = created_by_name = serializers.CharField(source="created_by.first_name", read_only=True)
+    profile_count = serializers.SerializerMethodField()
     class Meta:
         model = Vendor
         fields = [
@@ -124,9 +142,11 @@ class VendorSingleDetailSerializer(serializers.ModelSerializer):
 
             "bench_list",
             "uploaded_by",
+            "created_by",
             "created_at",
             "updated_at",
             "created_by_name",
+            "profile_count",
         ]
 
     def get_uploaded_by(self, obj):
@@ -137,6 +157,33 @@ class VendorSingleDetailSerializer(serializers.ModelSerializer):
                 "role": obj.uploaded_by.role,
             }
         return None
+    
+    def get_created_by(self, obj):
+        if obj.created_by:
+            return {
+                "id": obj.created_by.id,
+                "email": obj.created_by.email,
+                "role": obj.created_by.role,
+            }        
+        return None
+    
+    # def get_profile_count(self, obj):
+    #     return obj.candidates.count()
+    
+    def get_profile_count(self, obj):
+        request = self.context.get("request")
+
+        start_date = request.query_params.get("start_date")
+        end_date = request.query_params.get("end_date")
+
+        candidates = obj.candidates.all()
+
+        if start_date and end_date:
+            candidates = candidates.filter(
+                created_at__date__range=[start_date, end_date]
+            )
+
+        return candidates.count()
 
 # ===================================================================================
 

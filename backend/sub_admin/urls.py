@@ -25,6 +25,8 @@ urlpatterns = [
     path("api/admin-vendors/",views.AdminVendorFullListAPIView.as_view(),name="admin-vendor-list",),
     #  all Client list
     path("api/admin-clients/",views.AdminClientListAPIView.as_view(),name="admin-client-list", ),
+    path("api/clients/info/<int:client_id>/", views.ClientDetailAPIView.as_view(), name="client-detail"),
     #==========================================================
     
 ]
+

@@ -1,0 +1,1462 @@
+STATUS_CHOICES = [
+        ('open', 'Open'),
+        ('in_progress', 'In Progress'),
+        ('resolved', 'Resolved'),
+        ('closed', 'Closed'),
+    ]
+    
+    PRIORITY_CHOICES = [
+        ('low', 'Low'),
+        ('medium', 'Medium'),
+        ('high', 'High'),
+        ('critical', 'Critical'),
+    ]
+    
+    CATEGORY_CHOICES = [
+        ('technical', 'Technical Issue'),
+        ('billing', 'Billing & Payment'),
+        ('lead', 'Lead Replacement'),
+        ('feature', 'Feature Request'),
+        ('other', 'Other'),
+    ]
+=============================================================
+
+http://127.0.0.1:8000/central-admin/api/admin/tickets/      #GET
+
+{
+    "tickets": [
+        {
+            "id": 32,
+            "ticket_id": "TKT-0733",
+            "user": 19,
+            "user_name": "lodhibharat810@gmail.com",
+            "category": "lead",
+            "priority": "high",
+            "status": "open",
+            "description": "Leads are not relevant",
+            "assigned_to": null,
+            "created_at": "2026-02-18T00:43:58.877554+05:30",
+            "updated_at": "2026-02-18T00:43:58.877554+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 31,
+            "ticket_id": "TKT-0732",
+            "user": 19,
+            "user_name": "lodhibharat810@gmail.com",
+            "category": "lead",
+            "priority": "high",
+            "status": "open",
+            "description": "Leads are not relevant",
+            "assigned_to": null,
+            "created_at": "2026-02-15T00:18:13.441489+05:30",
+            "updated_at": "2026-02-15T00:18:13.441489+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 30,
+            "ticket_id": "TKT-0731",
+            "user": 21,
+            "user_name": "bharatlodhi810@gmail.com",
+            "category": "lead",
+            "priority": "medium",
+            "status": "open",
+            "description": "NA",
+            "assigned_to": null,
+            "created_at": "2026-01-29T01:29:27.847436+05:30",
+            "updated_at": "2026-02-12T00:37:36.120004+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 29,
+            "ticket_id": "TKT-0730",
+            "user": 19,
+            "user_name": "lodhibharat810@gmail.com",
+            "category": "lead",
+            "priority": "high",
+            "status": "open",
+            "description": "These leads are not relevant. Please replace them.",
+            "assigned_to": null,
+            "created_at": "2026-01-07T01:37:11.017834+05:30",
+            "updated_at": "2026-01-07T01:37:11.017845+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 28,
+            "ticket_id": "TKT-0729",
+            "user": 19,
+            "user_name": "lodhibharat810@gmail.com",
+            "category": "technical",
+            "priority": "medium",
+            "status": "open",
+            "description": "Dashboard is loading very slowly since yesterday.",
+            "assigned_to": null,
+            "created_at": "2026-01-07T01:36:05.174480+05:30",
+            "updated_at": "2026-01-07T01:36:05.174500+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 27,
+            "ticket_id": "TKT-0728",
+            "user": 21,
+            "user_name": "bharatlodhi810@gmail.com",
+            "category": "lead",
+            "priority": "medium",
+            "status": "open",
+            "description": "NA",
+            "assigned_to": null,
+            "created_at": "2026-01-01T23:49:51.398158+05:30",
+            "updated_at": "2026-01-01T23:49:51.444423+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 26,
+            "ticket_id": "TKT-0727",
+            "user": 19,
+            "user_name": "lodhibharat810@gmail.com",
+            "category": "lead",
+            "priority": "low",
+            "status": "resolved",
+            "description": "Wsd",
+            "assigned_to": null,
+            "created_at": "2025-12-30T23:34:23.976089+05:30",
+            "updated_at": "2026-02-20T01:34:54.473247+05:30",
+            "resolved_at": "2026-01-25T00:58:06.071340+05:30",
+            "admin_reply": "We have resolved your issue."
+        },
+        {
+            "id": 25,
+            "ticket_id": "TKT-0726",
+            "user": 19,
+            "user_name": "lodhibharat810@gmail.com",
+            "category": "lead",
+            "priority": "medium",
+            "status": "open",
+            "description": "Hffjfjff",
+            "assigned_to": null,
+            "created_at": "2025-12-04T00:18:26.748273+05:30",
+            "updated_at": "2025-12-04T00:18:26.748785+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 24,
+            "ticket_id": "TKT-0725",
+            "user": 19,
+            "user_name": "lodhibharat810@gmail.com",
+            "category": "billing",
+            "priority": "critical",
+            "status": "open",
+            "description": "Hejjfghgg",
+            "assigned_to": null,
+            "created_at": "2025-12-04T00:16:59.963633+05:30",
+            "updated_at": "2025-12-04T00:16:59.963633+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 23,
+            "ticket_id": "TKT-0724",
+            "user": 19,
+            "user_name": "lodhibharat810@gmail.com",
+            "category": "billing",
+            "priority": "critical",
+            "status": "open",
+            "description": "Hejjfghgg",
+            "assigned_to": null,
+            "created_at": "2025-12-04T00:16:56.781176+05:30",
+            "updated_at": "2025-12-04T00:16:56.781176+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 22,
+            "ticket_id": "TKT-0723",
+            "user": 12,
+            "user_name": "kingii6635@gmail.com",
+            "category": "lead",
+            "priority": "high",
+            "status": "resolved",
+            "description": "replace it",
+            "assigned_to": null,
+            "created_at": "2025-11-25T23:38:45.529744+05:30",
+            "updated_at": "2025-11-29T22:51:54.012694+05:30",
+            "resolved_at": "2025-11-29T22:51:54.012694+05:30",
+            "admin_reply": "done"
+        },
+        {
+            "id": 21,
+            "ticket_id": "TKT-0722",
+            "user": 17,
+            "user_name": "job@gmail.com",
+            "category": "lead",
+            "priority": "medium",
+            "status": "in_progress",
+            "description": "hello",
+            "assigned_to": null,
+            "created_at": "2025-11-25T23:11:17.241299+05:30",
+            "updated_at": "2025-11-26T23:16:52.470668+05:30",
+            "resolved_at": null,
+            "admin_reply": "name1\r\nthis lead can't repalce because of some issue ...."
+        },
+        {
+            "id": 20,
+            "ticket_id": "TKT-0721",
+            "user": 16,
+            "user_name": "demo3@gmail.com",
+            "category": "lead",
+            "priority": "low",
+            "status": "open",
+            "description": "afesd",
+            "assigned_to": null,
+            "created_at": "2025-11-19T23:20:53.845289+05:30",
+            "updated_at": "2025-11-19T23:20:54.010846+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 19,
+            "ticket_id": "TKT-0720",
+            "user": 16,
+            "user_name": "demo3@gmail.com",
+            "category": "lead",
+            "priority": "high",
+            "status": "open",
+            "description": "aesgfh",
+            "assigned_to": null,
+            "created_at": "2025-11-19T22:13:54.142334+05:30",
+            "updated_at": "2025-11-19T22:32:45.655182+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 18,
+            "ticket_id": "TKT-0719",
+            "user": 6,
+            "user_name": "chris@gmail.com",
+            "category": "lead",
+            "priority": "low",
+            "status": "open",
+            "description": "replace this leads",
+            "assigned_to": null,
+            "created_at": "2025-11-18T23:52:23.604520+05:30",
+            "updated_at": "2025-11-18T23:52:23.616080+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 17,
+            "ticket_id": "TKT-0718",
+            "user": 12,
+            "user_name": "kingii6635@gmail.com",
+            "category": "billing",
+            "priority": "medium",
+            "status": "in_progress",
+            "description": "skjugfkjsdv",
+            "assigned_to": null,
+            "created_at": "2025-11-18T22:59:07.265352+05:30",
+            "updated_at": "2025-11-19T01:11:35.670976+05:30",
+            "resolved_at": "2025-11-18T23:43:31.919959+05:30",
+            "admin_reply": null
+        },
+        {
+            "id": 16,
+            "ticket_id": "TKT-0717",
+            "user": 12,
+            "user_name": "kingii6635@gmail.com",
+            "category": "lead",
+            "priority": "medium",
+            "status": "closed",
+            "description": "leads i want to replce",
+            "assigned_to": null,
+            "created_at": "2025-11-18T22:54:34.445922+05:30",
+            "updated_at": "2025-11-19T22:04:45.935265+05:30",
+            "resolved_at": "2025-11-19T22:00:43.969586+05:30",
+            "admin_reply": null
+        },
+        {
+            "id": 15,
+            "ticket_id": "TKT-0716",
+            "user": 12,
+            "user_name": "kingii6635@gmail.com",
+            "category": "technical",
+            "priority": "high",
+            "status": "in_progress",
+            "description": "asjhfsdx",
+            "assigned_to": null,
+            "created_at": "2025-11-04T21:37:43.433541+05:30",
+            "updated_at": "2025-11-19T00:19:56.663452+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 14,
+            "ticket_id": "TKT-0715",
+            "user": 12,
+            "user_name": "kingii6635@gmail.com",
+            "category": "technical",
+            "priority": "medium",
+            "status": "open",
+            "description": "full_name\tphone_number\temail\texperience\tbroker\tinitial_investment\t\tcountry\tnote\tfullfull_name\tphone_number\temail\texperience\tbroker\tinitial_investment\t\tcountry\tnote\tremark\r\nbahas sadkjb6347634skdj@gmail.com\t\t\t1jdywd\tzkjdfcsd\tsafdsd\tsdfsd\tsdfsd\tsdfsd\t\r\nfull_name\tphone_number\temail\texperience\tbroker\tinitial_investment\t\tcountry\tnote\tremark\r\nbahas sadkjb6347634skdj@gmail.com\t\t\t1jdywd\tzkjdfcsd\tsafdsd\tsdfsd\tsdfsd\tsdfsd\t\r\n_name\tphone_number\temail\texperience\tbroker\tinitial_investment\t\tcountry\tnote\tremark\r\nbahas sadkjb6347634skdj@gmail.com\t\t\t1jdywd\tzkjdfcsd\tsafdsd\tsdfsd\tsdfsd\tsdfsd\t\r\n\r\nbahas sadkjb6347634skdj@gmail.com\t\t\t1jdywd\tzkjdfcsd\tsafdsd\tsdfsd\tsdfsd\tsdfsd\t\r\n",
+            "assigned_to": null,
+            "created_at": "2025-11-03T23:52:05.854219+05:30",
+            "updated_at": "2025-11-03T23:52:05.854219+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 13,
+            "ticket_id": "TKT-0714",
+            "user": 12,
+            "user_name": "kingii6635@gmail.com",
+            "category": "billing",
+            "priority": "medium",
+            "status": "open",
+            "description": "ksnhdzc,sndkvbskdbv skjdv sidf ks dv sdvjh sdjvsjdvsdbvkskjdbvkjbsdkjfbkjsdbfjbskjdbfkjbsdkjbfkjsbdkjfbsjdjfbskjd kjsbd kjwe fksdkj jdsb kjsdkjv sdkjvn skjd vksjbdv kjbsd kvjbskdjbvkjsbdoewuhrdvskdhkshdihesdkfnks fd skdkO_)O\"l';{P)O[f/lsdji lsmd.v KlF;wldsf0-i3ep;zd;fjisdjvdjxkvhosekdf;jsdlhfkjnsdjfhkjsdhfjdhjhfhdjhfhdjhdjhfdjhfjhdjfhjdhhfjdhfhjdhfjdjhfdjhf",
+            "assigned_to": null,
+            "created_at": "2025-11-03T23:47:25.169638+05:30",
+            "updated_at": "2025-11-03T23:47:25.169638+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 12,
+            "ticket_id": "TKT-0713",
+            "user": 12,
+            "user_name": "kingii6635@gmail.com",
+            "category": "lead",
+            "priority": "medium",
+            "status": "open",
+            "description": "Leads Kya Hain Aur Aap Kaise Banayein ApniBusiness GrowthKeLiy eUnkiAandhi? (Pure Guide Ke Saath)\r\nMeta Description: Leads ke bina business, bejaan jism ke samaan hai. Jaaniye leads kya hain, kyun zaroori hain, aur kaise banayein behtar leads jo aapki sales ko rocket ki tarah udayen. Yeh complete guide aapki saari shankayen door karegi.\r\n\r\nHeader Image: Ek graphic jismein ek funnel dikhaye jiska upar wala hissa bada ho (visitors) aur niche wala chota (customers), aur beech mein 'LEADS' likha ho.\r\n\r\nNamaskar doston,\r\n\r\nKya aapne kabhi socha hai ki aapki website par itni traffic aane ke baawjood, aapki sales utni nahi badh rahi? Aapke social media followers lakhon mein hain, par aapko lagta hai ki aap unse kuch khaas bech nahi pa rahe? Agar aapka jawab 'Haan' hai, toh iska matlab ekdum saaf hai – aapki kadi mein \"Leads\" ki kami hai.\r\n\r\n\"Lead\" shabd sunkar aapko koi complicated business jargon lagta hoga, lekin aapki dukaan par aane wala woh pehla customer jo aapka number le kar jaata hai, woh bhi ek lead hi hai. Aaj hum isi seemingly chhoti, lekin business ki duniya ki sabse badi power, \"Lead\" ke baare mein detail mein jaanege.\r\n\r\nLeads Aakhir Hain Kya? Simple Shabdon Mein Samjhein\r\nEk lead, simply, koi bhi vyakti ya organization hai jo aapke product ya service mein interest dikhata hai aur jisne aapko apni koi jaankaari (jaise email, phone number, ya social media handle) di ho.\r\n\r\nSochiye: Koi aapki website par aata hai aur aapki free ebook download karne ke liye apna email address deta hai. Yeh ek lead hai.\r\nKoi aapke Instagram par aapki service ke baare mein comment karta hai aur aapse contact karne ko kehta hai. Yeh ek lead hai.\r\nKoi aapki dukaan mein aata hai aur aapka brochure le jaata hai jismein uska number likha hua hai. Yeh bhi ek lead hai.\r\n\r\nDekha? Yeh itna complex nahi hai. Lead aapki sales funnel ka pehla aur sabse zaroori step hai.\r\n\r\nLeads Ke Bina Business Bejaan Kyun Hai?\r\nAgar aap sochte hain ki \"Customer toh direct hi kharidega na, lead-banane ki kya zaroorat?\", toh aap bilkul galat hain. Leads aapke business ki jaan hain.\r\n\r\nPredictable Growth: Leads aapko ek aisi list dete hain jisko aap future mein approach kar sakte hain. Isse aapki growth predictable hoti hai. Aapke paas ek aisa group hai jisko aapka product ya service chahiye.\r\n\r\nRelationship Building: Customer direct aakar kharidta hai aur chala jaata hai. Lekin ek lead ke saath aap relationship bana sakte hain. Aap use valuable content bhej kar, use educate kar kar, uski problems samajh kar, ek trust build kar sakte hain. Jab trust build ho jaata hai, toh sale automatic ho jaati hai.\r\n\r\nSales Funnel Ko Fuel Karna: Sochiye aapka sales funnel ek real funnel ki tarah hai. Upar se aap visitors (traffic) daalte hain. Agar aapke paas lead generation ki machinery nahi hai, toh wo saare visitors niche se gir kar chale jaayenge (aur aapka koi faayda nahi hoga). Leads wo machinery hai jo un visitors ko pakad kar aapke funnel ke andar le aati hai, taki aap unhe customer bana saken.\r\n\r\nMarketing Ka ROI Badhata Hai: Aap jo bhi paisa marketing par lagate hain, uska asli faayda tab hai jab aap leads bana paate hain. Aap measure kar sakte hain ki kis campaign se kitne leads mile, aur aap apni marketing strategies ko usi hisaab se improve kar sakte hain.\r\n\r\nLead Generation Ke Powerful Tarike: Praktik Tips Jo Kaam Karte Hain\r\nAb baat aati hai sabse interesting hisse par – leads kaise banayein? Yahan kuch tried-and-tested tarike hain:\r\n\r\n1. Valuable Content Banayein (Content Marketing):\r\nYeh sabse zyada sustainable aur effective tarika hai. Aap wo content banayein jo aapke target audience ki problems ko solve karta ho.\r\n\r\nBlog Posts: Aisi topics par detail mein blog likhein jo aapki audience search karti hai. Jaise, agar aap ek CA hain, toh \"Naye Tax Slab par Complete Guide\" jaisa blog likh sakte hain.\r\n\r\nVideos: YouTube ya social media par short, informative videos banayein.\r\n\r\nInfographics: Complex data ko visually attractive tareeke se pesh karein.\r\n\r\n2. Lead Magnet (Free Offer) Ka Istemal Karein:\r\nKoi bhi visitor aapki website par aakar apna email address aise hi nahi dega. Use kuch dena padega. Yeh free cheez hi lead magnet kehlati hai. Ye ho sakta hai:\r\n\r\nEk comprehensive eBook ya Guide\r\n\r\nEk free webinar ya online class\r\n\r\nAapke industry se related koi useful template (Excel sheet, resume template, etc.)\r\n\r\nDiscount coupon ya free trial\r\n\r\n3. Social Media Ko Smartly Use Karein:\r\nSocial media sirf likes aur comments ke liye nahi hai. Isse aap ache leads generate kar sakte hain.\r\n\r\nFacebook/Instagram Groups: Apni expertise wale topic par ek group banayein aur use valuable discussions ka center banaayein. Group members aapke natural leads hain.\r\n\r\nLinkedIn: LinkedIn leads ke liye sona hai. Yahan par aap directly professionals ko connect kar sakte hain. Apne profile ko optimize karein, valuable posts share karein, aur LinkedIn Messaging ka istemal karein.\r\n\r\nContests & Giveaways: Koi contest chala kar aap bahut saari contact details ikattha kar sakte hain.\r\n\r\n4. Search Engine Optimization (SEO):\r\nJab aapki website Google par top par aati hai, toh log aapko dhoondhte hue aapke paas aate hain. Yeh log already aapki services mein interested hote hain, isliye yeh high-quality leads hote hain. Local business ke liye \"Google My Business\" listing ko optimize karna bahut zaroori hai.\r\n\r\n5. Email Newsletter:\r\nYe purana hai, lekin aaj bhi sabse zyada effective tarika hai. Apni website par ek simple newsletter sign-up form lagayein aur logo ko regularly valuable tips, updates, aur offers bhejte rahein.\r\n\r\nSirf Leads Banana Kaafi Nahi Hai, Unki \"Quality\" Par Dhyan Dijiye\r\n1000 bekaar leads se 100 ache leads zyada better hain. Bekaar lead woh hai jo aapki service lene ki capacity ya intention hi nahi rakhta.\r\n\r\nMarketing Qualified Lead (MQL): Yeh wo lead hai jo aapke marketing efforts se interested hua hai, lekin abhi use khareedne ke liye taiyaar nahi hai. Isko aapko nurture karna hoga.\r\n\r\nSales Qualified Lead (SQL): Yeh wo lead hai jo khareedne ke liye almost taiyaar hai. Isne aapse directly contact kiya hoga ya demo maanga hoga. In par focus karna chahiye.\r\n\r\nApani leads ki quality improve karne ke liye, aapko yeh clear hona chahiye ki aapki \"Ideal Customer\" kaun hai. Unki age, location, income, problems kya hain? Jab aap yeh jaante hain, toh aap directly unhi logon tak apna message pahuncha sakte hain.\r\n\r\nLead Nurturing: Leads Ko Customer Kaise Banayein?\r\n90% leads pehli baar mein nahi kharidte. Isliye unhe saath nibhana bahut zaroori hai. Is process ko lead nurturing kehte hain.\r\n\r\nWelcome Email Series: Jaise hi koi aapka lead magnet download kare, usko ek series of emails bhejein jo use aur zyada value de.\r\n\r\nPersonalized Communication: Email mein lead ka naam le kar message likhein. Use lagta hai ki aap use personally jaante hain.\r\n\r\nRelevant Content Bhejein: Har lead ko same email mat bhejein. Unki interest ke hisaab se content bhejein.\r\n\r\nFollow-up: Koi bhi lead ko kabhi ignore mat karein. Agar kisine aapse kuch poocha hai, toh jaldi se jawaab dein.\r\n\r\nAntim Shabd\r\nLeads aapki business growth ki neev hain. Inhe generate karna, nurture karna, aur akhir mein customer mein convert karna ek art hai. Aaj se hi in tactics par kaam shuru karein. Ek lead magnet banayein, apni website par opt-in form lagayein, aur social media par actively engage karein.\r\n\r\nYeh process thodi mehnat maangti hai, lekin jab aapka phone bajega aur aapko naya customer milega, toh aapko pata chalega ki woh koi accident nahi tha, balki aapki mehnat ka nateeja tha.\r\n\r\nAapko yeh guide kaisi lagi? Neeche comment karke zaroor batayein! Agar aapko koi aur specific topic par janna hai, toh woh bhi likhiye.\r\n\r\n",
+            "assigned_to": null,
+            "created_at": "2025-11-03T23:46:27.118304+05:30",
+            "updated_at": "2026-02-20T01:36:28.167166+05:30",
+            "resolved_at": null,
+            "admin_reply": "We have resolved your issue."
+        },
+        {
+            "id": 11,
+            "ticket_id": "TKT-0712",
+            "user": 12,
+            "user_name": "kingii6635@gmail.com",
+            "category": "lead",
+            "priority": "medium",
+            "status": "open",
+            "description": "import smtplib\r\nfrom email.mime.multipart import MIMEMultipart\r\nfrom email.mime.text import MIMEText\r\n\r\ndef send_lead_assignment_mail(email):\r\n    sender = \"optimizedleads31@gmail.com\"\r\n    password = \"ddbxaeaidudiyroy\"  # ⚠️ use app password (not personal one)\r\n    \r\n    receiver = email\r\n    subject = \"🔥 New Lead Assigned | OptimizedLeads\"\r\n\r\n    html_content = f\"\"\"\r\n    <html>\r\n      <head>\r\n        <style>\r\n          body {{\r\n            font-family: 'Segoe UI', Roboto, Arial, sans-serif;\r\n            background-color: #f4f7fb;\r\n            margin: 0;\r\n            padding: 0;\r\n          }}\r\n          .container {{\r\n            max-width: 600px;\r\n            background-color: #ffffff;\r\n            margin: 40px auto;\r\n            border-radius: 12px;\r\n            box-shadow: 0 4px 12px rgba(0,0,0,0.1);\r\n            overflow: hidden;\r\n          }}\r\n          .header {{\r\n            background: linear-gradient(90deg, #4f46e5, #3b82f6);\r\n            color: white;\r\n            text-align: center;\r\n            padding: 20px;\r\n            font-size: 22px;\r\n            letter-spacing: 0.5px;\r\n          }}\r\n          .content {{\r\n            padding: 30px 25px;\r\n            color: #333333;\r\n            line-height: 1.6;\r\n          }}\r\n          .lead-info {{\r\n            background-color: #f9fafb;\r\n            padding: 12px 18px;\r\n            border-radius: 8px;\r\n            margin-top: 12px;\r\n            border-left: 4px solid #3b82f6;\r\n            font-size: 15px;\r\n          }}\r\n          .cta {{\r\n            display: inline-block;\r\n            margin-top: 25px;\r\n            background: #3b82f6;\r\n            color: white;\r\n            text-decoration: none;\r\n            padding: 12px 28px;\r\n            border-radius: 6px;\r\n            font-weight: 600;\r\n            letter-spacing: 0.3px;\r\n          }}\r\n          .footer {{\r\n            text-align: center;\r\n            font-size: 13px;\r\n            color: #777;\r\n            margin: 30px 0 10px;\r\n          }}\r\n        </style>\r\n      </head>\r\n      <body>\r\n        <div class=\"container\">\r\n          <div class=\"header\">\r\n            🚀 Lead Assignment Notification\r\n          </div>\r\n          <div class=\"content\">\r\n            <p>Hello 👋,</p>\r\n            <p>We’re excited to inform you that a new lead has just been assigned to your account on <b>OptimizedLeads</b>!</p>\r\n            <div class=\"lead-info\">\r\n              <b>Assigned to:</b> {email}\r\n            </div>\r\n            <p style=\"margin-top: 20px;\">This is a hot lead 🔥 — make sure to check it out as soon as possible.</p>\r\n            <a href=\"https://optimizedleads.in/login/\" class=\"cta\">Go to Dashboard</a>\r\n          </div>\r\n          <div class=\"footer\">\r\n            © 2025 OptimizedLeads · All rights reserved.\r\n          </div>\r\n        </div>\r\n      </body>\r\n    </html>\r\n    \"\"\"\r\n\r\n    # setup the email\r\n    msg = MIMEMultipart('alternative')\r\n    msg['From'] = sender\r\n    msg['To'] = receiver\r\n    msg['Subject'] = subject\r\n    msg.attach(MIMEText(html_content, 'html'))\r\n\r\n    # send the email\r\n    try:\r\n        s = smtplib.SMTP('smtp.gmail.com', 587)\r\n        s.starttls()\r\n        s.login(sender, password)\r\n        s.sendmail(sender, receiver, msg.as_string())\r\n        s.quit()\r\n        print(f\"✅ Lead assignment mail sent successfully to {receiver}\")\r\n    except Exception as e:\r\n        print(f\"❌ Failed to send email: {e}\")\r\n\r\n\r\n\r\nimport smtplib\r\nfrom email.mime.multipart import MIMEMultipart\r\nfrom email.mime.text import MIMEText\r\n\r\ndef send_lead_assignment_mail(email, smtp_connection=None):\r\n    sender = \"optimizedleads31@gmail.com\"\r\n    password = \"ddbxaeaidudiyroy\"\r\n    subject = \"🔥 New Lead Assigned | OptimizedLeads\"\r\n\r\n    html_content = f\"\"\"\r\n    <html>\r\n    <head>\r\n    <style>\r\n      body {{\r\n        font-family: 'Segoe UI', Roboto, Arial, sans-serif;\r\n        background-color: #f4f7fb;\r\n        margin: 0;\r\n        padding: 0;\r\n      }}\r\n      .container {{\r\n        max-width: 600px;\r\n        background-color: #ffffff;\r\n        margin: 40px auto;\r\n        border-radius: 12px;\r\n        box-shadow: 0 4px 12px rgba(0,0,0,0.1);\r\n        overflow: hidden;\r\n      }}\r\n      .header {{\r\n        background: linear-gradient(90deg, #4f46e5, #3b82f6);\r\n        color: white;\r\n        text-align: center;\r\n        padding: 20px;\r\n        font-size: 22px;\r\n        letter-spacing: 0.5px;\r\n      }}\r\n      .content {{\r\n        padding: 30px 25px;\r\n        color: #333333;\r\n        line-height: 1.6;\r\n      }}\r\n      .lead-info {{\r\n        background-color: #f9fafb;\r\n        padding: 12px 18px;\r\n        border-radius: 8px;\r\n        margin-top: 12px;\r\n        border-left: 4px solid #3b82f6;\r\n        font-size: 15px;\r\n      }}\r\n      .cta {{\r\n        display: inline-block;\r\n        margin-top: 25px;\r\n        background: #3b82f6;\r\n        color: white;\r\n        text-decoration: none;\r\n        padding: 12px 28px;\r\n        border-radius: 6px;\r\n        font-weight: 600;\r\n        letter-spacing: 0.3px;\r\n      }}\r\n      .footer {{\r\n        text-align: center;\r\n        font-size: 13px;\r\n        color: #777;\r\n        margin: 30px 0 10px;\r\n      }}\r\n    </style>\r\n    </head>\r\n    <body>\r\n      <div class=\"container\">\r\n        <div class=\"header\">\r\n          🚀 Lead Assignment Notification\r\n        </div>\r\n        <div class=\"content\">\r\n          <p>Hello 👋,</p>\r\n          <p>We’re excited to inform you that a new lead has just been assigned to your account on <b>OptimizedLeads</b>!</p>\r\n          <div class=\"lead-info\">\r\n            <b>Assigned to:</b> {email}\r\n          </div>\r\n          <p style=\"margin-top: 20px;\">This is a hot lead 🔥 — make sure to check it out as soon as possible.</p>\r\n          <a href=\"https://optimizedleads.in/login/\" class=\"cta\">Go to Dashboard</a>\r\n        </div>\r\n        <div class=\"footer\">\r\n          © 2025 OptimizedLeads · All rights reserved.\r\n        </div>\r\n      </div>\r\n    </body>\r\n    </html>\r\n    \"\"\"\r\n\r\n    msg = MIMEMultipart('alternative')\r\n    msg['From'] = sender\r\n    msg['To'] = email\r\n    msg['Subject'] = subject\r\n    msg.attach(MIMEText(html_content, 'html'))\r\n\r\n    try:\r\n        if smtp_connection:\r\n            smtp_connection.sendmail(sender, email, msg.as_string())\r\n        else:\r\n            # single mail send (fallback)\r\n            s = smtplib.SMTP('smtp.gmail.com', 587)\r\n            s.starttls()\r\n            s.login(sender, password)\r\n            s.sendmail(sender, email, msg.as_string())\r\n            s.quit()\r\n\r\n        print(f\"✅ Mail sent to {email}\")\r\n    except Exception as e:\r\n        print(f\"❌ Failed to send email to {email}: {e}\")\r\n",
+            "assigned_to": null,
+            "created_at": "2025-11-03T23:41:27.068748+05:30",
+            "updated_at": "2025-11-18T23:23:54.459331+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        }
+    ],
+    "filters": {
+        "status": "",
+        "priority": "",
+        "category": ""
+    },
+    "counts": {
+        "status": [
+            {
+                "status": "closed",
+                "count": 1
+            },
+            {
+                "status": "open",
+                "count": 16
+            },
+            {
+                "status": "in_progress",
+                "count": 3
+            },
+            {
+                "status": "resolved",
+                "count": 2
+            }
+        ],
+        "priority": [
+            {
+                "priority": "medium",
+                "count": 11
+            },
+            {
+                "priority": "critical",
+                "count": 2
+            },
+            {
+                "priority": "high",
+                "count": 6
+            },
+            {
+                "priority": "low",
+                "count": 3
+            }
+        ],
+        "category": [
+            {
+                "category": "lead",
+                "count": 15
+            },
+            {
+                "category": "billing",
+                "count": 4
+            },
+            {
+                "category": "technical",
+                "count": 3
+            }
+        ]
+    },
+    "choices": {
+        "status": [
+            [
+                "open",
+                "Open"
+            ],
+            [
+                "in_progress",
+                "In Progress"
+            ],
+            [
+                "resolved",
+                "Resolved"
+            ],
+            [
+                "closed",
+                "Closed"
+            ]
+        ],
+        "priority": [
+            [
+                "low",
+                "Low"
+            ],
+            [
+                "medium",
+                "Medium"
+            ],
+            [
+                "high",
+                "High"
+            ],
+            [
+                "critical",
+                "Critical"
+            ]
+        ],
+        "category": [
+            [
+                "technical",
+                "Technical Issue"
+            ],
+            [
+                "billing",
+                "Billing & Payment"
+            ],
+            [
+                "lead",
+                "Lead Replacement"
+            ],
+            [
+                "feature",
+                "Feature Request"
+            ],
+            [
+                "other",
+                "Other"
+            ]
+        ]
+    }
+}
+
+
+=========================================================================
+
+http://127.0.0.1:8000/central-admin/api/admin/tickets/?status=open   #GET
+
+{
+    "tickets": [
+        {
+            "id": 32,
+            "ticket_id": "TKT-0733",
+            "user": 19,
+            "user_name": "lodhibharat810@gmail.com",
+            "category": "lead",
+            "priority": "high",
+            "status": "open",
+            "description": "Leads are not relevant",
+            "assigned_to": null,
+            "created_at": "2026-02-18T00:43:58.877554+05:30",
+            "updated_at": "2026-02-18T00:43:58.877554+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 31,
+            "ticket_id": "TKT-0732",
+            "user": 19,
+            "user_name": "lodhibharat810@gmail.com",
+            "category": "lead",
+            "priority": "high",
+            "status": "open",
+            "description": "Leads are not relevant",
+            "assigned_to": null,
+            "created_at": "2026-02-15T00:18:13.441489+05:30",
+            "updated_at": "2026-02-15T00:18:13.441489+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 30,
+            "ticket_id": "TKT-0731",
+            "user": 21,
+            "user_name": "bharatlodhi810@gmail.com",
+            "category": "lead",
+            "priority": "medium",
+            "status": "open",
+            "description": "NA",
+            "assigned_to": null,
+            "created_at": "2026-01-29T01:29:27.847436+05:30",
+            "updated_at": "2026-02-12T00:37:36.120004+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 29,
+            "ticket_id": "TKT-0730",
+            "user": 19,
+            "user_name": "lodhibharat810@gmail.com",
+            "category": "lead",
+            "priority": "high",
+            "status": "open",
+            "description": "These leads are not relevant. Please replace them.",
+            "assigned_to": null,
+            "created_at": "2026-01-07T01:37:11.017834+05:30",
+            "updated_at": "2026-01-07T01:37:11.017845+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 28,
+            "ticket_id": "TKT-0729",
+            "user": 19,
+            "user_name": "lodhibharat810@gmail.com",
+            "category": "technical",
+            "priority": "medium",
+            "status": "open",
+            "description": "Dashboard is loading very slowly since yesterday.",
+            "assigned_to": null,
+            "created_at": "2026-01-07T01:36:05.174480+05:30",
+            "updated_at": "2026-01-07T01:36:05.174500+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 27,
+            "ticket_id": "TKT-0728",
+            "user": 21,
+            "user_name": "bharatlodhi810@gmail.com",
+            "category": "lead",
+            "priority": "medium",
+            "status": "open",
+            "description": "NA",
+            "assigned_to": null,
+            "created_at": "2026-01-01T23:49:51.398158+05:30",
+            "updated_at": "2026-01-01T23:49:51.444423+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 25,
+            "ticket_id": "TKT-0726",
+            "user": 19,
+            "user_name": "lodhibharat810@gmail.com",
+            "category": "lead",
+            "priority": "medium",
+            "status": "open",
+            "description": "Hffjfjff",
+            "assigned_to": null,
+            "created_at": "2025-12-04T00:18:26.748273+05:30",
+            "updated_at": "2025-12-04T00:18:26.748785+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 24,
+            "ticket_id": "TKT-0725",
+            "user": 19,
+            "user_name": "lodhibharat810@gmail.com",
+            "category": "billing",
+            "priority": "critical",
+            "status": "open",
+            "description": "Hejjfghgg",
+            "assigned_to": null,
+            "created_at": "2025-12-04T00:16:59.963633+05:30",
+            "updated_at": "2025-12-04T00:16:59.963633+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 23,
+            "ticket_id": "TKT-0724",
+            "user": 19,
+            "user_name": "lodhibharat810@gmail.com",
+            "category": "billing",
+            "priority": "critical",
+            "status": "open",
+            "description": "Hejjfghgg",
+            "assigned_to": null,
+            "created_at": "2025-12-04T00:16:56.781176+05:30",
+            "updated_at": "2025-12-04T00:16:56.781176+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 20,
+            "ticket_id": "TKT-0721",
+            "user": 16,
+            "user_name": "demo3@gmail.com",
+            "category": "lead",
+            "priority": "low",
+            "status": "open",
+            "description": "afesd",
+            "assigned_to": null,
+            "created_at": "2025-11-19T23:20:53.845289+05:30",
+            "updated_at": "2025-11-19T23:20:54.010846+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 19,
+            "ticket_id": "TKT-0720",
+            "user": 16,
+            "user_name": "demo3@gmail.com",
+            "category": "lead",
+            "priority": "high",
+            "status": "open",
+            "description": "aesgfh",
+            "assigned_to": null,
+            "created_at": "2025-11-19T22:13:54.142334+05:30",
+            "updated_at": "2025-11-19T22:32:45.655182+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 18,
+            "ticket_id": "TKT-0719",
+            "user": 6,
+            "user_name": "chris@gmail.com",
+            "category": "lead",
+            "priority": "low",
+            "status": "open",
+            "description": "replace this leads",
+            "assigned_to": null,
+            "created_at": "2025-11-18T23:52:23.604520+05:30",
+            "updated_at": "2025-11-18T23:52:23.616080+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 14,
+            "ticket_id": "TKT-0715",
+            "user": 12,
+            "user_name": "kingii6635@gmail.com",
+            "category": "technical",
+            "priority": "medium",
+            "status": "open",
+            "description": "full_name\tphone_number\temail\texperience\tbroker\tinitial_investment\t\tcountry\tnote\tfullfull_name\tphone_number\temail\texperience\tbroker\tinitial_investment\t\tcountry\tnote\tremark\r\nbahas sadkjb6347634skdj@gmail.com\t\t\t1jdywd\tzkjdfcsd\tsafdsd\tsdfsd\tsdfsd\tsdfsd\t\r\nfull_name\tphone_number\temail\texperience\tbroker\tinitial_investment\t\tcountry\tnote\tremark\r\nbahas sadkjb6347634skdj@gmail.com\t\t\t1jdywd\tzkjdfcsd\tsafdsd\tsdfsd\tsdfsd\tsdfsd\t\r\n_name\tphone_number\temail\texperience\tbroker\tinitial_investment\t\tcountry\tnote\tremark\r\nbahas sadkjb6347634skdj@gmail.com\t\t\t1jdywd\tzkjdfcsd\tsafdsd\tsdfsd\tsdfsd\tsdfsd\t\r\n\r\nbahas sadkjb6347634skdj@gmail.com\t\t\t1jdywd\tzkjdfcsd\tsafdsd\tsdfsd\tsdfsd\tsdfsd\t\r\n",
+            "assigned_to": null,
+            "created_at": "2025-11-03T23:52:05.854219+05:30",
+            "updated_at": "2025-11-03T23:52:05.854219+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 13,
+            "ticket_id": "TKT-0714",
+            "user": 12,
+            "user_name": "kingii6635@gmail.com",
+            "category": "billing",
+            "priority": "medium",
+            "status": "open",
+            "description": "ksnhdzc,sndkvbskdbv skjdv sidf ks dv sdvjh sdjvsjdvsdbvkskjdbvkjbsdkjfbkjsdbfjbskjdbfkjbsdkjbfkjsbdkjfbsjdjfbskjd kjsbd kjwe fksdkj jdsb kjsdkjv sdkjvn skjd vksjbdv kjbsd kvjbskdjbvkjsbdoewuhrdvskdhkshdihesdkfnks fd skdkO_)O\"l';{P)O[f/lsdji lsmd.v KlF;wldsf0-i3ep;zd;fjisdjvdjxkvhosekdf;jsdlhfkjnsdjfhkjsdhfjdhjhfhdjhfhdjhdjhfdjhfjhdjfhjdhhfjdhfhjdhfjdjhfdjhf",
+            "assigned_to": null,
+            "created_at": "2025-11-03T23:47:25.169638+05:30",
+            "updated_at": "2025-11-03T23:47:25.169638+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 12,
+            "ticket_id": "TKT-0713",
+            "user": 12,
+            "user_name": "kingii6635@gmail.com",
+            "category": "lead",
+            "priority": "medium",
+            "status": "open",
+            "description": "Leads Kya Hain Aur Aap Kaise Banayein ApniBusiness GrowthKeLiy eUnkiAandhi? (Pure Guide Ke Saath)\r\nMeta Description: Leads ke bina business, bejaan jism ke samaan hai. Jaaniye leads kya hain, kyun zaroori hain, aur kaise banayein behtar leads jo aapki sales ko rocket ki tarah udayen. Yeh complete guide aapki saari shankayen door karegi.\r\n\r\nHeader Image: Ek graphic jismein ek funnel dikhaye jiska upar wala hissa bada ho (visitors) aur niche wala chota (customers), aur beech mein 'LEADS' likha ho.\r\n\r\nNamaskar doston,\r\n\r\nKya aapne kabhi socha hai ki aapki website par itni traffic aane ke baawjood, aapki sales utni nahi badh rahi? Aapke social media followers lakhon mein hain, par aapko lagta hai ki aap unse kuch khaas bech nahi pa rahe? Agar aapka jawab 'Haan' hai, toh iska matlab ekdum saaf hai – aapki kadi mein \"Leads\" ki kami hai.\r\n\r\n\"Lead\" shabd sunkar aapko koi complicated business jargon lagta hoga, lekin aapki dukaan par aane wala woh pehla customer jo aapka number le kar jaata hai, woh bhi ek lead hi hai. Aaj hum isi seemingly chhoti, lekin business ki duniya ki sabse badi power, \"Lead\" ke baare mein detail mein jaanege.\r\n\r\nLeads Aakhir Hain Kya? Simple Shabdon Mein Samjhein\r\nEk lead, simply, koi bhi vyakti ya organization hai jo aapke product ya service mein interest dikhata hai aur jisne aapko apni koi jaankaari (jaise email, phone number, ya social media handle) di ho.\r\n\r\nSochiye: Koi aapki website par aata hai aur aapki free ebook download karne ke liye apna email address deta hai. Yeh ek lead hai.\r\nKoi aapke Instagram par aapki service ke baare mein comment karta hai aur aapse contact karne ko kehta hai. Yeh ek lead hai.\r\nKoi aapki dukaan mein aata hai aur aapka brochure le jaata hai jismein uska number likha hua hai. Yeh bhi ek lead hai.\r\n\r\nDekha? Yeh itna complex nahi hai. Lead aapki sales funnel ka pehla aur sabse zaroori step hai.\r\n\r\nLeads Ke Bina Business Bejaan Kyun Hai?\r\nAgar aap sochte hain ki \"Customer toh direct hi kharidega na, lead-banane ki kya zaroorat?\", toh aap bilkul galat hain. Leads aapke business ki jaan hain.\r\n\r\nPredictable Growth: Leads aapko ek aisi list dete hain jisko aap future mein approach kar sakte hain. Isse aapki growth predictable hoti hai. Aapke paas ek aisa group hai jisko aapka product ya service chahiye.\r\n\r\nRelationship Building: Customer direct aakar kharidta hai aur chala jaata hai. Lekin ek lead ke saath aap relationship bana sakte hain. Aap use valuable content bhej kar, use educate kar kar, uski problems samajh kar, ek trust build kar sakte hain. Jab trust build ho jaata hai, toh sale automatic ho jaati hai.\r\n\r\nSales Funnel Ko Fuel Karna: Sochiye aapka sales funnel ek real funnel ki tarah hai. Upar se aap visitors (traffic) daalte hain. Agar aapke paas lead generation ki machinery nahi hai, toh wo saare visitors niche se gir kar chale jaayenge (aur aapka koi faayda nahi hoga). Leads wo machinery hai jo un visitors ko pakad kar aapke funnel ke andar le aati hai, taki aap unhe customer bana saken.\r\n\r\nMarketing Ka ROI Badhata Hai: Aap jo bhi paisa marketing par lagate hain, uska asli faayda tab hai jab aap leads bana paate hain. Aap measure kar sakte hain ki kis campaign se kitne leads mile, aur aap apni marketing strategies ko usi hisaab se improve kar sakte hain.\r\n\r\nLead Generation Ke Powerful Tarike: Praktik Tips Jo Kaam Karte Hain\r\nAb baat aati hai sabse interesting hisse par – leads kaise banayein? Yahan kuch tried-and-tested tarike hain:\r\n\r\n1. Valuable Content Banayein (Content Marketing):\r\nYeh sabse zyada sustainable aur effective tarika hai. Aap wo content banayein jo aapke target audience ki problems ko solve karta ho.\r\n\r\nBlog Posts: Aisi topics par detail mein blog likhein jo aapki audience search karti hai. Jaise, agar aap ek CA hain, toh \"Naye Tax Slab par Complete Guide\" jaisa blog likh sakte hain.\r\n\r\nVideos: YouTube ya social media par short, informative videos banayein.\r\n\r\nInfographics: Complex data ko visually attractive tareeke se pesh karein.\r\n\r\n2. Lead Magnet (Free Offer) Ka Istemal Karein:\r\nKoi bhi visitor aapki website par aakar apna email address aise hi nahi dega. Use kuch dena padega. Yeh free cheez hi lead magnet kehlati hai. Ye ho sakta hai:\r\n\r\nEk comprehensive eBook ya Guide\r\n\r\nEk free webinar ya online class\r\n\r\nAapke industry se related koi useful template (Excel sheet, resume template, etc.)\r\n\r\nDiscount coupon ya free trial\r\n\r\n3. Social Media Ko Smartly Use Karein:\r\nSocial media sirf likes aur comments ke liye nahi hai. Isse aap ache leads generate kar sakte hain.\r\n\r\nFacebook/Instagram Groups: Apni expertise wale topic par ek group banayein aur use valuable discussions ka center banaayein. Group members aapke natural leads hain.\r\n\r\nLinkedIn: LinkedIn leads ke liye sona hai. Yahan par aap directly professionals ko connect kar sakte hain. Apne profile ko optimize karein, valuable posts share karein, aur LinkedIn Messaging ka istemal karein.\r\n\r\nContests & Giveaways: Koi contest chala kar aap bahut saari contact details ikattha kar sakte hain.\r\n\r\n4. Search Engine Optimization (SEO):\r\nJab aapki website Google par top par aati hai, toh log aapko dhoondhte hue aapke paas aate hain. Yeh log already aapki services mein interested hote hain, isliye yeh high-quality leads hote hain. Local business ke liye \"Google My Business\" listing ko optimize karna bahut zaroori hai.\r\n\r\n5. Email Newsletter:\r\nYe purana hai, lekin aaj bhi sabse zyada effective tarika hai. Apni website par ek simple newsletter sign-up form lagayein aur logo ko regularly valuable tips, updates, aur offers bhejte rahein.\r\n\r\nSirf Leads Banana Kaafi Nahi Hai, Unki \"Quality\" Par Dhyan Dijiye\r\n1000 bekaar leads se 100 ache leads zyada better hain. Bekaar lead woh hai jo aapki service lene ki capacity ya intention hi nahi rakhta.\r\n\r\nMarketing Qualified Lead (MQL): Yeh wo lead hai jo aapke marketing efforts se interested hua hai, lekin abhi use khareedne ke liye taiyaar nahi hai. Isko aapko nurture karna hoga.\r\n\r\nSales Qualified Lead (SQL): Yeh wo lead hai jo khareedne ke liye almost taiyaar hai. Isne aapse directly contact kiya hoga ya demo maanga hoga. In par focus karna chahiye.\r\n\r\nApani leads ki quality improve karne ke liye, aapko yeh clear hona chahiye ki aapki \"Ideal Customer\" kaun hai. Unki age, location, income, problems kya hain? Jab aap yeh jaante hain, toh aap directly unhi logon tak apna message pahuncha sakte hain.\r\n\r\nLead Nurturing: Leads Ko Customer Kaise Banayein?\r\n90% leads pehli baar mein nahi kharidte. Isliye unhe saath nibhana bahut zaroori hai. Is process ko lead nurturing kehte hain.\r\n\r\nWelcome Email Series: Jaise hi koi aapka lead magnet download kare, usko ek series of emails bhejein jo use aur zyada value de.\r\n\r\nPersonalized Communication: Email mein lead ka naam le kar message likhein. Use lagta hai ki aap use personally jaante hain.\r\n\r\nRelevant Content Bhejein: Har lead ko same email mat bhejein. Unki interest ke hisaab se content bhejein.\r\n\r\nFollow-up: Koi bhi lead ko kabhi ignore mat karein. Agar kisine aapse kuch poocha hai, toh jaldi se jawaab dein.\r\n\r\nAntim Shabd\r\nLeads aapki business growth ki neev hain. Inhe generate karna, nurture karna, aur akhir mein customer mein convert karna ek art hai. Aaj se hi in tactics par kaam shuru karein. Ek lead magnet banayein, apni website par opt-in form lagayein, aur social media par actively engage karein.\r\n\r\nYeh process thodi mehnat maangti hai, lekin jab aapka phone bajega aur aapko naya customer milega, toh aapko pata chalega ki woh koi accident nahi tha, balki aapki mehnat ka nateeja tha.\r\n\r\nAapko yeh guide kaisi lagi? Neeche comment karke zaroor batayein! Agar aapko koi aur specific topic par janna hai, toh woh bhi likhiye.\r\n\r\n",
+            "assigned_to": null,
+            "created_at": "2025-11-03T23:46:27.118304+05:30",
+            "updated_at": "2026-02-20T01:36:28.167166+05:30",
+            "resolved_at": null,
+            "admin_reply": "We have resolved your issue."
+        },
+        {
+            "id": 11,
+            "ticket_id": "TKT-0712",
+            "user": 12,
+            "user_name": "kingii6635@gmail.com",
+            "category": "lead",
+            "priority": "medium",
+            "status": "open",
+            "description": "import smtplib\r\nfrom email.mime.multipart import MIMEMultipart\r\nfrom email.mime.text import MIMEText\r\n\r\ndef send_lead_assignment_mail(email):\r\n    sender = \"optimizedleads31@gmail.com\"\r\n    password = \"ddbxaeaidudiyroy\"  # ⚠️ use app password (not personal one)\r\n    \r\n    receiver = email\r\n    subject = \"🔥 New Lead Assigned | OptimizedLeads\"\r\n\r\n    html_content = f\"\"\"\r\n    <html>\r\n      <head>\r\n        <style>\r\n          body {{\r\n            font-family: 'Segoe UI', Roboto, Arial, sans-serif;\r\n            background-color: #f4f7fb;\r\n            margin: 0;\r\n            padding: 0;\r\n          }}\r\n          .container {{\r\n            max-width: 600px;\r\n            background-color: #ffffff;\r\n            margin: 40px auto;\r\n            border-radius: 12px;\r\n            box-shadow: 0 4px 12px rgba(0,0,0,0.1);\r\n            overflow: hidden;\r\n          }}\r\n          .header {{\r\n            background: linear-gradient(90deg, #4f46e5, #3b82f6);\r\n            color: white;\r\n            text-align: center;\r\n            padding: 20px;\r\n            font-size: 22px;\r\n            letter-spacing: 0.5px;\r\n          }}\r\n          .content {{\r\n            padding: 30px 25px;\r\n            color: #333333;\r\n            line-height: 1.6;\r\n          }}\r\n          .lead-info {{\r\n            background-color: #f9fafb;\r\n            padding: 12px 18px;\r\n            border-radius: 8px;\r\n            margin-top: 12px;\r\n            border-left: 4px solid #3b82f6;\r\n            font-size: 15px;\r\n          }}\r\n          .cta {{\r\n            display: inline-block;\r\n            margin-top: 25px;\r\n            background: #3b82f6;\r\n            color: white;\r\n            text-decoration: none;\r\n            padding: 12px 28px;\r\n            border-radius: 6px;\r\n            font-weight: 600;\r\n            letter-spacing: 0.3px;\r\n          }}\r\n          .footer {{\r\n            text-align: center;\r\n            font-size: 13px;\r\n            color: #777;\r\n            margin: 30px 0 10px;\r\n          }}\r\n        </style>\r\n      </head>\r\n      <body>\r\n        <div class=\"container\">\r\n          <div class=\"header\">\r\n            🚀 Lead Assignment Notification\r\n          </div>\r\n          <div class=\"content\">\r\n            <p>Hello 👋,</p>\r\n            <p>We’re excited to inform you that a new lead has just been assigned to your account on <b>OptimizedLeads</b>!</p>\r\n            <div class=\"lead-info\">\r\n              <b>Assigned to:</b> {email}\r\n            </div>\r\n            <p style=\"margin-top: 20px;\">This is a hot lead 🔥 — make sure to check it out as soon as possible.</p>\r\n            <a href=\"https://optimizedleads.in/login/\" class=\"cta\">Go to Dashboard</a>\r\n          </div>\r\n          <div class=\"footer\">\r\n            © 2025 OptimizedLeads · All rights reserved.\r\n          </div>\r\n        </div>\r\n      </body>\r\n    </html>\r\n    \"\"\"\r\n\r\n    # setup the email\r\n    msg = MIMEMultipart('alternative')\r\n    msg['From'] = sender\r\n    msg['To'] = receiver\r\n    msg['Subject'] = subject\r\n    msg.attach(MIMEText(html_content, 'html'))\r\n\r\n    # send the email\r\n    try:\r\n        s = smtplib.SMTP('smtp.gmail.com', 587)\r\n        s.starttls()\r\n        s.login(sender, password)\r\n        s.sendmail(sender, receiver, msg.as_string())\r\n        s.quit()\r\n        print(f\"✅ Lead assignment mail sent successfully to {receiver}\")\r\n    except Exception as e:\r\n        print(f\"❌ Failed to send email: {e}\")\r\n\r\n\r\n\r\nimport smtplib\r\nfrom email.mime.multipart import MIMEMultipart\r\nfrom email.mime.text import MIMEText\r\n\r\ndef send_lead_assignment_mail(email, smtp_connection=None):\r\n    sender = \"optimizedleads31@gmail.com\"\r\n    password = \"ddbxaeaidudiyroy\"\r\n    subject = \"🔥 New Lead Assigned | OptimizedLeads\"\r\n\r\n    html_content = f\"\"\"\r\n    <html>\r\n    <head>\r\n    <style>\r\n      body {{\r\n        font-family: 'Segoe UI', Roboto, Arial, sans-serif;\r\n        background-color: #f4f7fb;\r\n        margin: 0;\r\n        padding: 0;\r\n      }}\r\n      .container {{\r\n        max-width: 600px;\r\n        background-color: #ffffff;\r\n        margin: 40px auto;\r\n        border-radius: 12px;\r\n        box-shadow: 0 4px 12px rgba(0,0,0,0.1);\r\n        overflow: hidden;\r\n      }}\r\n      .header {{\r\n        background: linear-gradient(90deg, #4f46e5, #3b82f6);\r\n        color: white;\r\n        text-align: center;\r\n        padding: 20px;\r\n        font-size: 22px;\r\n        letter-spacing: 0.5px;\r\n      }}\r\n      .content {{\r\n        padding: 30px 25px;\r\n        color: #333333;\r\n        line-height: 1.6;\r\n      }}\r\n      .lead-info {{\r\n        background-color: #f9fafb;\r\n        padding: 12px 18px;\r\n        border-radius: 8px;\r\n        margin-top: 12px;\r\n        border-left: 4px solid #3b82f6;\r\n        font-size: 15px;\r\n      }}\r\n      .cta {{\r\n        display: inline-block;\r\n        margin-top: 25px;\r\n        background: #3b82f6;\r\n        color: white;\r\n        text-decoration: none;\r\n        padding: 12px 28px;\r\n        border-radius: 6px;\r\n        font-weight: 600;\r\n        letter-spacing: 0.3px;\r\n      }}\r\n      .footer {{\r\n        text-align: center;\r\n        font-size: 13px;\r\n        color: #777;\r\n        margin: 30px 0 10px;\r\n      }}\r\n    </style>\r\n    </head>\r\n    <body>\r\n      <div class=\"container\">\r\n        <div class=\"header\">\r\n          🚀 Lead Assignment Notification\r\n        </div>\r\n        <div class=\"content\">\r\n          <p>Hello 👋,</p>\r\n          <p>We’re excited to inform you that a new lead has just been assigned to your account on <b>OptimizedLeads</b>!</p>\r\n          <div class=\"lead-info\">\r\n            <b>Assigned to:</b> {email}\r\n          </div>\r\n          <p style=\"margin-top: 20px;\">This is a hot lead 🔥 — make sure to check it out as soon as possible.</p>\r\n          <a href=\"https://optimizedleads.in/login/\" class=\"cta\">Go to Dashboard</a>\r\n        </div>\r\n        <div class=\"footer\">\r\n          © 2025 OptimizedLeads · All rights reserved.\r\n        </div>\r\n      </div>\r\n    </body>\r\n    </html>\r\n    \"\"\"\r\n\r\n    msg = MIMEMultipart('alternative')\r\n    msg['From'] = sender\r\n    msg['To'] = email\r\n    msg['Subject'] = subject\r\n    msg.attach(MIMEText(html_content, 'html'))\r\n\r\n    try:\r\n        if smtp_connection:\r\n            smtp_connection.sendmail(sender, email, msg.as_string())\r\n        else:\r\n            # single mail send (fallback)\r\n            s = smtplib.SMTP('smtp.gmail.com', 587)\r\n            s.starttls()\r\n            s.login(sender, password)\r\n            s.sendmail(sender, email, msg.as_string())\r\n            s.quit()\r\n\r\n        print(f\"✅ Mail sent to {email}\")\r\n    except Exception as e:\r\n        print(f\"❌ Failed to send email to {email}: {e}\")\r\n",
+            "assigned_to": null,
+            "created_at": "2025-11-03T23:41:27.068748+05:30",
+            "updated_at": "2025-11-18T23:23:54.459331+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        }
+    ],
+    "filters": {
+        "status": "open",
+        "priority": "",
+        "category": ""
+    },
+    "counts": {
+        "status": [
+            {
+                "status": "closed",
+                "count": 1
+            },
+            {
+                "status": "open",
+                "count": 16
+            },
+            {
+                "status": "in_progress",
+                "count": 3
+            },
+            {
+                "status": "resolved",
+                "count": 2
+            }
+        ],
+        "priority": [
+            {
+                "priority": "medium",
+                "count": 11
+            },
+            {
+                "priority": "critical",
+                "count": 2
+            },
+            {
+                "priority": "high",
+                "count": 6
+            },
+            {
+                "priority": "low",
+                "count": 3
+            }
+        ],
+        "category": [
+            {
+                "category": "lead",
+                "count": 15
+            },
+            {
+                "category": "billing",
+                "count": 4
+            },
+            {
+                "category": "technical",
+                "count": 3
+            }
+        ]
+    },
+    "choices": {
+        "status": [
+            [
+                "open",
+                "Open"
+            ],
+            [
+                "in_progress",
+                "In Progress"
+            ],
+            [
+                "resolved",
+                "Resolved"
+            ],
+            [
+                "closed",
+                "Closed"
+            ]
+        ],
+        "priority": [
+            [
+                "low",
+                "Low"
+            ],
+            [
+                "medium",
+                "Medium"
+            ],
+            [
+                "high",
+                "High"
+            ],
+            [
+                "critical",
+                "Critical"
+            ]
+        ],
+        "category": [
+            [
+                "technical",
+                "Technical Issue"
+            ],
+            [
+                "billing",
+                "Billing & Payment"
+            ],
+            [
+                "lead",
+                "Lead Replacement"
+            ],
+            [
+                "feature",
+                "Feature Request"
+            ],
+            [
+                "other",
+                "Other"
+            ]
+        ]
+    }
+}
+
+
+==============================================================
+
+
+http://127.0.0.1:8000/central-admin/api/admin/tickets/?priority=high   #GET
+
+{
+    "tickets": [
+        {
+            "id": 32,
+            "ticket_id": "TKT-0733",
+            "user": 19,
+            "user_name": "lodhibharat810@gmail.com",
+            "category": "lead",
+            "priority": "high",
+            "status": "open",
+            "description": "Leads are not relevant",
+            "assigned_to": null,
+            "created_at": "2026-02-18T00:43:58.877554+05:30",
+            "updated_at": "2026-02-18T00:43:58.877554+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 31,
+            "ticket_id": "TKT-0732",
+            "user": 19,
+            "user_name": "lodhibharat810@gmail.com",
+            "category": "lead",
+            "priority": "high",
+            "status": "open",
+            "description": "Leads are not relevant",
+            "assigned_to": null,
+            "created_at": "2026-02-15T00:18:13.441489+05:30",
+            "updated_at": "2026-02-15T00:18:13.441489+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 29,
+            "ticket_id": "TKT-0730",
+            "user": 19,
+            "user_name": "lodhibharat810@gmail.com",
+            "category": "lead",
+            "priority": "high",
+            "status": "open",
+            "description": "These leads are not relevant. Please replace them.",
+            "assigned_to": null,
+            "created_at": "2026-01-07T01:37:11.017834+05:30",
+            "updated_at": "2026-01-07T01:37:11.017845+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 22,
+            "ticket_id": "TKT-0723",
+            "user": 12,
+            "user_name": "kingii6635@gmail.com",
+            "category": "lead",
+            "priority": "high",
+            "status": "resolved",
+            "description": "replace it",
+            "assigned_to": null,
+            "created_at": "2025-11-25T23:38:45.529744+05:30",
+            "updated_at": "2025-11-29T22:51:54.012694+05:30",
+            "resolved_at": "2025-11-29T22:51:54.012694+05:30",
+            "admin_reply": "done"
+        },
+        {
+            "id": 19,
+            "ticket_id": "TKT-0720",
+            "user": 16,
+            "user_name": "demo3@gmail.com",
+            "category": "lead",
+            "priority": "high",
+            "status": "open",
+            "description": "aesgfh",
+            "assigned_to": null,
+            "created_at": "2025-11-19T22:13:54.142334+05:30",
+            "updated_at": "2025-11-19T22:32:45.655182+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 15,
+            "ticket_id": "TKT-0716",
+            "user": 12,
+            "user_name": "kingii6635@gmail.com",
+            "category": "technical",
+            "priority": "high",
+            "status": "in_progress",
+            "description": "asjhfsdx",
+            "assigned_to": null,
+            "created_at": "2025-11-04T21:37:43.433541+05:30",
+            "updated_at": "2025-11-19T00:19:56.663452+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        }
+    ],
+    "filters": {
+        "status": "",
+        "priority": "high",
+        "category": ""
+    },
+    "counts": {
+        "status": [
+            {
+                "status": "closed",
+                "count": 1
+            },
+            {
+                "status": "open",
+                "count": 16
+            },
+            {
+                "status": "in_progress",
+                "count": 3
+            },
+            {
+                "status": "resolved",
+                "count": 2
+            }
+        ],
+        "priority": [
+            {
+                "priority": "medium",
+                "count": 11
+            },
+            {
+                "priority": "critical",
+                "count": 2
+            },
+            {
+                "priority": "high",
+                "count": 6
+            },
+            {
+                "priority": "low",
+                "count": 3
+            }
+        ],
+        "category": [
+            {
+                "category": "lead",
+                "count": 15
+            },
+            {
+                "category": "billing",
+                "count": 4
+            },
+            {
+                "category": "technical",
+                "count": 3
+            }
+        ]
+    },
+    "choices": {
+        "status": [
+            [
+                "open",
+                "Open"
+            ],
+            [
+                "in_progress",
+                "In Progress"
+            ],
+            [
+                "resolved",
+                "Resolved"
+            ],
+            [
+                "closed",
+                "Closed"
+            ]
+        ],
+        "priority": [
+            [
+                "low",
+                "Low"
+            ],
+            [
+                "medium",
+                "Medium"
+            ],
+            [
+                "high",
+                "High"
+            ],
+            [
+                "critical",
+                "Critical"
+            ]
+        ],
+        "category": [
+            [
+                "technical",
+                "Technical Issue"
+            ],
+            [
+                "billing",
+                "Billing & Payment"
+            ],
+            [
+                "lead",
+                "Lead Replacement"
+            ],
+            [
+                "feature",
+                "Feature Request"
+            ],
+            [
+                "other",
+                "Other"
+            ]
+        ]
+    }
+}
+
+
+===============================================================
+
+http://127.0.0.1:8000/central-admin/api/admin/tickets/?status=open&priority=high&category=lead  #GET
+
+{
+    "tickets": [
+        {
+            "id": 32,
+            "ticket_id": "TKT-0733",
+            "user": 19,
+            "user_name": "lodhibharat810@gmail.com",
+            "category": "lead",
+            "priority": "high",
+            "status": "open",
+            "description": "Leads are not relevant",
+            "assigned_to": null,
+            "created_at": "2026-02-18T00:43:58.877554+05:30",
+            "updated_at": "2026-02-18T00:43:58.877554+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 31,
+            "ticket_id": "TKT-0732",
+            "user": 19,
+            "user_name": "lodhibharat810@gmail.com",
+            "category": "lead",
+            "priority": "high",
+            "status": "open",
+            "description": "Leads are not relevant",
+            "assigned_to": null,
+            "created_at": "2026-02-15T00:18:13.441489+05:30",
+            "updated_at": "2026-02-15T00:18:13.441489+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 29,
+            "ticket_id": "TKT-0730",
+            "user": 19,
+            "user_name": "lodhibharat810@gmail.com",
+            "category": "lead",
+            "priority": "high",
+            "status": "open",
+            "description": "These leads are not relevant. Please replace them.",
+            "assigned_to": null,
+            "created_at": "2026-01-07T01:37:11.017834+05:30",
+            "updated_at": "2026-01-07T01:37:11.017845+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        },
+        {
+            "id": 19,
+            "ticket_id": "TKT-0720",
+            "user": 16,
+            "user_name": "demo3@gmail.com",
+            "category": "lead",
+            "priority": "high",
+            "status": "open",
+            "description": "aesgfh",
+            "assigned_to": null,
+            "created_at": "2025-11-19T22:13:54.142334+05:30",
+            "updated_at": "2025-11-19T22:32:45.655182+05:30",
+            "resolved_at": null,
+            "admin_reply": null
+        }
+    ],
+    "filters": {
+        "status": "open",
+        "priority": "high",
+        "category": "lead"
+    },
+    "counts": {
+        "status": [
+            {
+                "status": "closed",
+                "count": 1
+            },
+            {
+                "status": "open",
+                "count": 16
+            },
+            {
+                "status": "in_progress",
+                "count": 3
+            },
+            {
+                "status": "resolved",
+                "count": 2
+            }
+        ],
+        "priority": [
+            {
+                "priority": "medium",
+                "count": 11
+            },
+            {
+                "priority": "critical",
+                "count": 2
+            },
+            {
+                "priority": "high",
+                "count": 6
+            },
+            {
+                "priority": "low",
+                "count": 3
+            }
+        ],
+        "category": [
+            {
+                "category": "lead",
+                "count": 15
+            },
+            {
+                "category": "billing",
+                "count": 4
+            },
+            {
+                "category": "technical",
+                "count": 3
+            }
+        ]
+    },
+    "choices": {
+        "status": [
+            [
+                "open",
+                "Open"
+            ],
+            [
+                "in_progress",
+                "In Progress"
+            ],
+            [
+                "resolved",
+                "Resolved"
+            ],
+            [
+                "closed",
+                "Closed"
+            ]
+        ],
+        "priority": [
+            [
+                "low",
+                "Low"
+            ],
+            [
+                "medium",
+                "Medium"
+            ],
+            [
+                "high",
+                "High"
+            ],
+            [
+                "critical",
+                "Critical"
+            ]
+        ],
+        "category": [
+            [
+                "technical",
+                "Technical Issue"
+            ],
+            [
+                "billing",
+                "Billing & Payment"
+            ],
+            [
+                "lead",
+                "Lead Replacement"
+            ],
+            [
+                "feature",
+                "Feature Request"
+            ],
+            [
+                "other",
+                "Other"
+            ]
+        ]
+    }
+}
+
+
+==================================================================
+
+http://127.0.0.1:8000/central-admin/api/admin/tickets/12/   #GET
+
+{
+    "ticket": {
+        "id": 12,
+        "ticket_id": "TKT-0713",
+        "user": 12,
+        "user_name": "kingii6635@gmail.com",
+        "category": "lead",
+        "priority": "medium",
+        "status": "open",
+        "description": "Leads Kya Hain Aur Aap Kaise Banayein ApniBusiness GrowthKeLiy eUnkiAandhi? (Pure Guide Ke Saath)\r\nMeta Description: Leads ke bina business, bejaan jism ke samaan hai. Jaaniye leads kya hain, kyun zaroori hain, aur kaise banayein behtar leads jo aapki sales ko rocket ki tarah udayen. Yeh complete guide aapki saari shankayen door karegi.\r\n\r\nHeader Image: Ek graphic jismein ek funnel dikhaye jiska upar wala hissa bada ho (visitors) aur niche wala chota (customers), aur beech mein 'LEADS' likha ho.\r\n\r\nNamaskar doston,\r\n\r\nKya aapne kabhi socha hai ki aapki website par itni traffic aane ke baawjood, aapki sales utni nahi badh rahi? Aapke social media followers lakhon mein hain, par aapko lagta hai ki aap unse kuch khaas bech nahi pa rahe? Agar aapka jawab 'Haan' hai, toh iska matlab ekdum saaf hai – aapki kadi mein \"Leads\" ki kami hai.\r\n\r\n\"Lead\" shabd sunkar aapko koi complicated business jargon lagta hoga, lekin aapki dukaan par aane wala woh pehla customer jo aapka number le kar jaata hai, woh bhi ek lead hi hai. Aaj hum isi seemingly chhoti, lekin business ki duniya ki sabse badi power, \"Lead\" ke baare mein detail mein jaanege.\r\n\r\nLeads Aakhir Hain Kya? Simple Shabdon Mein Samjhein\r\nEk lead, simply, koi bhi vyakti ya organization hai jo aapke product ya service mein interest dikhata hai aur jisne aapko apni koi jaankaari (jaise email, phone number, ya social media handle) di ho.\r\n\r\nSochiye: Koi aapki website par aata hai aur aapki free ebook download karne ke liye apna email address deta hai. Yeh ek lead hai.\r\nKoi aapke Instagram par aapki service ke baare mein comment karta hai aur aapse contact karne ko kehta hai. Yeh ek lead hai.\r\nKoi aapki dukaan mein aata hai aur aapka brochure le jaata hai jismein uska number likha hua hai. Yeh bhi ek lead hai.\r\n\r\nDekha? Yeh itna complex nahi hai. Lead aapki sales funnel ka pehla aur sabse zaroori step hai.\r\n\r\nLeads Ke Bina Business Bejaan Kyun Hai?\r\nAgar aap sochte hain ki \"Customer toh direct hi kharidega na, lead-banane ki kya zaroorat?\", toh aap bilkul galat hain. Leads aapke business ki jaan hain.\r\n\r\nPredictable Growth: Leads aapko ek aisi list dete hain jisko aap future mein approach kar sakte hain. Isse aapki growth predictable hoti hai. Aapke paas ek aisa group hai jisko aapka product ya service chahiye.\r\n\r\nRelationship Building: Customer direct aakar kharidta hai aur chala jaata hai. Lekin ek lead ke saath aap relationship bana sakte hain. Aap use valuable content bhej kar, use educate kar kar, uski problems samajh kar, ek trust build kar sakte hain. Jab trust build ho jaata hai, toh sale automatic ho jaati hai.\r\n\r\nSales Funnel Ko Fuel Karna: Sochiye aapka sales funnel ek real funnel ki tarah hai. Upar se aap visitors (traffic) daalte hain. Agar aapke paas lead generation ki machinery nahi hai, toh wo saare visitors niche se gir kar chale jaayenge (aur aapka koi faayda nahi hoga). Leads wo machinery hai jo un visitors ko pakad kar aapke funnel ke andar le aati hai, taki aap unhe customer bana saken.\r\n\r\nMarketing Ka ROI Badhata Hai: Aap jo bhi paisa marketing par lagate hain, uska asli faayda tab hai jab aap leads bana paate hain. Aap measure kar sakte hain ki kis campaign se kitne leads mile, aur aap apni marketing strategies ko usi hisaab se improve kar sakte hain.\r\n\r\nLead Generation Ke Powerful Tarike: Praktik Tips Jo Kaam Karte Hain\r\nAb baat aati hai sabse interesting hisse par – leads kaise banayein? Yahan kuch tried-and-tested tarike hain:\r\n\r\n1. Valuable Content Banayein (Content Marketing):\r\nYeh sabse zyada sustainable aur effective tarika hai. Aap wo content banayein jo aapke target audience ki problems ko solve karta ho.\r\n\r\nBlog Posts: Aisi topics par detail mein blog likhein jo aapki audience search karti hai. Jaise, agar aap ek CA hain, toh \"Naye Tax Slab par Complete Guide\" jaisa blog likh sakte hain.\r\n\r\nVideos: YouTube ya social media par short, informative videos banayein.\r\n\r\nInfographics: Complex data ko visually attractive tareeke se pesh karein.\r\n\r\n2. Lead Magnet (Free Offer) Ka Istemal Karein:\r\nKoi bhi visitor aapki website par aakar apna email address aise hi nahi dega. Use kuch dena padega. Yeh free cheez hi lead magnet kehlati hai. Ye ho sakta hai:\r\n\r\nEk comprehensive eBook ya Guide\r\n\r\nEk free webinar ya online class\r\n\r\nAapke industry se related koi useful template (Excel sheet, resume template, etc.)\r\n\r\nDiscount coupon ya free trial\r\n\r\n3. Social Media Ko Smartly Use Karein:\r\nSocial media sirf likes aur comments ke liye nahi hai. Isse aap ache leads generate kar sakte hain.\r\n\r\nFacebook/Instagram Groups: Apni expertise wale topic par ek group banayein aur use valuable discussions ka center banaayein. Group members aapke natural leads hain.\r\n\r\nLinkedIn: LinkedIn leads ke liye sona hai. Yahan par aap directly professionals ko connect kar sakte hain. Apne profile ko optimize karein, valuable posts share karein, aur LinkedIn Messaging ka istemal karein.\r\n\r\nContests & Giveaways: Koi contest chala kar aap bahut saari contact details ikattha kar sakte hain.\r\n\r\n4. Search Engine Optimization (SEO):\r\nJab aapki website Google par top par aati hai, toh log aapko dhoondhte hue aapke paas aate hain. Yeh log already aapki services mein interested hote hain, isliye yeh high-quality leads hote hain. Local business ke liye \"Google My Business\" listing ko optimize karna bahut zaroori hai.\r\n\r\n5. Email Newsletter:\r\nYe purana hai, lekin aaj bhi sabse zyada effective tarika hai. Apni website par ek simple newsletter sign-up form lagayein aur logo ko regularly valuable tips, updates, aur offers bhejte rahein.\r\n\r\nSirf Leads Banana Kaafi Nahi Hai, Unki \"Quality\" Par Dhyan Dijiye\r\n1000 bekaar leads se 100 ache leads zyada better hain. Bekaar lead woh hai jo aapki service lene ki capacity ya intention hi nahi rakhta.\r\n\r\nMarketing Qualified Lead (MQL): Yeh wo lead hai jo aapke marketing efforts se interested hua hai, lekin abhi use khareedne ke liye taiyaar nahi hai. Isko aapko nurture karna hoga.\r\n\r\nSales Qualified Lead (SQL): Yeh wo lead hai jo khareedne ke liye almost taiyaar hai. Isne aapse directly contact kiya hoga ya demo maanga hoga. In par focus karna chahiye.\r\n\r\nApani leads ki quality improve karne ke liye, aapko yeh clear hona chahiye ki aapki \"Ideal Customer\" kaun hai. Unki age, location, income, problems kya hain? Jab aap yeh jaante hain, toh aap directly unhi logon tak apna message pahuncha sakte hain.\r\n\r\nLead Nurturing: Leads Ko Customer Kaise Banayein?\r\n90% leads pehli baar mein nahi kharidte. Isliye unhe saath nibhana bahut zaroori hai. Is process ko lead nurturing kehte hain.\r\n\r\nWelcome Email Series: Jaise hi koi aapka lead magnet download kare, usko ek series of emails bhejein jo use aur zyada value de.\r\n\r\nPersonalized Communication: Email mein lead ka naam le kar message likhein. Use lagta hai ki aap use personally jaante hain.\r\n\r\nRelevant Content Bhejein: Har lead ko same email mat bhejein. Unki interest ke hisaab se content bhejein.\r\n\r\nFollow-up: Koi bhi lead ko kabhi ignore mat karein. Agar kisine aapse kuch poocha hai, toh jaldi se jawaab dein.\r\n\r\nAntim Shabd\r\nLeads aapki business growth ki neev hain. Inhe generate karna, nurture karna, aur akhir mein customer mein convert karna ek art hai. Aaj se hi in tactics par kaam shuru karein. Ek lead magnet banayein, apni website par opt-in form lagayein, aur social media par actively engage karein.\r\n\r\nYeh process thodi mehnat maangti hai, lekin jab aapka phone bajega aur aapko naya customer milega, toh aapko pata chalega ki woh koi accident nahi tha, balki aapki mehnat ka nateeja tha.\r\n\r\nAapko yeh guide kaisi lagi? Neeche comment karke zaroor batayein! Agar aapko koi aur specific topic par janna hai, toh woh bhi likhiye.\r\n\r\n",
+        "assigned_to": null,
+        "created_at": "2025-11-03T23:46:27.118304+05:30",
+        "updated_at": "2026-02-20T01:36:28.167166+05:30",
+        "resolved_at": null,
+        "admin_reply": "We have resolved your issue.",
+        "replacement_leads": null
+    },
+    "lead_details": []
+}
+
+=========================================================================
+
+http://127.0.0.1:8000/central-admin/api/admin/tickets/26/status/   #POST
+body
+----
+{
+    "status":"resolved"
+}
+
+response
+---------
+{
+    "detail": "Ticket TKT-0727 status updated",
+    "ticket_id": "TKT-0727",
+    "status": "resolved",
+    "resolved_at": "2026-01-24T19:28:06.071340Z"
+}
+
+=============================================================================
+
+http://127.0.0.1:8000/central-admin/api/admin/tickets/12/reply/    #POST
+Body
+----
+{
+  "admin_reply": "We have resolved your issue."
+}
+
+Response
+--------
+{
+    "detail": "Response sent successfully to user!",
+    "ticket_id": "TKT-0713",
+    "admin_reply": "We have resolved your issue.",
+    "updated_at": "2026-02-20T16:39:31.445639Z"
+}
+
+=============================================================================
+
+
+http://127.0.0.1:8000/central-admin/api/admin/contact-leads/       #GET
+
+[
+    {
+        "id": 20,
+        "full_name": "test",
+        "email": "test@gmail.com",
+        "phone_number": "9999999999",
+        "industry": "real_estate",
+        "message": "Need buyers leads",
+        "created_at": "2026-02-15T00:55:07.002694+05:30",
+        "is_processed": false,
+        "notes": null
+    },
+
+    {
+        "id": 6,
+        "full_name": "1231 -12612",
+        "email": "bharat-12612@gmail.com",
+        "phone_number": "773653834",
+        "industry": "education",
+        "message": "NA",
+        "created_at": "2026-01-11T00:35:34.517182+05:30",
+        "is_processed": false,
+        "notes": null
+    },
+    {
+        "id": 3,
+        "full_name": "demo",
+        "email": "12321@1233.com",
+        "phone_number": "8935676262",
+        "industry": "education",
+        "message": "NA",
+        "created_at": "2026-01-11T00:14:14.933787+05:30",
+        "is_processed": false,
+        "notes": null
+    }
+]
+
+
+================================================================
+
+http://127.0.0.1:8000/central-admin/api/admin/contact-leads/20/delete/     #DELETE
+
+Response
+--------
+
+{
+    "detail": "Contact lead deleted successfully!"
+}
+================================================================
+
+http://127.0.0.1:8000/central-admin/api/products/add/      #POST
+form-data
+---------
+category:Online MBA
+unit:50
+plan_type:premium
+heading:Study Abroad Premium
+short_description:High quality leads
+long_description:Full description here
+price:4999
+features:Verified students
+country:India
+
+===============================================================
+
+http://127.0.0.1:8000/central-admin/api/products/      #GET
+
+[
+    {
+        "id": 10,
+        "category": "Online MBA",
+        "unit": "50",
+        "plan_type": "premium",
+        "heading": "Study Abroad Premium",
+        "short_description": "High quality leads",
+        "price": "4999.00",
+        "features": "Verified students",
+        "long_description": "Full description here",
+        "product_image": "/media/products/lighthouse-2372461.jpg",
+        "created_at": "2026-02-20T23:41:57.729136+05:30",
+        "country": "India"
+    },
+    {
+        "id": 5,
+        "category": "Forex Market",
+        "unit": "123",
+        "plan_type": "basic",
+        "heading": "This is basic plan",
+        "short_description": "This is Pro plan",
+        "price": "56000.00",
+        "features": "<p>This is Pro planThis is Pro planThis is Pro planThis is Pro planThis is Pro planThis is Pro planThis is Pro planThis is Pro planThis is Pro planThis is Pro planThis is Pro planThis is Pro planThis is Pro planThis is Pro planThis is Pro plan</p>\r\n\r\n<p>This is Pro plan</p>\r\n\r\n<p>This is Pro planThis is Pro planThis is Pro planThis is Pro planThis is Pro plan</p>\r\n\r\n<p>This is Pro plan</p>\r\n\r\n<p>This is Pro plan</p>\r\n\r\n<p>This is Pro plan</p>\r\n",
+        "long_description": "<p>This is Pro plan</p>\r\n\r\n<p>This is Pro plan</p>\r\n\r\n<p>This is Pro plan</p>\r\n",
+        "product_image": null,
+        "created_at": "2025-11-09T01:44:50.904940+05:30",
+        "country": "India"
+    },
+    {
+        "id": 2,
+        "category": "Buyers Leads",
+        "unit": "1223",
+        "plan_type": "basic",
+        "heading": "Basic Real Estate Buyers Package",
+        "short_description": "Get 10 high-quality verified buyers leads with complete contact details and property preferences",
+        "price": "12000.00",
+        "features": "<p>Verified Phone Numbers</p>\r\n\r\n<p>Email Addresses</p>\r\n\r\n<p>Budget Range</p>\r\n\r\n<p>Property Preferences</p>\r\n\r\n<p>Location Specific</p>\r\n\r\n<p>Immediate Contact</p>\r\n\r\n<p>95% Accuracy Rate</p>\r\n",
+        "long_description": "<p>Our Premium Buyers Leads package provides you with 10 highly qualified real estate buyers who are actively looking to purchase properties in your area. Each lead is thoroughly verified and comes with complete contact information including phone numbers, email addresses, and specific property requirements. These leads are filtered based on your preferred locations and property types to ensure maximum conversion rate. Perfect for real estate agents and brokers looking to expand their client base with quality prospects.</p>\r\n",
+        "product_image": "/media/products/fe1c915e-93c7-449e-b8e9-f962d42f0c96_k5WMN9r.png",
+        "created_at": "2025-10-28T22:36:47.429539+05:30",
+        "country": "India"
+    }
+]
+
+==============================================================================
+
+http://127.0.0.1:8000/central-admin/api/products/9/edit/    #PUT
+
+form-data
+---------
+category:Online MBA
+unit:50
+plan_type:premium
+heading:Study Abroad Premium
+short_description:High quality leads
+long_description:Full description here
+price:4999
+features:Verified students
+country:India
+
+==============================================================================
+
+http://127.0.0.1:8000/central-admin/api/products/8/delete/    #DELETE
+respose
+-------
+{
+    "detail": "Product deleted successfully!",
+    "product_id": 2
+}
+==============================================================================
+
+
+
+
+
+
+
+
+

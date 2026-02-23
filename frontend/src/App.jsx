@@ -43,6 +43,13 @@ import SubAdminAddCandidate from "./pages/sub_admin/SubAdminAddCandidate";
 import SubAdminViewCandidate from "./pages/sub_admin/SubAdminViewCandidate";
 import SubAdminEditCandidate from "./pages/sub_admin/SubAdminEditCandidate";
 import VendorViewSubAdmin from "./pages/sub_admin/VendorView";
+import SubAdminClientList from "./pages/sub_admin/ClientList";
+import ViewClient from "./pages/sub_admin/ViewClient";
+import SubAdminAddClient from "./pages/sub_admin/AddClient";
+import SubAdminDocView from "./pages/sub_admin/DocViewer";
+import SubAdminTeamManage from "./pages/sub_admin/TeamManage";
+import AddUser from "./pages/sub_admin/AddUser";
+
 // ========================================================
 
 function App() {
@@ -94,6 +101,12 @@ function App() {
                 <Route path="/sub-admin/candidate/view/:id" element={<ProtectedRoute><SubAdminViewCandidate /></ProtectedRoute>} />
                 <Route path="/sub-admin/candidate/edit/:id" element={<ProtectedRoute><SubAdminEditCandidate /></ProtectedRoute>} />
                 <Route path="/sub-admin/vendor/view/:id" element={<ProtectedRoute><VendorViewSubAdmin /></ProtectedRoute>} />
+                <Route path="/sub-admin/clients" element={<ProtectedRoute><SubAdminClientList /></ProtectedRoute>} />
+                <Route path="/sub-admin/client/add" element={<ProtectedRoute><SubAdminAddClient /></ProtectedRoute>} />
+                <Route path="/sub-admin/vendor/doc-view/:id" element={<ProtectedRoute><SubAdminDocView /></ProtectedRoute>} />
+                <Route path="/sub-admin/team-manage" element={<ProtectedRoute><SubAdminTeamManage /></ProtectedRoute>} />
+                <Route path="/sub-admin/add-user" element={<ProtectedRoute><AddUser /></ProtectedRoute>} />
+                <Route path="/sub-admin/client/view/:id" element={<ProtectedRoute><ViewClient /></ProtectedRoute>} />
                 {/* ======================================================================== */}
 
                 <Route path="/central-admin" element={<ProtectedRoute><CentralAdminDashboard /></ProtectedRoute>} />

@@ -169,12 +169,14 @@ CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-
+    "https://keddytech.in",
+    "https://www.keddytech.in",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
-
+    "https://www.keddytech.in",
+    "https://www.keddytech.in",
 ]
 # ===============================================
 

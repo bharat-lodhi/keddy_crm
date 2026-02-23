@@ -54,7 +54,7 @@ function AddVendor() {
         try {
             await apiRequest("/employee-portal/api/vendors/create/", "POST", formData);
             alert("Vendor created successfully!");
-            navigate("/employee/vendor/add"); // Navigating to list after success
+            navigate("/sub-admin/add-vendor"); // Navigating to list after success
         } catch (error) {
             alert("Error creating vendor. Please check all fields.");
             console.error(error);

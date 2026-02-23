@@ -112,10 +112,10 @@ function SubAdminDashboard() {
                 </div>
                 
                 <div style={styles.btnGroup}>
-                    <button style={{...styles.actionBtn, background: '#25343F'}} onClick={() => navigate("/sub-admin/manage-employees")}>
-                        <Icons.Manage /> Manage Employees
+                    <button style={{...styles.actionBtn, background: '#25343F'}} onClick={() => navigate("/sub-admin/team-manage")}>
+                        <Icons.Manage /> Manage Team
                     </button>
-                    <button style={styles.actionBtn} onClick={() => navigate("/sub-admin/team/add")}>
+                    <button style={styles.actionBtn} onClick={() => navigate("/sub-admin/add-user")}>
                         <Icons.UserPlus /> Add Team Member
                     </button>
                 </div>

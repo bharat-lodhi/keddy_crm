@@ -1,4 +1,5 @@
 
+from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
 from django.db.models import Q
 
@@ -13,63 +14,8 @@ User = get_user_model()
 
 from rest_framework import generics
 from .serializers import UserCreateSerializer
-
-
-# # Create your views here.
-# @api_view(["GET"])
-# @permission_classes([IsAuthenticated])
-# def dashboard_stats(request):
-#     user = request.user
-#     today = now().date()
-
-#     if user.role == "SUB_ADMIN":
-#         candidate_filter = {}
-#         vendor_filter = {}
-#         client_filter = {}
-#     else:
-#         candidate_filter = {"created_by": user}
-#         vendor_filter = {"created_by": user}
-#         client_filter = {"created_by": user}
-
-#     total_vendors = Vendor.objects.filter(**vendor_filter).count()
-#     total_clients = Client.objects.filter(**client_filter).count()
-
-#     total_profiles = Candidate.objects.filter(**candidate_filter).count()
-
-#     today_profiles = Candidate.objects.filter(
-#         **candidate_filter,
-#         created_at__date=today
-#     ).count()
-
-#     today_submitted_profiles = Candidate.objects.filter(
-#         **candidate_filter,
-#         created_at__date=today,
-#         verification_status=True
-#     ).count()
-
-#     total_pipelines = Candidate.objects.filter(
-#         **candidate_filter,
-#         verification_status=True
-#     ).filter(
-#         Q(main_status__iexact="SCREENING") |
-#         Q(main_status__iexact="L1") |
-#         Q(main_status__iexact="L2") |
-#         Q(main_status__iexact="L3") |
-#         Q(main_status__iexact="OTHER")
-#     ).count()
-
-#     data = {
-#         "user_name": user.get_full_name() or user.email,
-#         "total_vendors": total_vendors,
-#         "total_clients": total_clients,
-#         "total_profiles": total_profiles,
-#         "today_profiles": today_profiles,
-#         "today_submitted_profiles": today_submitted_profiles,
-#         "total_pipelines": total_pipelines,
-#     }
-
-#     return Response(data)
-
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
 from django.utils.timezone import now
 from datetime import timedelta
@@ -157,31 +103,6 @@ def today_verified_candidates(request):
 
 
 
-
-# @api_view(["GET"])
-# @permission_classes([IsAuthenticated])
-# def active_pipeline_candidates(request):
-#     user = request.user
-
-#     queryset = Candidate.objects.filter(
-#         verification_status=True
-#     ).filter(
-#         Q(main_status__iexact="SCREENING") |
-#         Q(main_status__iexact="L1") |
-#         Q(main_status__iexact="L2") |
-#         Q(main_status__iexact="L3") |
-#         Q(main_status__iexact="OTHER")
-#     )
-
-#     if user.role != "SUB_ADMIN":
-#         queryset = queryset.filter(created_by=user)
-
-#     queryset = queryset.select_related("vendor", "client").order_by("-created_at")
-
-#     serializer = TodayCandidateSerializer(queryset, many=True)
-#     return Response(serializer.data)
-
-
 from django.utils.timezone import now
 from datetime import timedelta
 
@@ -221,34 +142,71 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
+# class IsSubAdmin(BasePermission):
+#     def has_permission(self, request, view):
+#         return request.user.is_authenticated and request.user.role == "SUB_ADMIN"
+
+
+# @method_decorator(csrf_exempt, name="dispatch")
+# class SubAdminUserListCreateAPIView(generics.ListCreateAPIView):
+#     # authentication_classes = [JWTAuthentication]
+#     permission_classes = [IsSubAdmin]
+#     serializer_class = UserCreateSerializer
+
+#     def get_queryset(self):
+#         return User.objects.filter(role="EMPLOYEE").order_by("-id")
+
+# class SubAdminUserUpdateAPIView(generics.RetrieveUpdateAPIView):
+#     # authentication_classes = [JWTAuthentication]
+#     serializer_class = UserCreateSerializer
+#     permission_classes = [IsSubAdmin]
+
+#     def get_queryset(self):
+#         return User.objects.filter(role="EMPLOYEE")
+
+from rest_framework import generics
+from rest_framework.permissions import BasePermission
+from rest_framework.authentication import SessionAuthentication
+from .serializers import UserCreateSerializer
+
+from rest_framework.authentication import SessionAuthentication
+
+class CsrfExemptSessionAuthentication(SessionAuthentication):
+    def enforce_csrf(self, request):
+        return
+
 class IsSubAdmin(BasePermission):
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.role == "SUB_ADMIN"
+        return (
+            request.user.is_authenticated and
+            request.user.role == "SUB_ADMIN"
+        )
 
 
 class SubAdminUserListCreateAPIView(generics.ListCreateAPIView):
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    # authentication_classes = [SessionAuthentication]
     permission_classes = [IsSubAdmin]
     serializer_class = UserCreateSerializer
 
     def get_queryset(self):
         return User.objects.filter(role="EMPLOYEE").order_by("-id")
 
+
 class SubAdminUserUpdateAPIView(generics.RetrieveUpdateAPIView):
-    authentication_classes = [JWTAuthentication]
-    serializer_class = UserCreateSerializer
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    # authentication_classes = [SessionAuthentication]
     permission_classes = [IsSubAdmin]
+    serializer_class = UserCreateSerializer
 
     def get_queryset(self):
         return User.objects.filter(role="EMPLOYEE")
 
 # ==================================================================
 
-# views.py
-
 from django.db.models import Q
 from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated
+
 from rest_framework.exceptions import PermissionDenied
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter, SearchFilter
@@ -279,13 +237,11 @@ class AdminCandidateListAPIView(generics.ListAPIView):
         user = self.request.user
 
         # 🔐 Role Check
-        if user.role not in ["CENTRAL_ADMIN", "SUB_ADMIN"]:
+        if user.role not in ["SUB_ADMIN","CENTRAL_ADMIN"]:
             raise PermissionDenied("You do not have permission to access this data.")
 
         return Candidate.objects.all().order_by("-created_at")
 
-
-# views.py
 
 from django.db.models import Q
 from rest_framework.generics import ListAPIView
@@ -332,10 +288,25 @@ class AdminVendorFullListAPIView(ListAPIView):
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.views import APIView
 
 from employee_portal.models import Client
 from .serializers import ClientListSerializer
 
+# class AdminClientListAPIView(ListAPIView):
+#     permission_classes = [IsAuthenticated]
+#     serializer_class = ClientListSerializer
+
+#     def get_queryset(self):
+#         user = self.request.user
+
+#         # 🔐 Role Restriction
+#         if user.role not in ["CENTRAL_ADMIN", "SUB_ADMIN"]:
+#             raise PermissionDenied("You do not have permission to access this data.")
+
+#         return Client.objects.select_related("created_by").order_by("-created_at")
+    
+    
 class AdminClientListAPIView(ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ClientListSerializer
@@ -343,9 +314,26 @@ class AdminClientListAPIView(ListAPIView):
     def get_queryset(self):
         user = self.request.user
 
-        # 🔐 Role Restriction
         if user.role not in ["CENTRAL_ADMIN", "SUB_ADMIN"]:
             raise PermissionDenied("You do not have permission to access this data.")
 
         return Client.objects.select_related("created_by").order_by("-created_at")
-    
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["request"] = self.request
+        return context
+
+from .serializers import ClientDetailSerializer
+class ClientDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, client_id):
+        client = get_object_or_404(Client, id=client_id)
+
+        serializer = ClientDetailSerializer(
+            client,
+            context={"request": request}
+        )
+        return Response(serializer.data)
+

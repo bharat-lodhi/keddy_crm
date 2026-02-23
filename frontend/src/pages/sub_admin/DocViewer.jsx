@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { apiRequest } from "../../services/api";
-import BaseLayout from "../components/emp_base";
+// import { apiRequest } from "../../services/api";
+import { apiRequest, API_BASE } from "../../services/api";
+import BaseLayout from "../components/SubAdminLayout";
 
 function DocViewer() {
     const { id } = useParams();
@@ -18,7 +19,7 @@ function DocViewer() {
                         data.bench_list :
                         `/media${data.bench_list}`;
 
-                    setFileUrl(`http://127.0.0.1:8000${path}`);
+                    setFileUrl(`${API_BASE}${path}`);
                 }
             } catch (error) {
                 console.error("Error:", error);
@@ -132,6 +133,8 @@ const styles = {
 };
 
 export default DocViewer;
+
+
 
 
 // import React, { useState, useEffect } from "react";
