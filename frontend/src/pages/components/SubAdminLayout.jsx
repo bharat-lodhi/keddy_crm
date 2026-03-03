@@ -12,7 +12,7 @@ const SubAdminLayout = ({ children }) => {
         const fetchUserData = async () => {
             try {
                 // Aapka stats API call same rahega
-                const data = await apiRequest("/employee-portal/dashboard/stats/");
+                const data = await apiRequest("/sub-admin/api/subadmin/dashboard/stats/");
                 if (data && data.user_name) setUserName(data.user_name);
             } catch (error) {
                 console.error("Error fetching user data:", error);
@@ -26,8 +26,8 @@ const SubAdminLayout = ({ children }) => {
     // Sub-Admin specific menu items
     const menuItems = [
         { label: "Overview", path: "/sub-admin" },
-        // { label: "Team Members", path: "/sub-admin/team" },
-        { label: "All Candidates", path: "/sub-admin/all-candidates" },
+        { label: "Manage Team", path: "/sub-admin/team-manage" },
+        { label: "All Profiles", path: "/sub-admin/all-candidates" },
         { label: "Clients", path: "/sub-admin/clients" },
         { label: "Vendors", path: "/sub-admin/all-Vendors" },
     ];

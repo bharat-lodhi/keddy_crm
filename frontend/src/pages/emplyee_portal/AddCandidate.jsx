@@ -5,14 +5,32 @@ import BaseLayout from "../components/emp_base";
 
 function AddCandidate() {
     const navigate = useNavigate();
-    const [form, setForm] = useState({});
+    
+    // Sabse pehle ye State define karna zaroori hai error hatane ke liye
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    
+    const [form, setForm] = useState({
+        candidate_name: "",
+        candidate_email: "",
+        candidate_number: "",
+        skills: "",
+        technology: "",
+        years_of_experience_manual: "",
+        years_of_experience_calculated: "",
+        vendor: "",
+        vendor_company_name: "",
+        vendor_number: "",
+        vendor_rate: "",
+        vendor_rate_type: "",
+        submitted_to: "",
+        extra_details: ""
+    });
+    
     const [resumeFile, setResumeFile] = useState(null);
     const [vendors, setVendors] = useState([]);
     const [employees, setEmployees] = useState([]);
     const [searchVendor, setSearchVendor] = useState("");
     const [isParsing, setIsParsing] = useState(false);
-    
-    // Naye States: Dropdown aur Toast ke liye
     const [showDropdown, setShowDropdown] = useState(false);
     const [toast, setToast] = useState({ show: false, msg: "", type: "" });
 
@@ -20,7 +38,6 @@ function AddCandidate() {
         loadDropdowns();
     }, []);
 
-    // Debounce Search Logic
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
             fetchVendors(searchVendor);
@@ -29,16 +46,20 @@ function AddCandidate() {
     }, [searchVendor]);
 
     const loadDropdowns = async () => {
-        const empRes = await apiRequest("/employee-portal/api/employees/");
-        setEmployees(empRes || []);
-        fetchVendors(""); // Initial vendors load
+        try {
+            const empRes = await apiRequest("/employee-portal/api/employees/");
+            setEmployees(empRes || []);
+            fetchVendors(""); 
+        } catch (err) {
+            console.error("Error loading dropdowns", err);
+        }
     };
 
     const fetchVendors = async (query) => {
         try {
             const url = query 
-                ? `/employee-portal/api/vendors/?search=${query}` 
-                : "/employee-portal/api/vendors/";
+                ? `/employee-portal/api/user/vendors/?search=${query}` 
+                : "/employee-portal/api/user/vendors/";
             const res = await apiRequest(url);
             setVendors(res.results || []);
         } catch (err) {
@@ -55,7 +76,6 @@ function AddCandidate() {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
-    // Naya Select Vendor Logic (Searchable dropdown ke liye)
     const selectVendor = (v) => {
         setForm({
             ...form,
@@ -88,6 +108,11 @@ function AddCandidate() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        // Double Click Prevention
+        if (isSubmitting) return; 
+
+        setIsSubmitting(true); 
         const fd = new FormData();
         Object.keys(form).forEach((k) => {
             if (form[k] !== null && form[k] !== undefined && form[k] !== "") {
@@ -99,21 +124,17 @@ function AddCandidate() {
         try {
             const res = await apiRequest("/employee-portal/api/candidates/create/", "POST", fd);
             notify(res.message || "Candidate Created Successfully!");
-            
             setTimeout(() => {
-            window.location.reload();   
-            }, 3000);
-
+                window.location.reload(); 
+            }, 2000);
         } catch (err) {
             notify("Error creating candidate", "error");
+            setIsSubmitting(false); // Error aaye toh button wapas enable karein
         }
-        window.location.reload();
-
     };
 
     return (
         <BaseLayout>
-            {/* Toast Notification */}
             {toast.show && (
                 <div style={{...styles.toast, backgroundColor: toast.type === 'error' ? '#E74C3C' : '#27AE60'}}>
                     {toast.msg}
@@ -121,244 +142,195 @@ function AddCandidate() {
             )}
 
             <div style={styles.header}>
-                {/* Back Button */}
                 <button onClick={() => navigate(-1)} style={styles.backBtn}>← Back</button>
                 <div style={{marginTop: '15px'}}>
                     <h2 style={styles.title}>Add New Candidate</h2>
-                    <p style={styles.subtitle}>Upload resume to auto-fill or enter details manually</p>
                 </div>
             </div>
 
             <form onSubmit={handleSubmit} style={styles.container}>
                 
-                {/* 1. Resume Upload Section */}
+                {/* 1. Resume Upload */}
                 <div style={styles.section}>
                     <h3 style={styles.secTitle}>1. Resume Upload</h3>
                     <div style={styles.uploadCard}>
-                        <input 
-                            type="file" 
-                            onChange={(e) => handleResumeUpload(e.target.files[0])} 
-                            style={styles.fileInput} 
-                        />
-                        {isParsing && <p style={styles.parsingText}>Parsing Resume... Please Wait</p>}
+                        <input type="file" onChange={(e) => handleResumeUpload(e.target.files[0])} />
+                        {isParsing && <p style={styles.parsingText}>Parsing Resume...</p>}
                     </div>
                 </div>
 
-                {/* 2. Candidate Basic Details */}
+                {/* 2. Candidate Details */}
                 <div style={styles.section}>
                     <h3 style={styles.secTitle}>2. Candidate Details</h3>
                     <div style={styles.grid}>
-                        <div style={styles.inputGroup}>
-                            <label style={styles.label}>Full Name</label>
-                            <input name="candidate_name" value={form.candidate_name || ""} onChange={handleChange} style={styles.input} placeholder="Enter Name" />
-                        </div>
-                        <div style={styles.inputGroup}>
-                            <label style={styles.label}>Email ID</label>
-                            <input name="candidate_email" value={form.candidate_email || ""} onChange={handleChange} style={styles.input} placeholder="example@mail.com" />
-                        </div>
-                        <div style={styles.inputGroup}>
-                            <label style={styles.label}>Phone Number</label>
-                            <input name="candidate_number" value={form.candidate_number || ""} onChange={handleChange} style={styles.input} placeholder="+91..." />
-                        </div>
-                        <div style={styles.inputGroup}>
-                            <label style={styles.label}>Skills</label>
-                            <input name="skills" value={form.skills || ""} onChange={handleChange} style={styles.input} placeholder="React, Python, etc." />
-                        </div>
-                        <div style={styles.inputGroup}>
-                            <label style={styles.label}>Technology</label>
-                            <input name="technology" value={form.technology || ""} onChange={handleChange} style={styles.input} placeholder="Web Development" />
-                        </div>
-
-                        <div style={styles.inputGroup}>
-                            <label style={styles.label}>Experience (Manual Entry)</label>
-                            <input name="years_of_experience_manual" value={form.years_of_experience_manual || ""} onChange={handleChange} style={styles.input} />
-                        </div>
-
-                        <div style={styles.inputGroup}>
-                            <label style={styles.label}>Experience (Calculated)</label>
-                            <input name="years_of_experience_calculated" value={form.years_of_experience_calculated || ""} onChange={handleChange} style={styles.input} />
-                        </div>
+                        <div style={styles.inputGroup}><label style={styles.label}>Full Name</label><input name="candidate_name" value={form.candidate_name} onChange={handleChange} style={styles.input} required /></div>
+                        <div style={styles.inputGroup}><label style={styles.label}>Email ID</label><input name="candidate_email" value={form.candidate_email} onChange={handleChange} style={styles.input}  /></div>
+                        <div style={styles.inputGroup}><label style={styles.label}>Phone Number</label><input name="candidate_number" value={form.candidate_number} onChange={handleChange} style={styles.input}  /></div>
+                        <div style={styles.inputGroup}><label style={styles.label}>Skills</label><input name="skills" value={form.skills} onChange={handleChange} style={styles.input} /></div>
+                        <div style={styles.inputGroup}><label style={styles.label}>Technology</label><input name="technology" value={form.technology} onChange={handleChange} style={styles.input} /></div>
+                        <div style={styles.inputGroup}><label style={styles.label}>Experience (Manual)</label><input name="years_of_experience_manual" value={form.years_of_experience_manual} onChange={handleChange} style={styles.input} /></div>
+                        <div style={styles.inputGroup}><label style={styles.label}>Experience (Calculated)</label><input name="years_of_experience_calculated" value={form.years_of_experience_calculated} onChange={handleChange} style={styles.input} /></div>
                     </div>
                 </div>
 
-                {/* 3. Vendor Section (Updated with Searchable Dropdown) */}
+                {/* 3. Vendor Section - 3 items in one line */}
                 <div style={styles.section}>
                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px'}}>
                         <h3 style={styles.secTitle}>3. Vendor Information</h3>
-                        <button type="button" onClick={() => navigate("/employee/vendor/add")} style={styles.addVendorBtn}>+ Add Vendor</button>
                     </div>
-                    <div style={styles.grid}>
+                    <div style={{...styles.grid, gridTemplateColumns: "repeat(3, 1fr)"}}>
                         <div style={{...styles.inputGroup, position: 'relative'}}>
                             <label style={styles.label}>Search & Select Vendor</label>
                             <input 
-                                placeholder="Search name/company..." 
+                                placeholder="Search..." 
                                 value={searchVendor} 
-                                required={true}
-                                onChange={(e) => {
-                                    setSearchVendor(e.target.value);
-                                    setShowDropdown(true);
-                                }} 
+                                required
+                                onChange={(e) => { setSearchVendor(e.target.value); setShowDropdown(true); }} 
                                 onFocus={() => setShowDropdown(true)}
-                                onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+                                onBlur={() => setTimeout(() => setShowDropdown(false), 300)}
                                 style={styles.input}
-                               
+                                autoComplete="off"
                             />
-                            {/* Dropdown Results */}
-                            {showDropdown && vendors.length > 0 && (
-                                <div style={styles.dropdownList}>
+                            {showDropdown && (
+                                <div style={styles.dropdownList} required>
                                     {vendors.map(v => (
-                                        <div 
-                                            key={v.id} 
-                                            onMouseDown={() => selectVendor(v)}
-                                            style={styles.dropdownItem}
-                                        >
-                                            <div style={{fontWeight: '700'}}>{v.name}</div>
-                                            <div style={{fontSize: '11px', color: '#666'}}>{v.company_name} | {v.number}</div>
+                                        <div key={v.id} onMouseDown={() => selectVendor(v)} style={styles.dropdownItem}>
+                                            <strong>{v.name}</strong><br/>
+                                            <small>{v.company_name}</small>
                                         </div>
                                     ))}
                                 </div>
                             )}
                         </div>
+                        <div style={styles.inputGroup}><label style={styles.label}>Vendor Company Name</label><input value={form.vendor_company_name} style={styles.input} readOnly /></div>
+                        <div style={styles.inputGroup}><label style={styles.label}>Vendor Contact</label><input value={form.vendor_number} style={styles.input} readOnly /></div>
                         
+                        {/* Next line rate fields */}
+                        <div style={styles.inputGroup}><label style={styles.label}>Vendor Rate</label><input name="vendor_rate" value={form.vendor_rate} onChange={handleChange} style={styles.input} required /></div>
                         <div style={styles.inputGroup}>
-                            <label style={styles.label}>Vendor Company Name</label>
-                            <input name="vendor_company_name" value={form.vendor_company_name || ""} onChange={handleChange} style={styles.input} readOnly />
-                        </div>
-                        <div style={styles.inputGroup}>
-                            <label style={styles.label}>Vendor Contact</label>
-                            <input name="vendor_number" value={form.vendor_number || ""} onChange={handleChange} style={styles.input} readOnly />
-                        </div>
-                        <div style={styles.inputGroup}>
-                            <label style={styles.label}>Vendor Rate (Expected)</label>
-                            <input name="vendor_rate" onChange={handleChange} style={styles.input} placeholder="Rate in INR" required />
-                        </div>
-
-                        <div style={styles.inputGroup}>
-                            <label style={styles.label}>Vendor Rate Type</label>
-                            <select
-                                name="vendor_rate_type"
-                                value={form.vendor_rate_type || ""}
-                                onChange={handleChange}
-                                style={styles.input}
-                                required
-                            >
+                            <label style={styles.label}>Rate Type</label>
+                            <select name="vendor_rate_type" value={form.vendor_rate_type} onChange={handleChange} style={styles.input} required>
                                 <option value="">Select Type</option>
-                                <option value="LPM">LPM</option>
-                                <option value="KPM">KPM</option>
-                                <option value="PHR">PHR</option>
-                                <option value="LPA">LPA</option>
+                                <option value="LPM">LPM</option><option value="KPM">KPM</option><option value="PHR">PHR</option><option value="LPA">LPA</option>
                             </select>
                         </div>
-
                     </div>
                 </div>
 
-                {/* 4. Others & Remark */}
                 <div style={styles.section}>
-                    <h3 style={styles.secTitle}>4. Submission & Remarks</h3>
+                    <h3 style={styles.secTitle}>4. Submission</h3>
                     <div style={styles.grid}>
                         <div style={styles.inputGroup}>
-                            <label style={styles.label}>Submitted To (Internal)</label>
-                            <select name="submitted_to" onChange={handleChange} style={styles.input}>
-                                <option value="">Select Employee</option>
-                                {employees.map(emp => (
-                                    <option key={emp.id} value={emp.id}>{emp.first_name} {emp.last_name}</option>
-                                ))}
+                            <label style={styles.label}>Submitted To</label>
+                            <select name="submitted_to" value={form.submitted_to} onChange={handleChange} style={styles.input}>
+                                <option value="">Select</option>
+                                {employees.map(emp => (<option key={emp.id} value={emp.id}>{emp.first_name} {emp.last_name}</option>))}
                             </select>
                         </div>
-                        {/* Aapne kaha tha commented as it is rahe */}
-                        {/* <div style={styles.inputGroup}>
-                            <label style={styles.label}>Remark</label>
-                            <textarea name="remark" onChange={handleChange} style={styles.textarea} placeholder="Any notes..."></textarea>
-                        </div> */}
-                        <div style={styles.inputGroup}>
-                            <label style={styles.label}>Extra Details</label>
-                            <textarea name="extra_details" onChange={handleChange} style={styles.textarea} placeholder="Additional info..."></textarea>
-                        </div>
+                        <div style={styles.inputGroup}><label style={styles.label}>Extra Details</label><textarea name="extra_details" value={form.extra_details} onChange={handleChange} style={styles.textarea}></textarea></div>
                     </div>
                 </div>
 
-                <button type="submit" style={styles.submitBtn}>Submit Candidate</button>
+                <button 
+                    type="submit" 
+                    disabled={isSubmitting} 
+                    style={{
+                        ...styles.submitBtn, 
+                        backgroundColor: isSubmitting ? "#BFC9D1" : "#FF9B51",
+                        cursor: isSubmitting ? "not-allowed" : "pointer"
+                    }}
+                >
+                    {isSubmitting ? "Submitting..." : "Submit Candidate"}
+                </button>
             </form>
         </BaseLayout>
     );
 }
 
 const styles = {
-    // Naye styles Back Button, Toast aur Dropdown ke liye
-    toast: { position: 'fixed', top: '85px', right: '20px', color: '#fff', padding: '12px 25px', borderRadius: '8px', zIndex: 9999, fontWeight: '700', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' },
-    backBtn: { background: "#25343F", color: "#fff", border: "none", padding: "8px 15px", borderRadius: "8px", fontWeight: "600", cursor: "pointer" },
-    dropdownList: { position: 'absolute', top: '100%', left: 0, right: 0, background: '#fff', border: '1px solid #BFC9D1', borderRadius: '10px', maxHeight: '200px', overflowY: 'auto', zIndex: 1000, boxShadow: '0 10px 25px rgba(0,0,0,0.1)', marginTop: '5px' },
-    dropdownItem: { padding: '10px 15px', cursor: 'pointer', borderBottom: '1px solid #f0f0f0', transition: 'background 0.2s' },
-
-    // Purane Styles same to same
+    toast: { position: 'fixed', top: '85px', right: '20px', color: '#fff', padding: '12px 25px', borderRadius: '8px', zIndex: 9999, fontWeight: '700' },
+    backBtn: { background: "#25343F", color: "#fff", border: "none", padding: "8px 15px", borderRadius: "8px", cursor: "pointer" },
     header: { marginBottom: "25px" },
-    title: { color: "#25343F", margin: 0, fontSize: "28px", fontWeight: "800" },
-    subtitle: { color: "#666", fontSize: "14px" },
+    title: { color: "#25343F", fontSize: "28px", fontWeight: "800" },
     container: { display: "flex", flexDirection: "column", gap: "25px" },
     section: { background: "#fff", padding: "25px", borderRadius: "15px", boxShadow: "0 4px 20px rgba(0,0,0,0.05)" },
     secTitle: { fontSize: "16px", color: "#FF9B51", fontWeight: "800", marginBottom: "20px", borderBottom: "2px solid #F5F7F9", paddingBottom: "10px" },
     grid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "20px" },
     inputGroup: { display: "flex", flexDirection: "column", gap: "8px" },
     label: { fontSize: "12px", fontWeight: "700", color: "#25343F", textTransform: "uppercase" },
-    input: { padding: "12px", borderRadius: "10px", border: "1px solid #BFC9D1", outline: "none", fontSize: "14px" },
-    textarea: { padding: "12px", borderRadius: "10px", border: "1px solid #BFC9D1", outline: "none", minHeight: "80px", fontSize: "14px" },
-    uploadCard: { padding: "20px", border: "2px dashed #FF9B51", borderRadius: "12px", textAlign: "center", background: "#FFFBF8" },
-    parsingText: { color: "#FF9B51", fontWeight: "bold", marginTop: "10px" },
-    addVendorBtn: { background: "#25343F", color: "#fff", border: "none", padding: "8px 15px", borderRadius: "8px", fontWeight: "600", cursor: "pointer" },
-    submitBtn: { padding: "18px", background: "#FF9B51", color: "#fff", border: "none", borderRadius: "12px", fontSize: "16px", fontWeight: "800", cursor: "pointer", boxShadow: "0 10px 20px rgba(255,155,81,0.2)" }
+    input: { padding: "12px", borderRadius: "10px", border: "1px solid #BFC9D1", fontSize: "14px" },
+    textarea: { padding: "12px", borderRadius: "10px", border: "1px solid #BFC9D1", minHeight: "80px" },
+    dropdownList: { position: 'absolute', top: '100%', left: 0, right: 0, background: '#fff', border: '1px solid #BFC9D1', borderRadius: '10px', maxHeight: '200px', overflowY: 'auto', zIndex: 1000 },
+    dropdownItem: { padding: '10px', cursor: 'pointer', borderBottom: '1px solid #f0f0f0' },
+    uploadCard: { padding: "20px", border: "2px dashed #FF9B51", borderRadius: "12px", textAlign: "center" },
+    parsingText: { color: "#FF9B51", fontWeight: "bold" },
+    submitBtn: { padding: "18px", color: "#fff", border: "none", borderRadius: "12px", fontSize: "16px", fontWeight: "800" }
 };
 
 export default AddCandidate;
 
 
 
-// import React, { useEffect, useState, useCallback } from "react";
+// import React, { useEffect, useState } from "react";
 // import { useNavigate } from "react-router-dom";
 // import { apiRequest } from "../../services/api";
 // import BaseLayout from "../components/emp_base";
 
 // function AddCandidate() {
 //     const navigate = useNavigate();
-//     const [form, setForm] = useState({});
+//     const [form, setForm] = useState({
+//         candidate_name: "",
+//         candidate_email: "",
+//         candidate_number: "",
+//         skills: "",
+//         technology: "",
+//         years_of_experience_manual: "",
+//         years_of_experience_calculated: "",
+//         vendor: "",
+//         vendor_company_name: "",
+//         vendor_number: "",
+//         vendor_rate: "",
+//         vendor_rate_type: "",
+//         submitted_to: "",
+//         extra_details: ""
+//     });
 //     const [resumeFile, setResumeFile] = useState(null);
 //     const [vendors, setVendors] = useState([]);
 //     const [employees, setEmployees] = useState([]);
 //     const [searchVendor, setSearchVendor] = useState("");
 //     const [isParsing, setIsParsing] = useState(false);
-//     const [showDropdown, setShowDropdown] = useState(false); // Dropdown open/close control
+    
+//     const [showDropdown, setShowDropdown] = useState(false);
+//     const [toast, setToast] = useState({ show: false, msg: "", type: "" });
 
 //     useEffect(() => {
-//         loadInitialData();
+//         loadDropdowns();
 //     }, []);
 
-//     // Jab search term badle, tab API call karein
+//     // Debounce Search Logic - Endpoint updated to /user/vendors/
 //     useEffect(() => {
 //         const delayDebounceFn = setTimeout(() => {
-//             if (searchVendor.trim()) {
-//                 fetchVendors(searchVendor);
-//             } else {
-//                 // Agar search empty hai toh default list mangwayein
-//                 fetchVendors("");
-//             }
-//         }, 500); // 500ms ka wait (Debounce)
-
+//             fetchVendors(searchVendor);
+//         }, 500);
 //         return () => clearTimeout(delayDebounceFn);
 //     }, [searchVendor]);
 
-//     const loadInitialData = async () => {
-//         // Initial load: Default vendors aur employees
-//         const empRes = await apiRequest("/employee-portal/api/employees/");
-//         setEmployees(empRes || []);
-//         fetchVendors(""); // Default vendors fetch
+//     const loadDropdowns = async () => {
+//         try {
+//             const empRes = await apiRequest("/employee-portal/api/employees/");
+//             setEmployees(empRes || []);
+//             fetchVendors(""); 
+//         } catch (err) {
+//             console.error("Error loading dropdowns", err);
+//         }
 //     };
 
 //     const fetchVendors = async (query) => {
 //         try {
-//             // Aapki Search API call: /employee-portal/api/vendors/?search=query
+//             // Correct Endpoint from your VendorList page
 //             const url = query 
-//                 ? `/employee-portal/api/vendors/?search=${query}` 
-//                 : "/employee-portal/api/vendors/";
+//                 ? `/employee-portal/api/user/vendors/?search=${query}` 
+//                 : "/employee-portal/api/user/vendors/";
 //             const res = await apiRequest(url);
 //             setVendors(res.results || []);
 //         } catch (err) {
@@ -366,11 +338,15 @@ export default AddCandidate;
 //         }
 //     };
 
+//     const notify = (msg, type = "success") => {
+//         setToast({ show: true, msg, type });
+//         setTimeout(() => setToast({ show: false, msg: "", type: "" }), 3000);
+//     };
+
 //     const handleChange = (e) => {
 //         setForm({ ...form, [e.target.name]: e.target.value });
 //     };
 
-//     // Jab user dropdown se vendor select kare
 //     const selectVendor = (v) => {
 //         setForm({
 //             ...form,
@@ -378,8 +354,8 @@ export default AddCandidate;
 //             vendor_company_name: v.company_name || "",
 //             vendor_number: v.number || ""
 //         });
-//         setSearchVendor(`${v.name} (${v.company_name})`); // Input mein select kiya gaya naam dikhayein
-//         setShowDropdown(false); // Dropdown band kar dein
+//         setSearchVendor(`${v.name} (${v.company_name})`);
+//         setShowDropdown(false);
 //     };
 
 //     const handleResumeUpload = async (file) => {
@@ -393,8 +369,11 @@ export default AddCandidate;
 //             const res = await apiRequest("/employee-portal/api/candidates/parse-resume/", "POST", fd);
 //             if (res.data) {
 //                 setForm(prev => ({ ...prev, ...res.data }));
+//                 notify("Resume parsed successfully!");
 //             }
-//         } catch (err) { console.error("Parsing error"); }
+//         } catch (err) {
+//             notify("Failed to parse resume", "error");
+//         }
 //         setIsParsing(false);
 //     };
 
@@ -410,22 +389,34 @@ export default AddCandidate;
 
 //         try {
 //             const res = await apiRequest("/employee-portal/api/candidates/create/", "POST", fd);
-//             alert(res.message || "Candidate Created Successfully!");
-//             navigate("/employee/candidates"); 
+//             notify(res.message || "Candidate Created Successfully!");
+//             setTimeout(() => {
+//                 window.location.reload(); 
+//             }, 2000);
 //         } catch (err) {
-//             alert("Error creating candidate");
+//             notify("Error creating candidate", "error");
 //         }
 //     };
 
 //     return (
 //         <BaseLayout>
+//             {toast.show && (
+//                 <div style={{...styles.toast, backgroundColor: toast.type === 'error' ? '#E74C3C' : '#27AE60'}}>
+//                     {toast.msg}
+//                 </div>
+//             )}
+
 //             <div style={styles.header}>
-//                 <h2 style={styles.title}>Add New Candidate</h2>
-//                 <p style={styles.subtitle}>Upload resume to auto-fill or enter details manually</p>
+//                 <button onClick={() => navigate(-1)} style={styles.backBtn}>← Back</button>
+//                 <div style={{marginTop: '15px'}}>
+//                     <h2 style={styles.title}>Add New Candidate</h2>
+//                     <p style={styles.subtitle}>Upload resume to auto-fill or enter details manually</p>
+//                 </div>
 //             </div>
 
 //             <form onSubmit={handleSubmit} style={styles.container}>
-//                 {/* 1. Resume Section */}
+                
+//                 {/* 1. Resume Upload Section */}
 //                 <div style={styles.section}>
 //                     <h3 style={styles.secTitle}>1. Resume Upload</h3>
 //                     <div style={styles.uploadCard}>
@@ -434,90 +425,111 @@ export default AddCandidate;
 //                     </div>
 //                 </div>
 
-//                 {/* 2. Candidate Details */}
+//                 {/* 2. Candidate Basic Details */}
 //                 <div style={styles.section}>
 //                     <h3 style={styles.secTitle}>2. Candidate Details</h3>
 //                     <div style={styles.grid}>
 //                         <div style={styles.inputGroup}>
 //                             <label style={styles.label}>Full Name</label>
-//                             <input name="candidate_name" value={form.candidate_name || ""} onChange={handleChange} style={styles.input} />
+//                             <input name="candidate_name" value={form.candidate_name} onChange={handleChange} style={styles.input} placeholder="Enter Name" required />
 //                         </div>
 //                         <div style={styles.inputGroup}>
 //                             <label style={styles.label}>Email ID</label>
-//                             <input name="candidate_email" value={form.candidate_email || ""} onChange={handleChange} style={styles.input} />
+//                             <input name="candidate_email" value={form.candidate_email} onChange={handleChange} style={styles.input} placeholder="example@mail.com"  />
 //                         </div>
 //                         <div style={styles.inputGroup}>
 //                             <label style={styles.label}>Phone Number</label>
-//                             <input name="candidate_number" value={form.candidate_number || ""} onChange={handleChange} style={styles.input} />
+//                             <input name="candidate_number" value={form.candidate_number} onChange={handleChange} style={styles.input} placeholder="+91..."  />
+//                         </div>
+//                         <div style={styles.inputGroup}>
+//                             <label style={styles.label}>Skills</label>
+//                             <input name="skills" value={form.skills} onChange={handleChange} style={styles.input} placeholder="React, Python, etc." />
 //                         </div>
 //                         <div style={styles.inputGroup}>
 //                             <label style={styles.label}>Technology</label>
-//                             <input name="technology" value={form.technology || ""} onChange={handleChange} style={styles.input} />
+//                             <input name="technology" value={form.technology} onChange={handleChange} style={styles.input} placeholder="Web Development" />
+//                         </div>
+//                         <div style={styles.inputGroup}>
+//                             <label style={styles.label}>Experience (Manual Entry)</label>
+//                             <input name="years_of_experience_manual" value={form.years_of_experience_manual} onChange={handleChange} style={styles.input} />
+//                         </div>
+//                         <div style={styles.inputGroup}>
+//                             <label style={styles.label}>Experience (Calculated)</label>
+//                             <input name="years_of_experience_calculated" value={form.years_of_experience_calculated} onChange={handleChange} style={styles.input} />
 //                         </div>
 //                     </div>
 //                 </div>
 
-//                 {/* 3. Integrated Vendor Search Section */}
+//                 {/* 3. Vendor Section */}
 //                 <div style={styles.section}>
 //                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px'}}>
 //                         <h3 style={styles.secTitle}>3. Vendor Information</h3>
 //                         <button type="button" onClick={() => navigate("/employee/vendor/add")} style={styles.addVendorBtn}>+ Add Vendor</button>
 //                     </div>
-                    
 //                     <div style={styles.grid}>
-//                         {/* Search + Dropdown Integrated */}
 //                         <div style={{...styles.inputGroup, position: 'relative'}}>
 //                             <label style={styles.label}>Search & Select Vendor</label>
 //                             <input 
-//                                 placeholder="Start typing vendor or company name..." 
+//                                 placeholder="Search name/company..." 
 //                                 value={searchVendor} 
+//                                 required
 //                                 onChange={(e) => {
 //                                     setSearchVendor(e.target.value);
 //                                     setShowDropdown(true);
-//                                 }}
+//                                 }} 
 //                                 onFocus={() => setShowDropdown(true)}
-//                                 style={styles.input} 
+//                                 onBlur={() => setTimeout(() => setShowDropdown(false), 300)}
+//                                 style={styles.input}
+//                                 autoComplete="off"
 //                             />
-                            
-//                             {/* Custom Dropdown List */}
-//                             {showDropdown && vendors.length > 0 && (
+//                             {showDropdown && (
 //                                 <div style={styles.dropdownList}>
-//                                     {vendors.map(v => (
-//                                         <div 
-//                                             key={v.id} 
-//                                             onClick={() => selectVendor(v)}
-//                                             style={styles.dropdownItem}
-//                                         >
-//                                             <div style={{fontWeight: '700'}}>{v.name}</div>
-//                                             <div style={{fontSize: '11px', color: '#666'}}>{v.company_name} | {v.number}</div>
-//                                         </div>
-//                                     ))}
+//                                     {vendors.length > 0 ? (
+//                                         vendors.map(v => (
+//                                             <div key={v.id} onMouseDown={() => selectVendor(v)} style={styles.dropdownItem}>
+//                                                 <div style={{fontWeight: '700'}}>{v.name}</div>
+//                                                 <div style={{fontSize: '11px', color: '#666'}}>{v.company_name} | {v.number}</div>
+//                                             </div>
+//                                         ))
+//                                     ) : (
+//                                         <div style={{padding: '10px', textAlign: 'center', color: '#999'}}>No Vendors Found</div>
+//                                     )}
 //                                 </div>
 //                             )}
 //                         </div>
-
 //                         <div style={styles.inputGroup}>
-//                             <label style={styles.label}>Vendor Company (Auto)</label>
-//                             <input name="vendor_company_name" value={form.vendor_company_name || ""} readOnly style={{...styles.input, backgroundColor: '#f9f9f9'}} />
+//                             <label style={styles.label}>Vendor Company Name</label>
+//                             <input value={form.vendor_company_name} style={styles.input} readOnly />
 //                         </div>
 //                         <div style={styles.inputGroup}>
-//                             <label style={styles.label}>Vendor Contact (Auto)</label>
-//                             <input name="vendor_number" value={form.vendor_number || ""} readOnly style={{...styles.input, backgroundColor: '#f9f9f9'}} />
+//                             <label style={styles.label}>Vendor Contact</label>
+//                             <input value={form.vendor_number} style={styles.input} readOnly />
+//                         </div>
+//                         <br />
+//                         <div style={styles.inputGroup}>
+//                             <label style={styles.label}>Vendor Rate (Expected)</label>
+//                             <input name="vendor_rate" value={form.vendor_rate} onChange={handleChange} style={styles.input} placeholder="Rate in INR" required />
 //                         </div>
 //                         <div style={styles.inputGroup}>
-//                             <label style={styles.label}>Vendor Rate (INR)</label>
-//                             <input name="vendor_rate" onChange={handleChange} style={styles.input} />
+//                             <label style={styles.label}>Vendor Rate Type</label>
+//                             <select name="vendor_rate_type" value={form.vendor_rate_type} onChange={handleChange} style={styles.input} required>
+//                                 <option value="">Select Type</option>
+//                                 <option value="LPM">LPM</option>
+//                                 <option value="KPM">KPM</option>
+//                                 <option value="PHR">PHR</option>
+//                                 <option value="LPA">LPA</option>
+//                             </select>
 //                         </div>
 //                     </div>
 //                 </div>
 
-//                 {/* 4. Submission Section */}
+//                 {/* 4. Submission & Remarks */}
 //                 <div style={styles.section}>
-//                     <h3 style={styles.secTitle}>4. Submission</h3>
+//                     <h3 style={styles.secTitle}>4. Submission & Remarks</h3>
 //                     <div style={styles.grid}>
 //                         <div style={styles.inputGroup}>
-//                             <label style={styles.label}>Submitted To</label>
-//                             <select name="submitted_to" onChange={handleChange} style={styles.input}>
+//                             <label style={styles.label}>Submitted To (Internal)</label>
+//                             <select name="submitted_to" value={form.submitted_to} onChange={handleChange} style={styles.input}>
 //                                 <option value="">Select Employee</option>
 //                                 {employees.map(emp => (
 //                                     <option key={emp.id} value={emp.id}>{emp.first_name} {emp.last_name}</option>
@@ -526,7 +538,7 @@ export default AddCandidate;
 //                         </div>
 //                         <div style={styles.inputGroup}>
 //                             <label style={styles.label}>Extra Details</label>
-//                             <textarea name="extra_details" onChange={handleChange} style={styles.textarea}></textarea>
+//                             <textarea name="extra_details" value={form.extra_details} onChange={handleChange} style={styles.textarea} placeholder="Additional info..."></textarea>
 //                         </div>
 //                     </div>
 //                 </div>
@@ -538,7 +550,10 @@ export default AddCandidate;
 // }
 
 // const styles = {
-//     // ... aapke purane styles baki sab same hain ...
+//     toast: { position: 'fixed', top: '85px', right: '20px', color: '#fff', padding: '12px 25px', borderRadius: '8px', zIndex: 9999, fontWeight: '700', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' },
+//     backBtn: { background: "#25343F", color: "#fff", border: "none", padding: "8px 15px", borderRadius: "8px", fontWeight: "600", cursor: "pointer" },
+//     dropdownList: { position: 'absolute', top: '100%', left: 0, right: 0, background: '#fff', border: '1px solid #BFC9D1', borderRadius: '10px', maxHeight: '200px', overflowY: 'auto', zIndex: 1000, boxShadow: '0 10px 25px rgba(0,0,0,0.1)', marginTop: '5px' },
+//     dropdownItem: { padding: '10px 15px', cursor: 'pointer', borderBottom: '1px solid #f0f0f0' },
 //     header: { marginBottom: "25px" },
 //     title: { color: "#25343F", margin: 0, fontSize: "28px", fontWeight: "800" },
 //     subtitle: { color: "#666", fontSize: "14px" },
@@ -553,33 +568,12 @@ export default AddCandidate;
 //     uploadCard: { padding: "20px", border: "2px dashed #FF9B51", borderRadius: "12px", textAlign: "center", background: "#FFFBF8" },
 //     parsingText: { color: "#FF9B51", fontWeight: "bold", marginTop: "10px" },
 //     addVendorBtn: { background: "#25343F", color: "#fff", border: "none", padding: "8px 15px", borderRadius: "8px", fontWeight: "600", cursor: "pointer" },
-//     submitBtn: { padding: "18px", background: "#FF9B51", color: "#fff", border: "none", borderRadius: "12px", fontSize: "16px", fontWeight: "800", cursor: "pointer", boxShadow: "0 10px 20px rgba(255,155,81,0.2)" },
-    
-//     // Naye styles searchable dropdown ke liye
-//     dropdownList: {
-//         position: 'absolute',
-//         top: '100%',
-//         left: 0,
-//         right: 0,
-//         background: '#fff',
-//         border: '1px solid #BFC9D1',
-//         borderRadius: '10px',
-//         maxHeight: '200px',
-//         overflowY: 'auto',
-//         zIndex: 1000,
-//         boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-//         marginTop: '5px'
-//     },
-//     dropdownItem: {
-//         padding: '10px 15px',
-//         cursor: 'pointer',
-//         borderBottom: '1px solid #f0f0f0',
-//         transition: 'background 0.2s',
-//         ":hover": { background: '#FFFBF8' }
-//     }
+//     submitBtn: { padding: "18px", background: "#FF9B51", color: "#fff", border: "none", borderRadius: "12px", fontSize: "16px", fontWeight: "800", cursor: "pointer", boxShadow: "0 10px 20px rgba(255,155,81,0.2)" }
 // };
 
 // export default AddCandidate;
+
+
 
 
 
@@ -597,42 +591,77 @@ export default AddCandidate;
 //     const [employees, setEmployees] = useState([]);
 //     const [searchVendor, setSearchVendor] = useState("");
 //     const [isParsing, setIsParsing] = useState(false);
+    
+//     // Naye States: Dropdown aur Toast ke liye
+//     const [showDropdown, setShowDropdown] = useState(false);
+//     const [toast, setToast] = useState({ show: false, msg: "", type: "" });
 
 //     useEffect(() => {
 //         loadDropdowns();
 //     }, []);
 
+//     // Debounce Search Logic
+//     useEffect(() => {
+//         const delayDebounceFn = setTimeout(() => {
+//             fetchVendors(searchVendor);
+//         }, 500);
+//         return () => clearTimeout(delayDebounceFn);
+//     }, [searchVendor]);
+
 //     const loadDropdowns = async () => {
-//         const vendorRes = await apiRequest("/employee-portal/api/vendors/");
 //         const empRes = await apiRequest("/employee-portal/api/employees/");
-//         setVendors(vendorRes.results || []);
 //         setEmployees(empRes || []);
+//         fetchVendors(""); // Initial vendors load
+//     };
+
+//     const fetchVendors = async (query) => {
+//         try {
+//             const url = query 
+//                 ? `/employee-portal/api/vendors/?search=${query}` 
+//                 : "/employee-portal/api/vendors/";
+//             const res = await apiRequest(url);
+//             setVendors(res.results || []);
+//         } catch (err) {
+//             console.error("Vendor fetch error:", err);
+//         }
+//     };
+
+//     const notify = (msg, type = "success") => {
+//         setToast({ show: true, msg, type });
+//         setTimeout(() => setToast({ show: false, msg: "", type: "" }), 3000);
 //     };
 
 //     const handleChange = (e) => {
 //         setForm({ ...form, [e.target.name]: e.target.value });
 //     };
 
-//     const handleVendorChange = (e) => {
-//         const vendorId = e.target.value;
-//         const selected = vendors.find(v => v.id == vendorId);
+//     // Naya Select Vendor Logic (Searchable dropdown ke liye)
+//     const selectVendor = (v) => {
 //         setForm({
 //             ...form,
-//             vendor: vendorId,
-//             vendor_company_name: selected?.company_name || "",
-//             vendor_number: selected?.number || ""
+//             vendor: v.id,
+//             vendor_company_name: v.company_name || "",
+//             vendor_number: v.number || ""
 //         });
+//         setSearchVendor(`${v.name} (${v.company_name})`);
+//         setShowDropdown(false);
 //     };
 
 //     const handleResumeUpload = async (file) => {
+//         if (!file) return;
 //         setResumeFile(file);
 //         setIsParsing(true);
 //         const fd = new FormData();
 //         fd.append("resume", file);
 
-//         const res = await apiRequest("/employee-portal/api/candidates/parse-resume/", "POST", fd);
-//         if (res.data) {
-//             setForm(prev => ({ ...prev, ...res.data }));
+//         try {
+//             const res = await apiRequest("/employee-portal/api/candidates/parse-resume/", "POST", fd);
+//             if (res.data) {
+//                 setForm(prev => ({ ...prev, ...res.data }));
+//                 notify("Resume parsed successfully!");
+//             }
+//         } catch (err) {
+//             notify("Failed to parse resume", "error");
 //         }
 //         setIsParsing(false);
 //     };
@@ -649,22 +678,35 @@ export default AddCandidate;
 
 //         try {
 //             const res = await apiRequest("/employee-portal/api/candidates/create/", "POST", fd);
-//             alert(res.message || "Candidate Created Successfully!");
-//             navigate("/employee/candidates"); 
-//         } catch (err) {
-//             alert("Error creating candidate");
-//         }
-//     };
+//             notify(res.message || "Candidate Created Successfully!");
+            
+//             setTimeout(() => {
+//             window.location.reload();   
+//             }, 3000);
 
-//     const filteredVendors = vendors.filter(v =>
-//         `${v.name} ${v.company_name} ${v.number}`.toLowerCase().includes(searchVendor.toLowerCase())
-//     );
+//         } catch (err) {
+//             notify("Error creating candidate", "error");
+//         }
+//         window.location.reload();
+
+//     };
 
 //     return (
 //         <BaseLayout>
+//             {/* Toast Notification */}
+//             {toast.show && (
+//                 <div style={{...styles.toast, backgroundColor: toast.type === 'error' ? '#E74C3C' : '#27AE60'}}>
+//                     {toast.msg}
+//                 </div>
+//             )}
+
 //             <div style={styles.header}>
-//                 <h2 style={styles.title}>Add New Candidate</h2>
-//                 <p style={styles.subtitle}>Upload resume to auto-fill or enter details manually</p>
+//                 {/* Back Button */}
+//                 <button onClick={() => navigate(-1)} style={styles.backBtn}>← Back</button>
+//                 <div style={{marginTop: '15px'}}>
+//                     <h2 style={styles.title}>Add New Candidate</h2>
+//                     <p style={styles.subtitle}>Upload resume to auto-fill or enter details manually</p>
+//                 </div>
 //             </div>
 
 //             <form onSubmit={handleSubmit} style={styles.container}>
@@ -716,44 +758,78 @@ export default AddCandidate;
 //                             <label style={styles.label}>Experience (Calculated)</label>
 //                             <input name="years_of_experience_calculated" value={form.years_of_experience_calculated || ""} onChange={handleChange} style={styles.input} />
 //                         </div>
-
-                        
-
 //                     </div>
 //                 </div>
 
-//                 {/* 3. Vendor Section */}
+//                 {/* 3. Vendor Section (Updated with Searchable Dropdown) */}
 //                 <div style={styles.section}>
 //                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px'}}>
 //                         <h3 style={styles.secTitle}>3. Vendor Information</h3>
 //                         <button type="button" onClick={() => navigate("/employee/vendor/add")} style={styles.addVendorBtn}>+ Add Vendor</button>
 //                     </div>
 //                     <div style={styles.grid}>
-//                         <div style={styles.inputGroup}>
-//                             <label style={styles.label}>Search Vendor</label>
-//                             <input placeholder="Search name/company..." value={searchVendor} onChange={(e) => setSearchVendor(e.target.value)} style={styles.input} />
+//                         <div style={{...styles.inputGroup, position: 'relative'}}>
+//                             <label style={styles.label}>Search & Select Vendor</label>
+//                             <input 
+//                                 placeholder="Search name/company..." 
+//                                 value={searchVendor} 
+//                                 required={true}
+//                                 onChange={(e) => {
+//                                     setSearchVendor(e.target.value);
+//                                     setShowDropdown(true);
+//                                 }} 
+//                                 onFocus={() => setShowDropdown(true)}
+//                                 onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+//                                 style={styles.input}
+                               
+//                             />
+//                             {/* Dropdown Results */}
+//                             {showDropdown && vendors.length > 0 && (
+//                                 <div style={styles.dropdownList}>
+//                                     {vendors.map(v => (
+//                                         <div 
+//                                             key={v.id} 
+//                                             onMouseDown={() => selectVendor(v)}
+//                                             style={styles.dropdownItem}
+//                                         >
+//                                             <div style={{fontWeight: '700'}}>{v.name}</div>
+//                                             <div style={{fontSize: '11px', color: '#666'}}>{v.company_name} | {v.number}</div>
+//                                         </div>
+//                                     ))}
+//                                 </div>
+//                             )}
 //                         </div>
-//                         <div style={styles.inputGroup}>
-//                             <label style={styles.label}>Select Vendor</label>
-//                             <select name="vendor" onChange={handleVendorChange} style={styles.input}>
-//                                 <option value="">-- Choose --</option>
-//                                 {filteredVendors.map(v => (
-//                                     <option key={v.id} value={v.id}>{v.name} - {v.company_name}</option>
-//                                 ))}
-//                             </select>
-//                         </div>
+                        
 //                         <div style={styles.inputGroup}>
 //                             <label style={styles.label}>Vendor Company Name</label>
-//                             <input name="vendor_company_name" value={form.vendor_company_name || ""} onChange={handleChange} style={styles.input} />
+//                             <input name="vendor_company_name" value={form.vendor_company_name || ""} onChange={handleChange} style={styles.input} readOnly />
 //                         </div>
 //                         <div style={styles.inputGroup}>
 //                             <label style={styles.label}>Vendor Contact</label>
-//                             <input name="vendor_number" value={form.vendor_number || ""} onChange={handleChange} style={styles.input} />
+//                             <input name="vendor_number" value={form.vendor_number || ""} onChange={handleChange} style={styles.input} readOnly />
 //                         </div>
 //                         <div style={styles.inputGroup}>
 //                             <label style={styles.label}>Vendor Rate (Expected)</label>
-//                             <input name="vendor_rate" onChange={handleChange} style={styles.input} placeholder="Rate in INR" />
+//                             <input name="vendor_rate" onChange={handleChange} style={styles.input} placeholder="Rate in INR" required />
 //                         </div>
+
+//                         <div style={styles.inputGroup}>
+//                             <label style={styles.label}>Vendor Rate Type</label>
+//                             <select
+//                                 name="vendor_rate_type"
+//                                 value={form.vendor_rate_type || ""}
+//                                 onChange={handleChange}
+//                                 style={styles.input}
+//                                 required
+//                             >
+//                                 <option value="">Select Type</option>
+//                                 <option value="LPM">LPM</option>
+//                                 <option value="KPM">KPM</option>
+//                                 <option value="PHR">PHR</option>
+//                                 <option value="LPA">LPA</option>
+//                             </select>
+//                         </div>
+
 //                     </div>
 //                 </div>
 
@@ -770,6 +846,7 @@ export default AddCandidate;
 //                                 ))}
 //                             </select>
 //                         </div>
+//                         {/* Aapne kaha tha commented as it is rahe */}
 //                         {/* <div style={styles.inputGroup}>
 //                             <label style={styles.label}>Remark</label>
 //                             <textarea name="remark" onChange={handleChange} style={styles.textarea} placeholder="Any notes..."></textarea>
@@ -788,6 +865,13 @@ export default AddCandidate;
 // }
 
 // const styles = {
+//     // Naye styles Back Button, Toast aur Dropdown ke liye
+//     toast: { position: 'fixed', top: '85px', right: '20px', color: '#fff', padding: '12px 25px', borderRadius: '8px', zIndex: 9999, fontWeight: '700', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' },
+//     backBtn: { background: "#25343F", color: "#fff", border: "none", padding: "8px 15px", borderRadius: "8px", fontWeight: "600", cursor: "pointer" },
+//     dropdownList: { position: 'absolute', top: '100%', left: 0, right: 0, background: '#fff', border: '1px solid #BFC9D1', borderRadius: '10px', maxHeight: '200px', overflowY: 'auto', zIndex: 1000, boxShadow: '0 10px 25px rgba(0,0,0,0.1)', marginTop: '5px' },
+//     dropdownItem: { padding: '10px 15px', cursor: 'pointer', borderBottom: '1px solid #f0f0f0', transition: 'background 0.2s' },
+
+//     // Purane Styles same to same
 //     header: { marginBottom: "25px" },
 //     title: { color: "#25343F", margin: 0, fontSize: "28px", fontWeight: "800" },
 //     subtitle: { color: "#666", fontSize: "14px" },
@@ -804,204 +888,6 @@ export default AddCandidate;
 //     addVendorBtn: { background: "#25343F", color: "#fff", border: "none", padding: "8px 15px", borderRadius: "8px", fontWeight: "600", cursor: "pointer" },
 //     submitBtn: { padding: "18px", background: "#FF9B51", color: "#fff", border: "none", borderRadius: "12px", fontSize: "16px", fontWeight: "800", cursor: "pointer", boxShadow: "0 10px 20px rgba(255,155,81,0.2)" }
 // };
-
-// export default AddCandidate;
-
-
-
-
-// import React, { useEffect, useState } from "react";
-// import { apiRequest } from "../../services/api";
-
-// function AddCandidate() {
-//     const [form, setForm] = useState({});
-//     const [resumeFile, setResumeFile] = useState(null);
-//     const [vendors, setVendors] = useState([]);
-//     const [employees, setEmployees] = useState([]);
-//     const [searchVendor, setSearchVendor] = useState("");
-
-//     useEffect(() => {
-//         loadDropdowns();
-//     }, []);
-
-//     const loadDropdowns = async () => {
-//         const vendorRes = await apiRequest("/employee-portal/api/vendors/");
-//         const empRes = await apiRequest("/employee-portal/api/employees/");
-//         setVendors(vendorRes.results || []);
-//         setEmployees(empRes || []);
-//     };
-
-//     const handleChange = (e) => {
-//         setForm({ ...form, [e.target.name]: e.target.value });
-//     };
-
-//     // Vendor autofill (editable)
-//     const handleVendorChange = (e) => {
-//         const vendorId = e.target.value;
-//         const selected = vendors.find(v => v.id == vendorId);
-
-//         setForm({
-//             ...form,
-//             vendor: vendorId,
-//             vendor_company_name: selected?.company_name || "",
-//             vendor_number: selected?.number || ""
-//         });
-//     };
-
-//     // Resume Parse
-//     const handleResumeUpload = async (file) => {
-//         setResumeFile(file);
-
-//         const fd = new FormData();
-//         fd.append("resume", file);
-
-//         const res = await apiRequest(
-//             "/employee-portal/api/candidates/parse-resume/",
-//             "POST",
-//             fd
-//         );
-
-//         if (res.data) {
-//             setForm(prev => ({
-//                 ...prev,
-//                 ...res.data
-//             }));
-//         }
-//     };
-
-//     // Submit Candidate
-//     const handleSubmit = async (e) => {
-//         e.preventDefault();
-
-//         const fd = new FormData();
-
-//         Object.keys(form).forEach((k) => {
-//             if (form[k] !== null && form[k] !== undefined && form[k] !== "") {
-//                 fd.append(k, form[k]);
-//             }
-//         });
-
-//         if (resumeFile) fd.append("resume", resumeFile);
-
-//         const res = await apiRequest(
-//             "/employee-portal/api/candidates/create/",
-//             "POST",
-//             fd
-//         );
-
-//         alert(res.message || "Candidate Created");
-//         console.log(res);   // IMPORTANT
-//         alert(JSON.stringify(res));
-//     };
-
-//     const filteredVendors = vendors.filter(v =>
-//         `${v.name} ${v.company_name} ${v.number}`
-//             .toLowerCase()
-//             .includes(searchVendor.toLowerCase())
-//     );
-
-//     return (
-//         <div>
-//             <h2>Add Candidate</h2>
-
-//             <form onSubmit={handleSubmit}>
-//                 <input
-//                     type="file"
-//                     onChange={(e) => handleResumeUpload(e.target.files[0])}
-//                 />
-
-//                 <input name="candidate_name" placeholder="Candidate Name"
-//                     value={form.candidate_name || ""}
-//                     onChange={handleChange}
-//                 />
-
-//                 <input name="candidate_email" placeholder="Email"
-//                     value={form.candidate_email || ""}
-//                     onChange={handleChange}
-//                 />
-
-//                 <input name="candidate_number" placeholder="Number"
-//                     value={form.candidate_number || ""}
-//                     onChange={handleChange}
-//                 />
-
-//                 <input name="skills" placeholder="Skills"
-//                     value={form.skills || ""}
-//                     onChange={handleChange}
-//                 />
-
-//                 <input name="technology" placeholder="Technology"
-//                     value={form.technology || ""}
-//                     onChange={handleChange}
-//                 />
-
-//                 {/* Experience Fields */}
-//                 <input
-//                     name="years_of_experience_calculated"
-//                     placeholder="Experience (Auto Calculated)"
-//                     value={form.years_of_experience_calculated || ""}
-//                     readOnly
-//                 />
-
-//                 <input
-//                     name="years_of_experience_manual"
-//                     placeholder="Experience (Manual)"
-//                     value={form.years_of_experience_manual || ""}
-//                     onChange={handleChange}
-//                 />
-
-//                 <h4>Select Vendor</h4>
-
-//                 <input
-//                     placeholder="Search vendor"
-//                     value={searchVendor}
-//                     onChange={(e) => setSearchVendor(e.target.value)}
-//                 />
-
-//                 <select name="vendor" onChange={handleVendorChange}>
-//                     <option value="">Select Vendor</option>
-//                     {filteredVendors.map(v => (
-//                         <option key={v.id} value={v.id}>
-//                             {v.name} - {v.company_name}
-//                         </option>
-//                     ))}
-//                 </select>
-
-//                 <input
-//                     name="vendor_company_name"
-//                     placeholder="Vendor Company Name"
-//                     value={form.vendor_company_name || ""}
-//                     onChange={handleChange}
-//                 />
-
-//                 <input
-//                     name="vendor_number"
-//                     placeholder="Vendor Number"
-//                     value={form.vendor_number || ""}
-//                     onChange={handleChange}
-//                 />
-
-//                 <h4>Select Submitted To</h4>
-
-//                 <select name="submitted_to" onChange={handleChange}>
-//                     <option value="">Select Employee</option>
-//                     {employees.map(emp => (
-//                         <option key={emp.id} value={emp.id}>
-//                             {emp.first_name} {emp.last_name}
-//                         </option>
-//                     ))}
-//                 </select>
-
-//                 <input name="vendor_rate" placeholder="Vendor Rate" onChange={handleChange} />
-
-//                 <textarea name="remark" placeholder="Remark" onChange={handleChange} />
-//                 <textarea name="extra_details" placeholder="Extra Details" onChange={handleChange} />
-
-//                 <button type="submit">Create Candidate</button>
-//             </form>
-//         </div>
-//     );
-// }
 
 // export default AddCandidate;
 

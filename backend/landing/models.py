@@ -21,6 +21,13 @@ class User(AbstractUser):
         null=True,
         blank=True
     )
+    parent_user = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="employees"
+    )
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name"]

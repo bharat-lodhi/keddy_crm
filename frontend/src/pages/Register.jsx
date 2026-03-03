@@ -227,6 +227,11 @@ const styles = {
 
 export default Register;
 
+
+
+
+
+
 // // src/pages/Register.js
 
 // import React, { useState } from "react";

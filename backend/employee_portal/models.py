@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 
 User = settings.AUTH_USER_MODEL
 
@@ -12,9 +13,7 @@ class Vendor(models.Model):
     # ================= OPTIONAL FIELDS =================
     email = models.EmailField(blank=True, null=True)
     company_website = models.URLField(blank=True, null=True)
-    company_pan_or_reg_no = models.CharField(
-        max_length=100, blank=True, null=True
-    )
+    company_pan_or_reg_no = models.CharField(max_length=100, blank=True, null=True)
 
     # ================= POC DETAILS =================
     poc1_name = models.CharField(max_length=255, blank=True, null=True)
@@ -27,17 +26,52 @@ class Vendor(models.Model):
     top_3_clients = models.TextField(blank=True, null=True)
     no_of_bench_developers = models.PositiveIntegerField(blank=True, null=True)
     provide_onsite = models.BooleanField(default=False)
-    onsite_location = models.CharField(
-        max_length=255, blank=True, null=True
-    )
+    onsite_location = models.CharField(max_length=255, blank=True, null=True)
     specialized_tech_developers = models.TextField(blank=True, null=True)
 
     # ================= DOCUMENT =================
-    bench_list = models.FileField(
-        upload_to="vendor/bench_list/",
+    bench_list = models.FileField(upload_to="vendor/bench_list/", blank=True, null=True)
+
+    # ================= NEW AGREEMENT SECTION =================
+    class AgreementStatus(models.TextChoices):
+        NOT_SENT = "NOT_SENT", "Not Sent"
+        SENT = "SENT", "Sent"
+        SIGNED = "SIGNED", "Signed"
+
+    is_active = models.BooleanField(default=True)
+    is_verified = models.BooleanField(default=False)
+
+    nda_document = models.FileField(upload_to="vendors/nda/", blank=True, null=True)
+    nda_uploaded_date = models.DateField(blank=True, null=True)
+
+    msa_document = models.FileField(upload_to="vendors/msa/", blank=True, null=True)
+    msa_uploaded_date = models.DateField(blank=True, null=True)
+
+    nda_status = models.CharField(
+        max_length=20,
+        choices=AgreementStatus.choices,
+        default=AgreementStatus.NOT_SENT,
         blank=True,
         null=True
     )
+
+    msa_status = models.CharField(
+        max_length=20,
+        choices=AgreementStatus.choices,
+        default=AgreementStatus.NOT_SENT,
+        blank=True,
+        null=True
+    )
+
+    vendor_official_email = models.EmailField(blank=True, null=True)
+    sending_email_id = models.EmailField(blank=True, null=True)
+
+    provide_bench = models.BooleanField(default=False)
+    provide_market = models.BooleanField(default=False)
+
+    company_employee_count = models.PositiveIntegerField(blank=True, null=True)
+
+    remark = models.TextField(blank=True, null=True)
 
     # ================= SYSTEM FIELDS =================
     uploaded_by = models.ForeignKey(
@@ -45,6 +79,12 @@ class Vendor(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         related_name="vendors"
+    )
+
+    assigned_employees = models.ManyToManyField(
+        User,
+        blank=True,
+        related_name="assigned_vendors"
     )
     
     created_by = models.ForeignKey(
@@ -54,18 +94,69 @@ class Vendor(models.Model):
         on_delete=models.CASCADE,
         related_name="created_vendor"
     )
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        if self.nda_document and not self.nda_uploaded_date:
+            self.nda_uploaded_date = timezone.now().date()
+
+        if self.msa_document and not self.msa_uploaded_date:
+            self.msa_uploaded_date = timezone.now().date()
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.company_name} - {self.name}"
-
-
+    
+    
 class Client(models.Model):
     client_name = models.CharField(max_length=255)
     company_name = models.CharField(max_length=255)
     phone_number = models.CharField(max_length=20)
     email = models.EmailField(blank=True, null=True)
+
+    # ================= NEW AGREEMENT SECTION =================
+    class AgreementStatus(models.TextChoices):
+        NOT_SENT = "NOT_SENT", "Not Sent"
+        SENT = "SENT", "Sent"
+        SIGNED = "SIGNED", "Signed"
+
+    is_active = models.BooleanField(default=True)
+    is_verified = models.BooleanField(default=False)
+
+    nda_document = models.FileField(upload_to="clients/nda/", blank=True, null=True)
+    nda_uploaded_date = models.DateField(blank=True, null=True)
+
+    msa_document = models.FileField(upload_to="clients/msa/", blank=True, null=True)
+    msa_uploaded_date = models.DateField(blank=True, null=True)
+    
+    nda_status = models.CharField(
+        max_length=20,
+        choices=AgreementStatus.choices,
+        default=AgreementStatus.NOT_SENT,
+        blank=True,
+        null=True
+    )
+
+    msa_status = models.CharField(
+        max_length=20,
+        choices=AgreementStatus.choices,
+        default=AgreementStatus.NOT_SENT,
+        blank=True,
+        null=True
+    )
+
+    official_email = models.EmailField(blank=True, null=True)
+    sending_email_id = models.EmailField(blank=True, null=True)
+
+    company_employee_count = models.PositiveIntegerField(blank=True, null=True)
+
+    remark = models.TextField(blank=True, null=True)
+
+    # ================= SYSTEM =================
     created_by = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
@@ -73,13 +164,29 @@ class Client(models.Model):
         blank=True,
         related_name="created_clients"
     )
+    
+    assigned_employees = models.ManyToManyField(
+            User,
+            blank=True,
+            related_name="assigned_clients"
+        )
+    
+    is_deleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if self.nda_document and not self.nda_uploaded_date:
+            self.nda_uploaded_date = timezone.now().date()
+
+        if self.msa_document and not self.msa_uploaded_date:
+            self.msa_uploaded_date = timezone.now().date()
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.client_name} - {self.company_name}"
+        
     
-    
-
 from django.db import models
 from django.conf import settings
 from employee_portal.models import Vendor, Client
@@ -110,8 +217,6 @@ class Candidate(models.Model):
 
     # ================= VENDOR DETAILS =================
     vendor = models.ForeignKey(Vendor, on_delete=models.SET_NULL, null=True, related_name="candidates")
-    vendor_company_name = models.CharField(max_length=255, blank=True, null=True)
-    vendor_number = models.CharField(max_length=20, blank=True, null=True)
     vendor_rate = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     vendor_rate_type = models.CharField(
         max_length=10,
@@ -198,10 +303,76 @@ class Candidate(models.Model):
         on_delete=models.CASCADE,
         related_name="created_candidates"
     )
+    is_deleted = models.BooleanField(default=False)
+    #--------------ye celender reminder ke liye
+    scheduled_datetime = models.DateTimeField(null=True, blank=True)
+    schedule_description = models.TextField(null=True, blank=True)
+    google_event_id = models.CharField(max_length=255, null=True, blank=True)
 
+    scheduled_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="scheduled_candidates"
+    )
+    #--------------------------------------  
     def __str__(self):
         return self.candidate_name
 
+from django.db.models import Q
+from django.contrib.auth import get_user_model
+from rest_framework import generics, status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.exceptions import PermissionDenied
+
+
+class CandidateSoftDeleteAPIView(generics.DestroyAPIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get_company_root(self, user):
+        if user.role == "SUB_ADMIN":
+            return user
+        if user.role == "EMPLOYEE" and user.parent_user:
+            return user.parent_user
+        raise PermissionDenied("Invalid company structure.")
+
+    def get_queryset(self):
+        user = self.request.user
+        UserModel = get_user_model()
+
+        company_root = self.get_company_root(user)
+
+        company_users = UserModel.objects.filter(
+            Q(id=company_root.id) | Q(parent_user=company_root)
+        )
+
+        return Candidate.objects.filter(
+            created_by__in=company_users,
+            is_deleted=False
+        )
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        user = request.user
+
+        # Only creator employee or company SubAdmin can soft delete
+        if user.role == "SUB_ADMIN":
+            pass
+        elif instance.created_by == user:
+            pass
+        else:
+            raise PermissionDenied("You do not have permission to delete this candidate.")
+
+        instance.is_deleted = True
+        instance.changed_by = user
+        instance.save(update_fields=["is_deleted", "changed_by"])
+
+        return Response(
+            {"message": "Candidate soft deleted successfully"},
+            status=status.HTTP_200_OK
+        )
 
 # ================= STATUS HISTORY =================
 class CandidateStatusHistory(models.Model):

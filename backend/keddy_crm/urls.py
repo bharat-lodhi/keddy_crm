@@ -4,12 +4,15 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path, include
 
+
+
 urlpatterns = [
     path('', include('landing.urls')),
     path('central-admin/', include('central_admin.urls', namespace='central_admin')),
     path('sub-admin/', include('sub_admin.urls', namespace='sub_admin')), 
     path('employee-portal/', include('employee_portal.urls', namespace='employee_portal')),
     
+    path('calendar/', include('calendar_service.urls')),
 
 ]
 if settings.DEBUG:

@@ -7,51 +7,98 @@ User = get_user_model()
 
 #========================Venders=============================
 class VendorCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Vendor
-        fields = [
-            "id",
-            "name",
-            "email",
-            "number",
-            "company_name",
-            "company_website",
-            "company_pan_or_reg_no",
-            "poc1_name",
-            "poc1_number",
-            "poc2_name",
-            "poc2_number",
-            "top_3_clients",
-            "no_of_bench_developers",
-            "provide_onsite",
-            "onsite_location",
-            "specialized_tech_developers",
-            "bench_list",
-            "created_by",
-        ]
 
+    class Meta:
+            model = Vendor
+            fields = [
+                "id",
+                "name",
+                "number",
+                "company_name",
+
+                "email",
+                "company_website",
+                "company_pan_or_reg_no",
+
+                "poc1_name",
+                "poc1_number",
+                "poc2_name",
+                "poc2_number",
+
+                "top_3_clients",
+                "no_of_bench_developers",
+                "provide_onsite",
+                "onsite_location",
+                "specialized_tech_developers",
+
+                "bench_list",
+
+                # ✅ ADD THESE
+                "nda_document",
+                "msa_document",
+                "nda_status",
+                "msa_status",
+
+                "vendor_official_email",
+                "sending_email_id",
+
+                "provide_bench",
+                "provide_market",
+
+                "company_employee_count",
+                "remark",
+            ]
+
+    def validate(self, attrs):
+        if not attrs.get("name"):
+            raise serializers.ValidationError({"name": "Vendor name is required."})
+        if not attrs.get("company_name"):
+            raise serializers.ValidationError({"company_name": "Company name is required."})
+        if not attrs.get("number"):
+            raise serializers.ValidationError({"number": "Number is required."})
+        return attrs
+    
 class VendorUpdateSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Vendor
         fields = [
             "name",
-            "email",
             "number",
             "company_name",
+
+            "email",
             "company_website",
             "company_pan_or_reg_no",
+
             "poc1_name",
             "poc1_number",
             "poc2_name",
             "poc2_number",
+
             "top_3_clients",
             "no_of_bench_developers",
             "provide_onsite",
             "onsite_location",
             "specialized_tech_developers",
-            "bench_list",
-        ]
 
+            "bench_list",
+
+            "vendor_official_email",
+            "sending_email_id",
+
+            "provide_bench",
+            "provide_market",
+
+            "company_employee_count",
+            "remark",
+
+            "nda_document",
+            "msa_document",
+            "nda_status",
+            "msa_status",
+        ]
+        
 from rest_framework import serializers
 from .models import Vendor
 
@@ -116,36 +163,68 @@ class VendorDetailSerializer(serializers.ModelSerializer):
 class VendorSingleDetailSerializer(serializers.ModelSerializer):
     uploaded_by = serializers.SerializerMethodField()
     created_by = serializers.SerializerMethodField()
-    created_by_name = created_by_name = serializers.CharField(source="created_by.first_name", read_only=True)
+    created_by_name = serializers.CharField(source="created_by.first_name", read_only=True)
+    assigned_employees = serializers.SerializerMethodField()
     profile_count = serializers.SerializerMethodField()
+
     class Meta:
         model = Vendor
         fields = [
             "id",
+
+            # BASIC
             "name",
-            "email",
             "number",
             "company_name",
+            "email",
             "company_website",
             "company_pan_or_reg_no",
 
+            # POC
             "poc1_name",
             "poc1_number",
             "poc2_name",
             "poc2_number",
 
+            # BUSINESS
             "top_3_clients",
             "no_of_bench_developers",
             "provide_onsite",
             "onsite_location",
             "specialized_tech_developers",
+            "provide_bench",
+            "provide_market",
+            "company_employee_count",
+            "remark",
 
+            # DOCUMENTS
             "bench_list",
+
+            # AGREEMENT
+            "nda_document",
+            "nda_uploaded_date",
+            "nda_status",
+            "msa_document",
+            "msa_uploaded_date",
+            "msa_status",
+
+            "vendor_official_email",
+            "sending_email_id",
+
+            # STATUS
+            "is_active",
+            "is_verified",
+            "is_deleted",
+
+            # SYSTEM
             "uploaded_by",
             "created_by",
+            "created_by_name",
+            "assigned_employees",
             "created_at",
             "updated_at",
-            "created_by_name",
+
+            # EXTRA
             "profile_count",
         ]
 
@@ -157,19 +236,26 @@ class VendorSingleDetailSerializer(serializers.ModelSerializer):
                 "role": obj.uploaded_by.role,
             }
         return None
-    
+
     def get_created_by(self, obj):
         if obj.created_by:
             return {
                 "id": obj.created_by.id,
                 "email": obj.created_by.email,
                 "role": obj.created_by.role,
-            }        
+            }
         return None
-    
-    # def get_profile_count(self, obj):
-    #     return obj.candidates.count()
-    
+
+    def get_assigned_employees(self, obj):
+        return [
+            {
+                "id": user.id,
+                "email": user.email,
+                "role": user.role
+            }
+            for user in obj.assigned_employees.all()
+        ]
+
     def get_profile_count(self, obj):
         request = self.context.get("request")
 
@@ -184,14 +270,148 @@ class VendorSingleDetailSerializer(serializers.ModelSerializer):
             )
 
         return candidates.count()
-
+    
 # ===================================================================================
 
 # ===============================Client=============================
 class ClientSerializer(serializers.ModelSerializer):
+    created_by_name = serializers.CharField(
+        source="created_by.first_name",
+        read_only=True
+    )
+    created_by_email = serializers.CharField(
+        source="created_by.email",
+        read_only=True
+    )
     class Meta:
         model = Client
-        fields = "__all__"
+        fields = [
+            "id",
+
+            "client_name",
+            "company_name",
+            "phone_number",
+            "email",
+
+            "nda_document",
+            "nda_status",
+            "msa_document",
+            "msa_status",
+
+            "official_email",
+            "sending_email_id",
+
+            "company_employee_count",
+            "remark",
+
+            "is_active",
+            "is_verified",
+            
+            "created_by",
+            "created_by_name",
+            "created_by_email",
+            "created_at",
+        ]
+
+    def validate(self, attrs):
+        if not attrs.get("client_name"):
+            raise serializers.ValidationError({"client_name": "Client name is required."})
+        if not attrs.get("company_name"):
+            raise serializers.ValidationError({"company_name": "Company name is required."})
+        if not attrs.get("phone_number"):
+            raise serializers.ValidationError({"phone_number": "Phone number is required."})
+        return attrs
+    
+class ClientUpdateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Client
+        fields = [
+            "client_name",
+            "company_name",
+            "phone_number",
+            "email",
+
+            "nda_document",
+            "nda_status",
+            "msa_document",
+            "msa_status",
+
+            "official_email",
+            "sending_email_id",
+
+            "company_employee_count",
+            "remark",
+
+            "is_active",
+            "is_verified",
+        ]
+
+class ClientDetailSerializer(serializers.ModelSerializer):
+    created_by_name = serializers.CharField(
+        source="created_by.first_name",
+        read_only=True
+    )
+    assigned_employees = serializers.SerializerMethodField()
+    profile_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Client
+        fields = [
+            "id",
+            "client_name",
+            "company_name",
+            "phone_number",
+            "email",
+
+            "official_email",
+            "sending_email_id",
+
+            "nda_document",
+            "nda_uploaded_date",
+            "nda_status",
+
+            "msa_document",
+            "msa_uploaded_date",
+            "msa_status",
+
+            "company_employee_count",
+            "remark",
+
+            "is_active",
+            "is_verified",
+
+            "created_by",
+            "created_by_name",
+            "assigned_employees",
+
+            "created_at",
+            "profile_count",
+        ]
+
+    def get_assigned_employees(self, obj):
+        return [
+            {
+                "id": user.id,
+                "email": user.email
+            }
+            for user in obj.assigned_employees.all()
+        ]
+
+    def get_profile_count(self, obj):
+        request = self.context.get("request")
+
+        start_date = request.query_params.get("start_date")
+        end_date = request.query_params.get("end_date")
+
+        candidates = obj.candidates.all()
+
+        if start_date and end_date:
+            candidates = candidates.filter(
+                created_at__date__range=[start_date, end_date]
+            )
+
+        return candidates.count()
 #====================Resume parse=====================================
 class ResumeUploadSerializer(serializers.Serializer):
     resume = serializers.FileField()
@@ -212,8 +432,6 @@ class CandidateCreateSerializer(serializers.ModelSerializer):
             "skills",
             "technology",
             "vendor",
-            "vendor_company_name",
-            "vendor_number",
             "vendor_rate",
             "vendor_rate_type",
             "submitted_to",
@@ -236,9 +454,12 @@ class CandidateCreateSerializer(serializers.ModelSerializer):
 
 class CandidateListSerializer(serializers.ModelSerializer):
     vendor_name = serializers.CharField(source="vendor.name", read_only=True)
+    vendor_company_name = serializers.CharField(source="vendor.company_name", read_only=True)
+    vendor_number = serializers.CharField(source="vendor.number", read_only=True)
+
     submitted_to_name = serializers.SerializerMethodField()
     created_by_name = serializers.CharField(source="created_by.first_name", read_only=True)
-    
+
     class Meta:
         model = Candidate
         fields = [
@@ -251,19 +472,26 @@ class CandidateListSerializer(serializers.ModelSerializer):
             "years_of_experience_calculated",
             "skills",
             "technology",
+
             "vendor",
             "vendor_name",
             "vendor_company_name",
             "vendor_number",
             "vendor_rate",
             "vendor_rate_type",
+
             "submitted_to",
             "submitted_to_name",
+            
+            "main_status",
+            "sub_status",
+
             "remark",
             "extra_details",
+
             "created_by",
-            "created_at",
             "created_by_name",
+            "created_at",
         ]
 
     def get_submitted_to_name(self, obj):
@@ -391,12 +619,20 @@ class DashboardStatsSerializer(serializers.Serializer):
     total_pipelines = serializers.IntegerField()
 
 
+
 class TodayCandidateSerializer(serializers.ModelSerializer):
-    vendor = serializers.CharField(source="vendor.company_name", read_only=True)
-    client = serializers.CharField(source="client.company_name", read_only=True)
+    # ===== Vendor Details =====
+    vendor_name = serializers.CharField(source="vendor.name", read_only=True)
+    vendor_company_name = serializers.CharField(source="vendor.company_name", read_only=True)
+    vendor_number = serializers.CharField(source="vendor.number", read_only=True)
+
+    # ===== Client Details =====
+    client_name = serializers.CharField(source="client.client_name", read_only=True)
+    client_company_name = serializers.CharField(source="client.company_name", read_only=True)
+
     submitted_to_name = serializers.SerializerMethodField()
     created_by_name = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = Candidate
         fields = [
@@ -409,35 +645,45 @@ class TodayCandidateSerializer(serializers.ModelSerializer):
             "years_of_experience_calculated",
             "skills",
             "technology",
-            "vendor",          # vendor name instead of id
-            "client",          # client name instead of id
+
+            # ===== Vendor =====
+            "vendor_name",
             "vendor_company_name",
             "vendor_number",
             "vendor_rate",
             "vendor_rate_type",
+
+            # ===== Client =====
+            "client_name",
+            "client_company_name",
             "client_rate",
             "client_rate_type",
+
+            # ===== Status =====
             "main_status",
             "sub_status",
             "verification_status",
             "is_blocklisted",
             "blocklisted_reason",
+
+            # ===== Other =====
             "remark",
             "extra_details",
             "created_at",
+
+            # ===== Relations =====
             "submitted_to",
             "changed_by",
-            "submitted_to",
             "submitted_to_name",
-            "created_by_name"      
+            "created_by_name",
         ]
+
     def get_submitted_to_name(self, obj):
         if obj.submitted_to:
-            return f"{obj.submitted_to.first_name} {obj.submitted_to.last_name}"
+            return f"{obj.submitted_to.first_name} {obj.submitted_to.last_name}".strip()
         return None
-    
-    def get_created_by_name(self, obj):
-            if obj.created_by:
-                return f"{obj.created_by.first_name} {obj.created_by.last_name}".strip()
-            return ""
 
+    def get_created_by_name(self, obj):
+        if obj.created_by:
+            return f"{obj.created_by.first_name} {obj.created_by.last_name}".strip()
+        return ""

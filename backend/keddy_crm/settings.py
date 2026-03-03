@@ -1,8 +1,12 @@
+from datetime import timedelta
 from pathlib import Path
+from dotenv import load_dotenv
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+load_dotenv()
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-cmy-_b!s584f%+-ftjb6qmxk5kvy397o2$b@b%axl+d^83de14'
@@ -27,6 +31,7 @@ INSTALLED_APPS = [
     'sub_admin',
     'employee_portal',
     'landing',
+    'calendar_service',
     'django_filters',
     'rest_framework',
     "rest_framework_simplejwt.token_blacklist",
@@ -175,8 +180,16 @@ CORS_ALLOWED_ORIGINS = [
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
-    "https://www.keddytech.in",
+    "https://keddytech.in",
     "https://www.keddytech.in",
 ]
 # ===============================================
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),  # Access token ko 1 din rakha
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),     # Refresh token ko 1 din rakha
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': False,
+    'UPDATE_LAST_LOGIN': False,
+}
 

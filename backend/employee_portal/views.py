@@ -1,6 +1,10 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+
 from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.views import APIView
+from rest_framework import generics
 
 from landing.views import CsrfExemptSessionAuthentication
 from .serializers import ClientSerializer,VendorDetailSerializer,VendorSingleDetailSerializer,VendorUpdateSerializer,VendorCreateSerializer,CandidateCreateSerializer,CandidateCreateSerializer,CandidateUpdateSerializer,CandidateDetailSerializer
@@ -20,22 +24,30 @@ from django.db.models import Q
 User = get_user_model()
 
 #====================verders============================================
+from rest_framework.parsers import MultiPartParser, FormParser
 class VendorCreateAPIView(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
+    parser_classes = [MultiPartParser, FormParser]
+    # authentication_classes = (CsrfExemptSessionAuthentication,)
+    authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated,)
-
+    
     def post(self, request):
-        serializer = VendorCreateSerializer(
-            data=request.data
-        )
+        user = request.user
+
+        if user.role != "EMPLOYEE":
+            return Response(
+                {"error": "Only employees can create vendors."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        serializer = VendorCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         vendor = serializer.save(
-            uploaded_by=request.user
+            uploaded_by=user,
+            created_by=user,
         )
-        vendor = serializer.save(
-            created_by=request.user
-        )
+
         return Response(
             {
                 "message": "Vendor created successfully",
@@ -44,23 +56,33 @@ class VendorCreateAPIView(APIView):
             status=status.HTTP_201_CREATED
         )
 
-
 class VendorUpdateAPIView(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
+    # authentication_classes = (CsrfExemptSessionAuthentication,)
+    authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated,)
 
     def put(self, request, vendor_id):
+        user = request.user
+
+        if user.role != "EMPLOYEE":
+            return Response(
+                {"error": "Only employees can update vendors."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
         vendor = get_object_or_404(
             Vendor,
             id=vendor_id,
-            uploaded_by=request.user
+            created_by=user,
+            is_deleted=False
         )
 
         serializer = VendorUpdateSerializer(
             vendor,
             data=request.data,
-            partial=True
+            partial=True   # Allows single field update
         )
+
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
@@ -68,45 +90,57 @@ class VendorUpdateAPIView(APIView):
             {"message": "Vendor updated successfully"},
             status=status.HTTP_200_OK
         )
-
-class VendorFullListAPIView(ListAPIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
+        
+class VendorCompanyPoolAPIView(ListAPIView):
+    # authentication_classes = (CsrfExemptSessionAuthentication,)
+    authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated,)
     serializer_class = VendorDetailSerializer
 
     def get_queryset(self):
-        queryset = Vendor.objects.all().order_by("-created_at")
+        user = self.request.user
 
-        # 🔍 GLOBAL SEARCH (optional)
-        search = self.request.query_params.get("search")
-        if search:
-            queryset = queryset.filter(
-                Q(name__icontains=search) |
-                Q(company_name__icontains=search) |
-                Q(email__icontains=search) |
-                Q(number__icontains=search) |
-                Q(company_pan_or_reg_no__icontains=search) |
-                Q(poc1_name__icontains=search) |
-                Q(poc2_name__icontains=search) |
-                Q(top_3_clients__icontains=search) |
-                Q(specialized_tech_developers__icontains=search)|
-                Q(onsite_location__icontains=search)
-            )
+        # 🔹 Find Company Owner (SubAdmin)
+        if user.role == "SUB_ADMIN":
+            company_admin = user
+        elif user.role == "EMPLOYEE":
+            company_admin = user.parent_user
+        else:
+            return Vendor.objects.none()
+
+        # 🔹 Get company users (SubAdmin + all employees)
+        company_users = User.objects.filter(
+            Q(id=company_admin.id) |
+            Q(parent_user=company_admin)
+        )
+
+        # 🔹 Get unique vendors of company
+        queryset = Vendor.objects.filter(
+            created_by__in=company_users,
+            is_deleted=False
+        ).distinct().order_by("-created_at")
 
         return queryset
-    
+        
     
 class UserVendorFullListAPIView(ListAPIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
+    authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated,)
     serializer_class = VendorDetailSerializer
 
     def get_queryset(self):
-        queryset = Vendor.objects.filter(
-            created_by=self.request.user
-        ).order_by("-created_at")
+        user = self.request.user
 
-        # 🔍 GLOBAL SEARCH (optional)
+        # Only employee allowed
+        if user.role != "EMPLOYEE":
+            return Vendor.objects.none()
+
+        queryset = Vendor.objects.filter(
+            Q(created_by=user) | Q(assigned_employees=user),
+            is_deleted=False
+        ).distinct().order_by("-created_at")
+
+        # 🔍 GLOBAL SEARCH
         search = self.request.query_params.get("search")
         if search:
             queryset = queryset.filter(
@@ -118,64 +152,147 @@ class UserVendorFullListAPIView(ListAPIView):
                 Q(poc1_name__icontains=search) |
                 Q(poc2_name__icontains=search) |
                 Q(top_3_clients__icontains=search) |
-                Q(specialized_tech_developers__icontains=search)|
+                Q(specialized_tech_developers__icontains=search) |
                 Q(onsite_location__icontains=search)
             )
 
         return queryset
-
+    
 class VendorDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, vendor_id):
-        vendor = get_object_or_404(Vendor, id=vendor_id)
+        user = request.user
 
-        serializer = VendorSingleDetailSerializer(vendor,context={"request": request})
+        # 🔹 Identify company admin
+        if user.role == "SUB_ADMIN":
+            company_admin = user
+        elif user.role == "EMPLOYEE":
+            company_admin = user.parent_user
+        else:
+            return Response({"error": "Unauthorized"}, status=403)
+
+        # 🔹 Get all company users (SubAdmin + employees)
+        company_users = User.objects.filter(
+            Q(id=company_admin.id) |
+            Q(parent_user=company_admin)
+        )
+
+        # 🔹 Strict company isolation
+        vendor = get_object_or_404(
+            Vendor,
+            id=vendor_id,
+            created_by__in=company_users,
+            is_deleted=False
+        )
+
+        serializer = VendorSingleDetailSerializer(
+            vendor,
+            context={"request": request}
+        )
+
         return Response(serializer.data)
-
-class VendorDeleteAPIView(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
+    
+class VendorSoftDeleteAPIView(APIView):
+    # authentication_classes = (CsrfExemptSessionAuthentication,)
+    authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated,)
 
     def delete(self, request, vendor_id):
         user = request.user
 
-        if user.role not in ["CENTRAL_ADMIN", "SUB_ADMIN","EMPLOYEE"]:
+        # Only employee allowed
+        if user.role != "EMPLOYEE":
             return Response(
-                {"detail": "You do not have permission to delete vendor"},
+                {"error": "Only employees can soft delete vendors."},
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        vendor = get_object_or_404(Vendor, id=vendor_id)
-        vendor.delete()
+        # Employee can delete only own created vendor
+        vendor = get_object_or_404(
+            Vendor,
+            id=vendor_id,
+            created_by=user,
+            is_deleted=False
+        )
+
+        vendor.is_deleted = True
+        vendor.save(update_fields=["is_deleted"])
 
         return Response(
-            {"message": "Vendor deleted successfully"},
+            {"message": "Vendor soft deleted successfully."},
             status=status.HTTP_200_OK
         )
+        
+        
 # ===========================Clients============================================
 from rest_framework import generics
 
 class ClientCreateAPIView(generics.CreateAPIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
+    # authentication_classes = (CsrfExemptSessionAuthentication,)
+    authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated,)
-    queryset = Client.objects.all()
     serializer_class = ClientSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
-        serializer.save(created_by=request.user)
 
         return Response(
             {
                 "message": "Client created successfully",
-                "data": serializer.data
+                "client_id": serializer.instance.id
             },
             status=status.HTTP_201_CREATED
         )
+from .serializers import ClientUpdateSerializer
+class ClientUpdateAPIView(APIView):
+    # authentication_classes = (CsrfExemptSessionAuthentication,)
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAuthenticated,)
 
+    def patch(self, request, client_id):
+        user = request.user
+
+        client = get_object_or_404(
+            Client,
+            id=client_id,
+            is_deleted=False
+        )
+
+        allowed = False
+
+        if user.role == "EMPLOYEE" and client.created_by == user:
+            allowed = True
+
+        elif user.role == "SUB_ADMIN" and (
+            client.created_by == user or
+            (client.created_by and client.created_by.parent_user == user)
+        ):
+            allowed = True
+
+        if not allowed:
+            return Response(
+                {"error": "You do not have permission to update this client."},
+                status=403
+            )
+
+        serializer = ClientUpdateSerializer(
+            client,
+            data=request.data,
+            partial=True
+        )
+
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response({"message": "Client updated successfully."})
+    
+    
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
@@ -185,11 +302,93 @@ class ClientListAPIView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Client.objects.filter(
-            created_by=self.request.user
-        ).order_by('-created_at')
+        user = self.request.user
 
+        if user.role != "EMPLOYEE":
+            return Client.objects.none()
+
+        return Client.objects.filter(
+            Q(created_by=user) | Q(assigned_employees=user),
+            is_deleted=False
+        ).distinct().order_by('-created_at')
     
+from .serializers import ClientDetailSerializer
+class ClientDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, client_id):
+        user = request.user
+
+        client = get_object_or_404(
+            Client,
+            id=client_id,
+            is_deleted=False
+        )
+
+        allowed = False
+
+        # Employee created
+        if user.role == "EMPLOYEE" and client.created_by == user:
+            allowed = True
+
+        # Employee assigned
+        elif user.role == "EMPLOYEE" and user in client.assigned_employees.all():
+            allowed = True
+
+        # SubAdmin own client
+        elif user.role == "SUB_ADMIN" and client.created_by == user:
+            allowed = True
+
+        # SubAdmin employee client
+        elif (
+            user.role == "SUB_ADMIN"
+            and client.created_by
+            and client.created_by.parent_user == user
+        ):
+            allowed = True
+
+        if not allowed:
+            return Response(
+                {"error": "You do not have permission to view this client."},
+                status=403
+            )
+
+        serializer = ClientDetailSerializer(
+            client,
+            context={"request": request}
+        )
+
+        return Response(serializer.data)
+
+class ClientSoftDeleteAPIView(APIView):
+    # authentication_classes = (CsrfExemptSessionAuthentication,)
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    def delete(self, request, client_id):
+        user = request.user
+
+        if user.role != "EMPLOYEE":
+            return Response(
+                {"error": "Only employees can soft delete clients."},
+                status=403
+            )
+
+        client = get_object_or_404(
+            Client,
+            id=client_id,
+            created_by=user,
+            is_deleted=False
+        )
+
+        client.is_deleted = True
+        client.save(update_fields=["is_deleted"])
+
+        return Response(
+            {"message": "Client soft deleted successfully."},
+            status=200
+        )
+
 # =========================Candidate==========================================
 
 
@@ -197,11 +396,24 @@ class EmployeeDropdownAPIView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
+        user = request.user
+
+        # Identify company admin
+        if user.role == "SUB_ADMIN":
+            company_admin = user
+        elif user.role == "EMPLOYEE":
+            company_admin = user.parent_user
+        else:
+            return Response([], status=200)
+
+        # Get only company employees
         employees = User.objects.filter(
+            parent_user=company_admin,
             role="EMPLOYEE"
         ).values("id", "first_name", "last_name")
-        return Response(employees)
 
+        return Response(employees)
+# -------------------------
 
 import io
 from pdfminer.high_level import extract_text
@@ -216,17 +428,104 @@ from .serializers import ResumeUploadSerializer
 from .utils import parse_resume_text
 
 
+# def read_resume_file(uploaded_file):
+#     filename = uploaded_file.name.lower()
+
+#     if filename.endswith(".pdf"):
+#         file_stream = io.BytesIO(uploaded_file.read())
+#         return extract_text(file_stream)
+
+#     elif filename.endswith(".docx"):
+#         document = Document(uploaded_file)
+#         return "\n".join([p.text for p in document.paragraphs])
+
+#     elif filename.endswith(".txt"):
+#         return uploaded_file.read().decode("utf-8")
+
+#     else:
+#         raise ValueError("Unsupported file format")
+
+
+# class ResumeParseAPIView(APIView):
+#     authentication_classes = (CsrfExemptSessionAuthentication,)
+#     permission_classes = (IsAuthenticated,)
+
+#     def post(self, request):
+#         serializer = ResumeUploadSerializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+
+#         resume_file = serializer.validated_data['resume']
+
+#         text = read_resume_file(resume_file)
+
+#         parsed_data = parse_resume_text(text)
+
+#         return Response(
+#             {
+#                 "message": "Resume parsed successfully",
+#                 "data": parsed_data
+#             },
+#             status=status.HTTP_200_OK
+#         )
+
+
+import io
+import os
+import subprocess
+from PyPDF2 import PdfReader
+from docx import Document
+
+
+def convert_doc_to_docx_temp(uploaded_file):
+    """
+    Convert old .doc file to .docx using LibreOffice.
+    """
+    import tempfile
+
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".doc") as temp_doc:
+        temp_doc.write(uploaded_file.read())
+        temp_doc_path = temp_doc.name
+
+    output_dir = os.path.dirname(temp_doc_path)
+
+    subprocess.run([
+        "soffice",
+        "--headless",
+        "--convert-to",
+        "docx",
+        temp_doc_path,
+        "--outdir",
+        output_dir
+    ], check=True)
+
+    new_file_path = os.path.splitext(temp_doc_path)[0] + ".docx"
+    return new_file_path
+
+
 def read_resume_file(uploaded_file):
     filename = uploaded_file.name.lower()
 
+    # PDF
     if filename.endswith(".pdf"):
         file_stream = io.BytesIO(uploaded_file.read())
-        return extract_text(file_stream)
+        reader = PdfReader(file_stream)
+        text = ""
+        for page in reader.pages:
+            text += page.extract_text() or ""
+        return text
 
-    elif filename.endswith(".docx"):
+    # Modern Word formats
+    elif filename.endswith((".docx", ".docm", ".dotx", ".dotm")):
         document = Document(uploaded_file)
         return "\n".join([p.text for p in document.paragraphs])
 
+    # Old Word format (.doc)
+    elif filename.endswith(".doc"):
+        converted_path = convert_doc_to_docx_temp(uploaded_file)
+        document = Document(converted_path)
+        return "\n".join([p.text for p in document.paragraphs])
+
+    # TXT
     elif filename.endswith(".txt"):
         return uploaded_file.read().decode("utf-8")
 
@@ -235,7 +534,8 @@ def read_resume_file(uploaded_file):
 
 
 class ResumeParseAPIView(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
+    # authentication_classes = (CsrfExemptSessionAuthentication,)
+    authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
@@ -256,12 +556,15 @@ class ResumeParseAPIView(APIView):
             status=status.HTTP_200_OK
         )
 
+
 #=========================Candidate=========================
 
 
 class CandidateCreateAPIView(generics.CreateAPIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    # authentication_classes = (CsrfExemptSessionAuthentication,)
+    # permission_classes = (IsAuthenticated,)
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = [IsAuthenticated,]
     queryset = Candidate.objects.all()
     serializer_class = CandidateCreateSerializer
     permission_classes = (IsAuthenticated,)
@@ -285,22 +588,13 @@ from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter, SearchFilter
 
-
-from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.filters import OrderingFilter, SearchFilter
-
-from .models import Candidate
 from .serializers import CandidateListSerializer
 from .candidate_filters import CandidateFilter
 
 
 class CandidateListAPIView(generics.ListAPIView):
-    queryset = Candidate.objects.all().order_by("-id")
     serializer_class = CandidateListSerializer
     permission_classes = (IsAuthenticated,)
-
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     filterset_class = CandidateFilter
 
@@ -309,20 +603,46 @@ class CandidateListAPIView(generics.ListAPIView):
         "candidate_email",
         "skills",
         "technology",
-        "vendor_company_name",
+        "vendor__company_name",   # Updated (live relation search)
     ]
 
     ordering_fields = "__all__"
 
-# views.py
+    def get_queryset(self):
+        user = self.request.user
+
+        # Identify company admin
+        if user.role == "SUB_ADMIN":
+            company_admin = user
+        elif user.role == "EMPLOYEE":
+            company_admin = user.parent_user
+        else:
+            return Candidate.objects.none()
+
+        # Company users (SubAdmin + employees)
+        company_users = User.objects.filter(
+            Q(id=company_admin.id) | Q(parent_user=company_admin)
+        )
+
+        return Candidate.objects.filter(
+            created_by__in=company_users
+        ).select_related(
+            "vendor",
+            "created_by",
+            "submitted_to"
+        ).order_by("-created_at")
+        
+
+
+from .serializers import CandidateListSerializer
 
 from django.db.models import Q
+from django.contrib.auth import get_user_model
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter, SearchFilter
 
-from .serializers import CandidateListSerializer
 
 class SubmittedProfilesView(generics.ListAPIView):
     serializer_class = CandidateListSerializer
@@ -336,48 +656,110 @@ class SubmittedProfilesView(generics.ListAPIView):
         "candidate_email",
         "skills",
         "technology",
-        "vendor_company_name",
+        "vendor__company_name",
     ]
 
     ordering_fields = "__all__"
 
+    def get_company_root(self, user):
+        if user.role == "SUB_ADMIN":
+            return user
+        if user.role == "EMPLOYEE" and user.parent_user:
+            return user.parent_user
+        return None
+
     def get_queryset(self):
         user = self.request.user
+        UserModel = get_user_model()
+
+        company_root = self.get_company_root(user)
+        if not company_root:
+            return Candidate.objects.none()
+
+        company_users = UserModel.objects.filter(
+            Q(id=company_root.id) | Q(parent_user=company_root)
+        )
 
         return (
-            Candidate.objects.filter(
+            Candidate.objects.select_related(
+                "vendor",
+                "client",
+                "created_by",
+                "submitted_to",
+            )
+            .filter(
                 Q(created_by=user) | Q(submitted_to=user),
                 verification_status=True,
                 client__isnull=False,
+                created_by__in=company_users,
+                is_deleted = False
             )
-            .select_related("vendor", "client")
             .order_by("-created_at")
         )
 
-# class UserCandidateListAPIView(generics.ListAPIView):
-#     serializer_class = CandidateListSerializer
-#     permission_classes = (IsAuthenticated,)
-
-#     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
-#     filterset_class = CandidateFilter
-
-#     search_fields = [
-#         "candidate_name",
-#         "candidate_email",
-#         "skills",
-#         "technology",
-#         "vendor_company_name",
-#     ]
-
-#     ordering_fields = "__all__"
-
-#     def get_queryset(self):
-#         return Candidate.objects.filter(
-#             created_by=self.request.user
-#         ).order_by("-id")
-
 
 from django.db.models import Q
+from django.contrib.auth import get_user_model
+from rest_framework import generics, status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.exceptions import PermissionDenied
+
+
+class CandidateSoftDeleteAPIView(generics.DestroyAPIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get_company_root(self, user):
+        if user.role == "SUB_ADMIN":
+            return user
+        if user.role == "EMPLOYEE" and user.parent_user:
+            return user.parent_user
+        raise PermissionDenied("Invalid company structure.")
+
+    def get_queryset(self):
+        user = self.request.user
+        UserModel = get_user_model()
+
+        company_root = self.get_company_root(user)
+
+        company_users = UserModel.objects.filter(
+            Q(id=company_root.id) | Q(parent_user=company_root)
+        )
+
+        return Candidate.objects.filter(
+            created_by__in=company_users,
+            is_deleted=False
+        )
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        user = request.user
+
+        # Only creator employee or company SubAdmin can soft delete
+        if user.role == "SUB_ADMIN":
+            pass
+        elif instance.created_by == user:
+            pass
+        else:
+            raise PermissionDenied("You do not have permission to delete this candidate.")
+
+        instance.is_deleted = True
+        instance.changed_by = user
+        instance.save(update_fields=["is_deleted", "changed_by"])
+
+        return Response(
+            {"message": "Candidate soft deleted successfully"},
+            status=status.HTTP_200_OK
+        )        
+        
+
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import generics
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.filters import OrderingFilter, SearchFilter
+from rest_framework.exceptions import PermissionDenied
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 class UserCandidateListAPIView(generics.ListAPIView):
     serializer_class = CandidateListSerializer
@@ -391,18 +773,42 @@ class UserCandidateListAPIView(generics.ListAPIView):
         "candidate_email",
         "skills",
         "technology",
-        "vendor_company_name",
+        "vendor__company_name",
     ]
 
     ordering_fields = "__all__"
 
+    def get_company_root(self, user):
+        if user.role == "SUB_ADMIN":
+            return user
+        if user.role == "EMPLOYEE" and user.parent_user:
+            return user.parent_user
+        raise PermissionDenied("Invalid company structure.")
+
     def get_queryset(self):
         user = self.request.user
+        company_root = self.get_company_root(user)
 
-        return Candidate.objects.filter(
-            Q(created_by=user) |
-            Q(submitted_to=user, client__isnull=False)
-        ).order_by("-id")
+        company_users = User.objects.filter(
+            Q(id=company_root.id) | Q(parent_user=company_root)
+        )
+
+        return (
+            Candidate.objects.select_related(
+                "vendor",
+                "client",
+                "created_by",
+                "submitted_to",
+            )
+            .filter(
+                Q(created_by=user) |
+                Q(submitted_to=user, client__isnull=False),
+                created_by__in=company_users,
+                vendor__created_by__in=company_users,
+                is_deleted = False
+            )
+            .order_by("-created_at")
+        )
 
 # from django.db.models import Q
 # from rest_framework.decorators import api_view, permission_classes
@@ -424,17 +830,61 @@ class UserCandidateListAPIView(generics.ListAPIView):
 #     serializer = TodayCandidateSerializer(candidates, many=True)
 #     return Response(serializer.data)
 
+from django.db.models import Q
+from rest_framework import generics, status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.exceptions import PermissionDenied
+
 
 class CandidateUpdateAPIView(generics.RetrieveUpdateAPIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
+    authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated,)
-    queryset = Candidate.objects.all()
     serializer_class = CandidateUpdateSerializer
-    permission_classes = (IsAuthenticated,)
+
+    def get_company_root(self, user):
+        if user.role == "SUB_ADMIN":
+            return user
+        if user.role == "EMPLOYEE" and user.parent_user:
+            return user.parent_user
+        raise PermissionDenied("Invalid company structure.")
+
+    def get_queryset(self):
+        user = self.request.user
+        company_root = self.get_company_root(user)
+
+        from django.contrib.auth import get_user_model
+
+        UserModel = get_user_model()
+
+        company_users = UserModel.objects.filter(
+            Q(id=company_root.id) | Q(parent_user=company_root)
+        )
+
+        return Candidate.objects.select_related(
+            "vendor",
+            "client",
+            "created_by",
+            "submitted_to",
+        ).filter(
+            created_by__in=company_users
+        )
 
     def update(self, request, *args, **kwargs):
         partial = True
         instance = self.get_object()
+        user = request.user
+
+        # Permission Logic
+        if user.role == "SUB_ADMIN":
+            pass
+        elif instance.created_by == user:
+            pass
+        elif instance.submitted_to == user:
+            pass
+        else:
+            raise PermissionDenied("You do not have permission to update this candidate.")
+
         serializer = self.get_serializer(
             instance,
             data=request.data,
@@ -442,7 +892,8 @@ class CandidateUpdateAPIView(generics.RetrieveUpdateAPIView):
             context={"request": request}
         )
         serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
+
+        serializer.save(changed_by=user)
 
         return Response(
             {
@@ -451,15 +902,41 @@ class CandidateUpdateAPIView(generics.RetrieveUpdateAPIView):
             },
             status=status.HTTP_200_OK
         )
-
+        
+        
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
 
 class CandidateDetailAPIView(generics.RetrieveAPIView):
-    queryset = Candidate.objects.all()
     serializer_class = CandidateDetailSerializer
     permission_classes = (IsAuthenticated,)
+
+    def get_company_root(self, user):
+        if user.role == "SUB_ADMIN":
+            return user
+        if user.role == "EMPLOYEE" and user.parent_user:
+            return user.parent_user
+        raise PermissionDenied("Invalid company structure.")
+
+    def get_queryset(self):
+        user = self.request.user
+        UserModel = get_user_model()
+
+        company_root = self.get_company_root(user)
+
+        company_users = UserModel.objects.filter(
+            Q(id=company_root.id) | Q(parent_user=company_root)
+        )
+
+        return Candidate.objects.select_related(
+            "vendor",
+            "client",
+            "created_by",
+            "submitted_to",
+        ).filter(
+            created_by__in=company_users
+        )
 
 
 #=============================Employee Dashboard====================================================
@@ -471,94 +948,66 @@ from rest_framework.response import Response
 from employee_portal.models import Vendor, Client, Candidate
 from .serializers import DashboardStatsSerializer
 
-from django.utils.timezone import now
-from datetime import timedelta
-
-# @api_view(["GET"])
-# @permission_classes([IsAuthenticated])
-# def dashboard_stats(request):
-#     user = request.user
-#     today = now().date()
-#     two_days_ago = now() - timedelta(days=2)
-
-#     total_vendors = Vendor.objects.filter(created_by=user).count()
-#     total_clients = Client.objects.filter(created_by=user).count()
-#     total_profiles = Candidate.objects.filter(created_by=user).count()
-
-#     today_profiles = Candidate.objects.filter(
-#         created_by=user,
-#         created_at__date=today
-#     ).count()
-
-#     today_submitted_profiles = Candidate.objects.filter(
-#         created_by=user,
-#         created_at__date=today,
-#         verification_status=True
-#     ).count()
-
-#     # ✅ UPDATED PIPELINE COUNT
-#     total_pipelines = Candidate.objects.filter(
-#         Q(created_by=user) | Q(submitted_to=user),
-#         verification_status=True
-#     ).filter(
-#         Q(main_status__iexact="SCREENING") |
-#         Q(main_status__iexact="L1") |
-#         Q(main_status__iexact="L2") |
-#         Q(main_status__iexact="L3") |
-#         Q(main_status__iexact="OTHER")
-#     ).exclude(
-#         sub_status="REJECTED"
-#     ).filter(
-#         Q(sub_status="ON_HOLD", created_at__gte=two_days_ago) |
-#         ~Q(sub_status="ON_HOLD")
-#     ).count()
-
-#     data = {
-#         "user_name": user.get_full_name() or user.email,
-#         "total_vendors": total_vendors,
-#         "total_clients": total_clients,
-#         "total_profiles": total_profiles,
-#         "today_profiles": today_profiles,
-#         "today_submitted_profiles": today_submitted_profiles,
-#         "total_pipelines": total_pipelines,
-#     }
-
-#     serializer = DashboardStatsSerializer(data)
-#     return Response(serializer.data)
-
 from django.db.models import Q
 from django.utils.timezone import now
 from datetime import timedelta
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def dashboard_stats(request):
     user = request.user
+
+    # 🚫 Block SubAdmin access
+    if user.role != "EMPLOYEE":
+        return Response({"detail": "Only employees allowed."}, status=403)
+
     today = now().date()
     two_days_ago = now() - timedelta(days=2)
 
-    total_vendors = Vendor.objects.filter(created_by=user).count()
-    total_clients = Client.objects.filter(created_by=user).count()
-    total_profiles = Candidate.objects.filter(created_by=user).count()
+    # ===== Vendors (exclude soft deleted) =====
+    total_vendors = Vendor.objects.filter(
+        created_by=user,
+        is_deleted=False
+    ).count()
+
+    # ===== Clients (exclude soft deleted) =====
+    total_clients = Client.objects.filter(
+        created_by=user,
+        is_deleted=False
+    ).count()
+
+    # ===== Candidates (exclude soft deleted) =====
+    total_profiles = Candidate.objects.filter(
+        created_by=user,
+        is_deleted=False
+    ).count()
 
     today_profiles = Candidate.objects.filter(
         created_by=user,
-        created_at__date=today
+        created_at__date=today,
+        is_deleted=False
     ).count()
 
-    # ✅ UPDATED TODAY SUBMITTED COUNT (Same Logic as today_verified_candidates)
+    # ===== Today Submitted Profiles =====
     today_submitted_profiles = Candidate.objects.filter(
         created_at__date=today,
-        verification_status=True
+        verification_status=True,
+        is_deleted=False
     ).filter(
         Q(created_by=user) |
         Q(submitted_to=user, client__isnull=False)
     ).count()
 
-    # ✅ Pipeline logic remains same
+    # ===== Pipeline Count =====
     total_pipelines = Candidate.objects.filter(
         Q(created_by=user) | Q(submitted_to=user),
-        verification_status=True
+        verification_status=True,
+        is_deleted=False
     ).filter(
         Q(main_status__iexact="SCREENING") |
         Q(main_status__iexact="L1") |
@@ -584,38 +1033,39 @@ def dashboard_stats(request):
 
     return Response(data)
 
+
 from .serializers import TodayCandidateSerializer
+
+from django.utils.timezone import now
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def today_user_candidates(request):
     user = request.user
+
+    # 🚫 Only Employee allowed
+    if user.role != "EMPLOYEE":
+        return Response({"detail": "Only employees allowed."}, status=403)
+
     today = now().date()
 
-    candidates = Candidate.objects.filter(
-        created_by=user,
-        created_at__date=today
-    ).select_related("vendor", "client").order_by("-created_at")
+    candidates = (
+        Candidate.objects.filter(
+            created_by=user,
+            created_at__date=today,
+            is_deleted=False  # ✅ Exclude soft deleted
+        )
+        .select_related("vendor", "client")
+        .order_by("-created_at")
+    )
 
     serializer = TodayCandidateSerializer(candidates, many=True)
     return Response(serializer.data)
 
-
-# @api_view(["GET"])
-# @permission_classes([IsAuthenticated])
-# def today_verified_candidates(request):
-#     user = request.user
-#     today = now().date()
-
-#     candidates = Candidate.objects.filter(
-#         created_by=user,
-#         created_at__date=today,
-#         verification_status=True
-#     ).select_related("vendor", "client").order_by("-created_at")
-
-#     serializer = TodayCandidateSerializer(candidates, many=True)
-#     return Response(serializer.data)
 
 from django.db.models import Q
 from django.utils.timezone import now
@@ -624,65 +1074,59 @@ from django.utils.timezone import now
 @permission_classes([IsAuthenticated])
 def today_verified_candidates(request):
     user = request.user
+
+    # 🚫 Only Employee allowed
+    if user.role != "EMPLOYEE":
+        return Response({"detail": "Only employees allowed."}, status=403)
+
     today = now().date()
 
-    candidates = Candidate.objects.filter(
-        created_at__date=today,
-        verification_status=True
-    ).filter(
-        # ✅ Case 1
-        Q(created_by=user)
-        |
-        # ✅ Case 2
-        Q(
-            submitted_to=user,
-            client__isnull=False
+    candidates = (
+        Candidate.objects.filter(
+            created_at__date=today,
+            verification_status=True,
+            is_deleted=False  # ✅ Exclude soft deleted
         )
-    ).select_related("vendor", "client").order_by("-created_at")
+        .filter(
+            Q(created_by=user) |
+            Q(submitted_to=user, client__isnull=False)
+        )
+        .select_related("vendor", "client")
+        .order_by("-created_at")
+    )
 
     serializer = TodayCandidateSerializer(candidates, many=True)
     return Response(serializer.data)
 
 
-# @api_view(["GET"])
-# @permission_classes([IsAuthenticated])
-# def active_pipeline_candidates(request):
-#     user = request.user
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def last_7_days_verified_candidates(request):
+    user = request.user
 
-#     candidates = Candidate.objects.filter(
-#         created_by=user,verification_status=True
-#     ).filter(
-#         Q(main_status__iexact="SCREENING") |
-#         Q(main_status__iexact="L1") |
-#         Q(main_status__iexact="L2") |
-#         Q(main_status__iexact="L3") |
-#         Q(main_status__iexact="OTHER")
-#     ).select_related("vendor", "client").order_by("-created_at")
+    # 🚫 Only Employee allowed
+    if user.role != "EMPLOYEE":
+        return Response({"detail": "Only employees allowed."}, status=403)
 
-#     serializer = TodayCandidateSerializer(candidates, many=True)
-#     return Response(serializer.data)
+    today = now().date()
+    seven_days_ago = today - timedelta(days=7)
 
-from django.db.models import Q
+    candidates = (
+        Candidate.objects.filter(
+            created_at__date__range=(seven_days_ago, today),
+            verification_status=True,
+            is_deleted=False  # ✅ Exclude soft deleted
+        )
+        .filter(
+            Q(created_by=user) |
+            Q(submitted_to=user, client__isnull=False)
+        )
+        .select_related("vendor", "client")
+        .order_by("-created_at")
+    )
 
-# @api_view(["GET"])
-# @permission_classes([IsAuthenticated])
-# def active_pipeline_candidates(request):
-#     user = request.user
-
-#     candidates = Candidate.objects.filter(
-#         Q(created_by=user) | Q(submitted_to=user),
-#         verification_status=True
-#     ).filter(
-#         Q(main_status__iexact="SCREENING") |
-#         Q(main_status__iexact="L1") |
-#         Q(main_status__iexact="L2") |
-#         Q(main_status__iexact="L3") |
-#         Q(main_status__iexact="OTHER")
-#     ).select_related("vendor", "client").order_by("-created_at")
-
-#     serializer = TodayCandidateSerializer(candidates, many=True)
-#     return Response(serializer.data)
-
+    serializer = TodayCandidateSerializer(candidates, many=True)
+    return Response(serializer.data)
 
 from django.utils.timezone import now
 from datetime import timedelta
@@ -691,27 +1135,39 @@ from datetime import timedelta
 @permission_classes([IsAuthenticated])
 def active_pipeline_candidates(request):
     user = request.user
+
+    # 🚫 Only Employee allowed
+    if user.role != "EMPLOYEE":
+        return Response({"detail": "Only employees allowed."}, status=403)
+
     two_days_ago = now() - timedelta(days=2)
 
-    candidates = Candidate.objects.filter(
-        Q(created_by=user) | Q(submitted_to=user),
-        verification_status=True
-    ).filter(
-        Q(main_status__iexact="SCREENING") |
-        Q(main_status__iexact="L1") |
-        Q(main_status__iexact="L2") |
-        Q(main_status__iexact="L3") |
-        Q(main_status__iexact="OTHER")
-    ).exclude(
-        sub_status="REJECTED"
-    ).filter(
-        Q(sub_status="ON_HOLD", created_at__gte=two_days_ago) |
-        ~Q(sub_status="ON_HOLD")
-    ).select_related("vendor", "client").order_by("-created_at")
+    candidates = (
+        Candidate.objects.filter(
+            Q(created_by=user) | Q(submitted_to=user),
+            verification_status=True,
+            is_deleted=False  # ✅ Exclude soft deleted
+        )
+        .filter(
+            Q(main_status__iexact="SCREENING") |
+            Q(main_status__iexact="L1") |
+            Q(main_status__iexact="L2") |
+            Q(main_status__iexact="L3") |
+            Q(main_status__iexact="OTHER")
+        )
+        .exclude(
+            sub_status="REJECTED"
+        )
+        .filter(
+            Q(sub_status="ON_HOLD", created_at__gte=two_days_ago) |
+            ~Q(sub_status="ON_HOLD")
+        )
+        .select_related("vendor", "client")
+        .order_by("-created_at")
+    )
 
     serializer = TodayCandidateSerializer(candidates, many=True)
     return Response(serializer.data)
-
 
 from django.utils.timezone import now
 from datetime import timedelta
@@ -719,55 +1175,33 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-# @api_view(["GET"])
-# @permission_classes([IsAuthenticated])
-# def today_team_submissions(request):
-#     user = request.user
-#     today = now().date()
-
-#     candidates = Candidate.objects.filter(
-#         submitted_to=user,
-#         created_at__date=today,
-#         verification_status=True
-#     ).exclude(
-#         created_by=user
-#     ).select_related("vendor", "client").order_by("-created_at")
-
-#     serializer = TodayCandidateSerializer(candidates, many=True)
-#     return Response(serializer.data)
-
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def today_team_submissions(request):
     user = request.user
+
+    # 🚫 Only Employee allowed
+    if user.role != "EMPLOYEE":
+        return Response({"detail": "Only employees allowed."}, status=403)
+
     today = now().date()
 
-    candidates = Candidate.objects.filter(
-        submitted_to=user,
-        created_at__date=today
-    ).exclude(
-        created_by=user
-    ).select_related("vendor", "client").order_by("-created_at")
+    candidates = (
+        Candidate.objects.filter(
+            submitted_to=user,
+            created_at__date=today,
+            is_deleted=False  # ✅ Exclude soft deleted
+        )
+        .exclude(
+            created_by=user
+        )
+        .select_related("vendor", "client")
+        .order_by("-created_at")
+    )
 
     serializer = TodayCandidateSerializer(candidates, many=True)
     return Response(serializer.data)
-
-
-# @api_view(["GET"])
-# @permission_classes([IsAuthenticated])
-# def all_team_submissions(request):
-#     user = request.user
-
-#     candidates = Candidate.objects.filter(
-#         submitted_to=user,
-#         verification_status=True
-#     ).exclude(
-#         created_by=user
-#     ).select_related("vendor", "client").order_by("-created_at")
-
-#     serializer = TodayCandidateSerializer(candidates, many=True)
-#     return Response(serializer.data)
 
 
 @api_view(["GET"])
@@ -775,11 +1209,22 @@ def today_team_submissions(request):
 def all_team_submissions(request):
     user = request.user
 
-    candidates = Candidate.objects.filter(
-        submitted_to=user
-    ).exclude(
-        created_by=user
-    ).select_related("vendor", "client").order_by("-created_at")
+    # 🚫 Only Employee allowed
+    if user.role != "EMPLOYEE":
+        return Response({"detail": "Only employees allowed."}, status=403)
+
+    candidates = (
+        Candidate.objects.filter(
+            submitted_to=user,
+            is_deleted=False  # ✅ Exclude soft deleted
+        )
+        .exclude(
+            created_by=user
+        )
+        .select_related("vendor", "client")
+        .order_by("-created_at")
+    )
 
     serializer = TodayCandidateSerializer(candidates, many=True)
     return Response(serializer.data)
+

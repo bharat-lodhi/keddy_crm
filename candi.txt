@@ -47,3 +47,6 @@ is_blocklisted = False
 client = None
 
 client_rate = None
+
+
+http://localhost:8000/calendar/google/connect/

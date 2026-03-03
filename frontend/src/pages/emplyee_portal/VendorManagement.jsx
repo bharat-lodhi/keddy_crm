@@ -15,12 +15,12 @@ function VendorList() {
     const [hasNext, setHasNext] = useState(false);
     const [hasPrev, setHasPrev] = useState(false);
 
-    // Fetch Vendors from API
+    // Fetch Vendors from company pool API
     const fetchVendors = async(page = 1, search = "") => {
         setLoading(true);
         try {
-            // API: /vendors/?page=1&search=query
-            const url = `/employee-portal/api/vendors/?page=${page}&search=${search}`;
+            // API: company vendor pool
+            const url = `/employee-portal/api/comapany/vendors/pool/?page=${page}&search=${search}`;
             const response = await apiRequest(url, "GET");
 
             setVendors(response.results || []);
@@ -101,32 +101,33 @@ function VendorList() {
         <
         tr style = { styles.tableHeader } >
         <
-        th style = { styles.th } > ID < /th> <
+        th style = { styles.th } > # < /th> <
         th style = { styles.th } > Vendor Name < /th> <
         th style = { styles.th } > Contact < /th> <
         th style = { styles.th } > Company < /th> <
         th style = { styles.th } > Specialized Tech < /th> <
         th style = { styles.th } > Onsite < /th> <
-        th style = {
-            {...styles.th, textAlign: "center" }
-        } > Actions < /th> < /
+        th style = { styles.th } > Profiles < /th> <
+        th style = { styles.th } > Created By < /th> < /
         tr > <
         /thead> <
         tbody > {
             loading ? ( <
                 tr >
                 <
-                td colSpan = "7"
+                td colSpan = "8"
                 style = {
                     { textAlign: "center", padding: "40px" }
                 } > Loading vendors... < /td> < /
                 tr >
             ) : vendors.length > 0 ? (
-                vendors.map((vendor) => ( <
+                vendors.map((vendor, idx) => ( <
                     tr key = { vendor.id }
-                    style = { styles.tableRow } >
+                    style = { styles.tableRow }
+                    onClick={() => navigate(`/employee/vendor/view/${vendor.id}`)}
+                    >
                     <
-                    td style = { styles.td } > { vendor.id } < /td> <
+                    td style = { styles.td } > { (currentPage - 1) * 10 + idx + 1 } < /td> <
                     td style = { styles.td } > < strong > { vendor.name } < /strong></td >
                     <
                     td style = { styles.td } > { vendor.number } < /td> <
@@ -136,31 +137,16 @@ function VendorList() {
                     <
                     span style = { vendor.provide_onsite ? styles.badgeYes : styles.badgeNo } > { vendor.provide_onsite ? "YES" : "NO" } <
                     /span> < /
-                    td > <
-                    td style = { styles.actionTd } >
+                    td >
+                    <td style={styles.td}>{vendor.profile_count || 0}</td>
+                    <td style={styles.td}>{vendor.created_by_name || '—'}</td>
                     <
-                    button style = { styles.viewBtn }
-                    onClick = {
-                        () => navigate(`/employee/vendor/view/${vendor.id}`)
-                    } >
-                    View < /button> <
-                    button style = { styles.editBtn }
-                    onClick = {
-                        () => navigate(`/employee/vendor/edit/${vendor.id}`)
-                    } >
-                    Edit < /button> <
-                    button style = { styles.deleteBtn }
-                    onClick = {
-                        () => handleDelete(vendor.id, vendor.name)
-                    } >
-                    Delete < /button> < /
-                    td > <
                     /tr>
                 ))
             ) : ( <
                 tr >
                 <
-                td colSpan = "7"
+                td colSpan = "8"
                 style = {
                     { textAlign: "center", padding: "40px" }
                 } > No vendors found. < /td> < /

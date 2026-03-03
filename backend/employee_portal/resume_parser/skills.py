@@ -33,11 +33,6 @@ SKILL_KEYWORDS = [
     "linux", "unix", "nginx", "apache",
     "prometheus", "grafana",
 
-    # # ---------- Data Science & AI/ML ----------
-    # "machine learning", "deep learning", "data science", "data analysis",
-    # "pandas", "numpy", "scikit-learn", "tensorflow", "pytorch",
-    # "nlp", "computer vision", "power bi", "tableau",
-
     # ---------- Low-Code/No-Code Platforms ----------
     "power apps", "power automate", "mendix", "outsystems",
     # "salesforce", "salesforce admin", "salesforce developer",

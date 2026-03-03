@@ -5,3 +5,6 @@ frontend/build/
 *.sqlite3
 __pycache__/
 *.pyc
+
+backend/media/
+*.json

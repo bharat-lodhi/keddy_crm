@@ -9,7 +9,7 @@ import ProtectedRoute from "./pages/components/ProtectedRoute";
 import SubAdminDashboard from "./pages/sub_admin/SubAdminDashboard";
 import CentralAdminDashboard from "./pages/central_admin/CentralAdminDashboard";
 import EmployeeDashboard from "./pages/emplyee_portal/EmployeeDashboard";
-
+import EmployeeTeamSubmissions from "./pages/emplyee_portal/TeamSubmissions";
 
 // ================= Vendor =================
 import UserVendorManagement from "./pages/emplyee_portal/UserVendorManagement";
@@ -21,7 +21,7 @@ import EditVendor from "./pages/emplyee_portal/EditVendor";
 // ================= Client =================
 import ClientList from "./pages/emplyee_portal/ClientList";
 import AddClient from "./pages/emplyee_portal/AddClient";
-
+import EmployeeViewClient from "./pages/emplyee_portal/ClientView";
 // ================= Candidate =================
 import AddCandidate from "./pages/emplyee_portal/AddCandidate";
 import CandidateList from "./pages/emplyee_portal/CandidateList";
@@ -49,7 +49,7 @@ import SubAdminAddClient from "./pages/sub_admin/AddClient";
 import SubAdminDocView from "./pages/sub_admin/DocViewer";
 import SubAdminTeamManage from "./pages/sub_admin/TeamManage";
 import AddUser from "./pages/sub_admin/AddUser";
-
+import SubAdminClientView from "./pages/sub_admin/ClientView";
 // ========================================================
 
 function App() {
@@ -62,15 +62,10 @@ function App() {
                 <Route path="/register" element={<Register />} />
 
                 {/* Protected Routes */}
-                <Route
-                    path="/employee"
-                    element={
-                        <ProtectedRoute>
-                            <EmployeeDashboard />
-                        </ProtectedRoute>
-                    }
-                />
-
+                <Route path="/employee" element={ <ProtectedRoute> <EmployeeDashboard /> </ProtectedRoute> } />
+                <Route path="/employee/TeamSubmissions" element={<ProtectedRoute><EmployeeTeamSubmissions /></ProtectedRoute>} />
+                
+                
                 <Route path="/employee/candidates/add" element={<ProtectedRoute><AddCandidate /></ProtectedRoute>} />
                 <Route path="/employee/candidates" element={<ProtectedRoute><CandidateList /></ProtectedRoute>} />
                 <Route path="/employee/candidate/view/:id" element={<ProtectedRoute><ViewCandidate /></ProtectedRoute>} />
@@ -90,6 +85,7 @@ function App() {
 
                 <Route path="/employee/clients" element={<ProtectedRoute><ClientList /></ProtectedRoute>} />
                 <Route path="/employee/client/add" element={<ProtectedRoute><AddClient /></ProtectedRoute>} />
+                <Route path="/employee/client/view/:id" element={<ProtectedRoute><EmployeeViewClient /></ProtectedRoute>} />
 
                 {/* ======================SUB-ADMIN========================================= */}
                 <Route path="/sub-admin" element={<ProtectedRoute><SubAdminDashboard /></ProtectedRoute>} />
@@ -106,7 +102,7 @@ function App() {
                 <Route path="/sub-admin/vendor/doc-view/:id" element={<ProtectedRoute><SubAdminDocView /></ProtectedRoute>} />
                 <Route path="/sub-admin/team-manage" element={<ProtectedRoute><SubAdminTeamManage /></ProtectedRoute>} />
                 <Route path="/sub-admin/add-user" element={<ProtectedRoute><AddUser /></ProtectedRoute>} />
-                <Route path="/sub-admin/client/view/:id" element={<ProtectedRoute><ViewClient /></ProtectedRoute>} />
+                <Route path="/sub-admin/client/view/:id" element={<ProtectedRoute><SubAdminClientView /></ProtectedRoute>} />
                 {/* ======================================================================== */}
 
                 <Route path="/central-admin" element={<ProtectedRoute><CentralAdminDashboard /></ProtectedRoute>} />
