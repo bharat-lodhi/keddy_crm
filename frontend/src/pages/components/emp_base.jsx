@@ -32,11 +32,13 @@ const BaseLayout = ({ children }) => {
 
     const menuItems = [
         { label: "Dashboard", path: "/employee" },
-        { label: "Submitted", path: "/employee/submitted-profiles" },
+        { label: "Submitted Profiles", path: "/employee/submitted-profiles" },
+        
+        { label: "Total Profiles", path: "/employee/user-candidates" },
+        // { label: "Vendors", path: "/employee/user-vendors" },
+        // { label: "Clients", path: "/employee/clients" },
+        
         { label: "Team Submissions", path: "/employee/TeamSubmissions" },
-        { label: "Profiles", path: "/employee/user-candidates" },
-        { label: "Vendors", path: "/employee/user-vendors" },
-        { label: "Clients", path: "/employee/clients" },
         { label: "Pool", path: "/employee/pool" },
     ];
 

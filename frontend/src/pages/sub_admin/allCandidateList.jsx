@@ -149,7 +149,7 @@ function CandidateList() {
 
             <div style={styles.header}>
                 <div>
-                    <h2 style={styles.welcome}>Candidate Pool ({count})</h2>
+                    <h2 style={styles.welcome}>Total Profiles ({count})</h2>
                     <p style={styles.subText}>Management dashboard for tracking recruitment progress.</p>
                 </div>
                 <div style={styles.btnGroup}>

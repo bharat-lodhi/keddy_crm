@@ -134,7 +134,7 @@ function CandidateList() {
 
             <div style={styles.header}>
                 <div>
-                    <h2 style={styles.welcome}>All - Profiles ({count})</h2>
+                    <h2 style={styles.welcome}>Total Profiles ({count})</h2>
                     <p style={styles.subText}>Recruitment pipeline overview for team.</p>
                 </div>
                 <div style={styles.headerActions}>

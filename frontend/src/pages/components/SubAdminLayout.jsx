@@ -5,7 +5,7 @@ import { apiRequest } from "../../services/api";
 const SubAdminLayout = ({ children }) => {
     const navigate = useNavigate();
     const location = useLocation();
-    const [userName, setUserName] = useState("Sub Admin");
+    const [userName, setUserName] = useState("Admin");
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     useEffect(() => {
@@ -27,7 +27,7 @@ const SubAdminLayout = ({ children }) => {
     const menuItems = [
         { label: "Overview", path: "/sub-admin" },
         { label: "Manage Team", path: "/sub-admin/team-manage" },
-        { label: "All Profiles", path: "/sub-admin/all-candidates" },
+        { label: "Total Profiles", path: "/sub-admin/all-candidates" },
         { label: "Clients", path: "/sub-admin/clients" },
         { label: "Vendors", path: "/sub-admin/all-Vendors" },
     ];
@@ -47,7 +47,7 @@ const SubAdminLayout = ({ children }) => {
                             <span style={styles.brandKeddy}>Keddy</span>
                             <span style={styles.brandCrm}>CRM</span>
                             {/* Role Badge */}
-                            <span style={styles.roleBadge}>Sub-Admin</span>
+                            <span style={styles.roleBadge}>Admin</span>
                         </div>
                     </div>
 

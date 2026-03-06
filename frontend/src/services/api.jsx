@@ -1,36 +1,99 @@
+// services/api.js
+
+// ✅ LIVE pe ye use karo
 export const API_BASE = "https://crm.keddytech.in";
+
+// ✅ LOCAL pe ye use karo
 // export const API_BASE = "http://localhost:8000";
 
 export async function apiRequest(url, method = "GET", data = null) {
-    const token = localStorage.getItem("access"); // access token yahan se uthayega
+    const token = localStorage.getItem("access");
+
+    const headers = {};
+
+    // ✅ JWT token header
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+    }
 
     const options = {
-        method,
-        headers: {
-            Authorization: token ? `Bearer ${token}` : "",
-        },
+        method: method,
+        headers: headers,
+        credentials: "include", // ✅ VERY IMPORTANT (session cookies send karega)
     };
 
+    // ✅ Body handling
     if (data) {
         if (data instanceof FormData) {
             options.body = data;
         } else {
-            options.headers["Content-Type"] = "application/json";
+            headers["Content-Type"] = "application/json";
             options.body = JSON.stringify(data);
         }
     }
 
-    const response = await fetch(API_BASE + url, options);
+    try {
+        const response = await fetch(API_BASE + url, options);
 
-    // Agar token expire ho gaya ho
-    if (response.status === 401) {
-        localStorage.removeItem("access");
-        window.location.href = "/";
-        return;
+        // ✅ Unauthorized → logout
+        if (response.status === 401) {
+            localStorage.removeItem("access");
+            localStorage.removeItem("refresh");
+            window.location.href = "/";
+            return;
+        }
+
+        // ✅ Safe JSON parse
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+            return await response.json();
+        } else {
+            return await response.text();
+        }
+
+    } catch (error) {
+        console.error("API Error:", error);
+        throw error;
     }
-
-    return response.json();
 }
+
+
+
+
+
+// // export const API_BASE = "https://crm.keddytech.in";
+// export const API_BASE = "http://localhost:8000";
+
+// export async function apiRequest(url, method = "GET", data = null) {
+//     const token = localStorage.getItem("access"); // access token yahan se uthayega
+
+//     const options = {
+//         method,
+//         headers: {
+//             Authorization: token ? `Bearer ${token}` : "",
+//         },
+//     };
+
+//     if (data) {
+//         if (data instanceof FormData) {
+//             options.body = data;
+//         } else {
+//             options.headers["Content-Type"] = "application/json";
+//             options.body = JSON.stringify(data);
+//         }
+//     }
+
+//     const response = await fetch(API_BASE + url, options);
+
+//     // Agar token expire ho gaya ho
+//     if (response.status === 401) {
+//         localStorage.removeItem("access");
+//         window.location.href = "/";
+//         return;
+//     }
+
+//     return response.json();
+// }
 
 
 

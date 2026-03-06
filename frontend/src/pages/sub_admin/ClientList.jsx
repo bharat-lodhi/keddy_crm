@@ -122,7 +122,7 @@ function ClientList() {
 
             <div style={styles.section}>
                 <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'15px'}}>
-                    <h2 style={styles.pageTitle}>Client Directory</h2>
+                    <h2 style={styles.pageTitle}>Clients</h2>
                     <input placeholder="Search..." style={styles.searchInput} value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
                 </div>
 

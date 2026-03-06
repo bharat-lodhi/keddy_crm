@@ -246,7 +246,7 @@ function EmployeeDashboard() {
             </Section>
 
 
-            <Section title="Last 7 Days Submitted Profiles">
+             <Section title="Last 7 Days Submitted Profiles">
                 <table style={styles.table}>
                     <thead style={styles.tableHeader}>
                         <tr>
@@ -257,8 +257,9 @@ function EmployeeDashboard() {
                     </thead>
                     <tbody>{renderGroupedRows(last7Verified)}</tbody>
                 </table>
-            </Section>
-            
+            </Section> 
+
+
             <Section title="Today's New Profiles">
                 <table style={styles.table}>
                     <thead style={styles.tableHeader}>

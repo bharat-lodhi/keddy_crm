@@ -132,7 +132,7 @@ function VendorList() {
             </div>
 
             <div style={styles.section}>
-                <h2 style={styles.pageTitle}>Vendor Pool ({totalCount})</h2>
+                <h2 style={styles.pageTitle}>Vendors</h2>
 
                 <div style={styles.tableWrapper}>
                     <table style={styles.table}>
