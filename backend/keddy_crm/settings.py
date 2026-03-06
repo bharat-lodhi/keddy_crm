@@ -162,17 +162,17 @@ MEDIA_ROOT = BASE_DIR / 'media'
 X_FRAME_OPTIONS = 'ALLOWALL' 
 
 # Saath hi ye bhi check karlein (CORS settings)
-# CORS_ALLOW_ALL_ORIGINS = True    #YE PAHLE CHAL RHA THA
+CORS_ALLOW_ALL_ORIGINS = True    #YE PAHLE CHAL RHA THA
 
-# ============abhi live ke liye====================
-SESSION_COOKIE_DOMAIN = ".keddytech.in"
-CSRF_COOKIE_DOMAIN = ".keddytech.in"
+# ============abhi live ke liye token issue checking====================
+# SESSION_COOKIE_DOMAIN = ".keddytech.in"
+# CSRF_COOKIE_DOMAIN = ".keddytech.in"
 
-SESSION_COOKIE_SAMESITE = "None"
-CSRF_COOKIE_SAMESITE = "None"
+# SESSION_COOKIE_SAMESITE = "None"
+# CSRF_COOKIE_SAMESITE = "None"
 
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
 # ================================
 
 # Default primary key field type

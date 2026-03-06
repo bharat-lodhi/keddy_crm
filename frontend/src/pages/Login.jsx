@@ -26,6 +26,7 @@ function Login() {
             // ✅ Correct token storage (IMPORTANT)
             if (res.access) {
                 console.log("Access token received:", res.access);
+                console.log("ROLE:", res.role);
                 localStorage.setItem("access", res.access);
 
             }
