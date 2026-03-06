@@ -156,14 +156,24 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # MEDIA FILES
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
-# CORS_ALLOW_ALL_ORIGINS = True
 # X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 # Agar SAMEORIGIN kaam nahi kar raha, toh ise hatane ke liye:
 X_FRAME_OPTIONS = 'ALLOWALL' 
 
 # Saath hi ye bhi check karlein (CORS settings)
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOW_ALL_ORIGINS = True    #YE PAHLE CHAL RHA THA
+
+# ============abhi live ke liye====================
+SESSION_COOKIE_DOMAIN = ".keddytech.in"
+CSRF_COOKIE_DOMAIN = ".keddytech.in"
+
+SESSION_COOKIE_SAMESITE = "None"
+CSRF_COOKIE_SAMESITE = "None"
+
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+# ================================
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
