@@ -164,17 +164,6 @@ X_FRAME_OPTIONS = 'ALLOWALL'
 # Saath hi ye bhi check karlein (CORS settings)
 CORS_ALLOW_ALL_ORIGINS = True    #YE PAHLE CHAL RHA THA
 
-# ============abhi live ke liye token issue checking====================
-# SESSION_COOKIE_DOMAIN = ".keddytech.in"
-# CSRF_COOKIE_DOMAIN = ".keddytech.in"
-
-# SESSION_COOKIE_SAMESITE = "None"
-# CSRF_COOKIE_SAMESITE = "None"
-
-# SESSION_COOKIE_SECURE = True
-# CSRF_COOKIE_SECURE = True
-# ================================
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -186,12 +175,20 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "https://keddytech.in",
     "https://www.keddytech.in",
+    
+    #=========== new domain ==============
+    "https://keddyzerobouncevelidetor.com",
+    "https://www.keddyzerobouncevelidetor.com",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "https://keddytech.in",
     "https://www.keddytech.in",
+    
+    #=========== new domain ==============
+    "https://keddyzerobouncevelidetor.com",
+    "https://www.keddyzerobouncevelidetor.com",
 ]
 # ===============================================
 
