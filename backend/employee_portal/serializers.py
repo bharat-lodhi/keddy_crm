@@ -456,6 +456,10 @@ class CandidateListSerializer(serializers.ModelSerializer):
     vendor_name = serializers.CharField(source="vendor.name", read_only=True)
     vendor_company_name = serializers.CharField(source="vendor.company_name", read_only=True)
     vendor_number = serializers.CharField(source="vendor.number", read_only=True)
+    
+    client_name = serializers.CharField(source="client.client_name", read_only=True)
+    client_company_name = serializers.CharField(source="client.company_name", read_only=True)
+    client_number = serializers.CharField(source="client.phone_number", read_only=True)
 
     submitted_to_name = serializers.SerializerMethodField()
     created_by_name = serializers.CharField(source="created_by.first_name", read_only=True)
@@ -479,6 +483,13 @@ class CandidateListSerializer(serializers.ModelSerializer):
             "vendor_number",
             "vendor_rate",
             "vendor_rate_type",
+            
+            "client",
+            "client_name",
+            "client_company_name",
+            "client_number",
+            "client_rate",
+            "client_rate_type",
 
             "submitted_to",
             "submitted_to_name",

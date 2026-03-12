@@ -13,6 +13,7 @@ urlpatterns = [
     path('employee-portal/', include('employee_portal.urls', namespace='employee_portal')),
     
     path('calendar/', include('calendar_service.urls')),
+    path("invoice/", include("invoicing.urls")),
 
 ]
 if settings.DEBUG:

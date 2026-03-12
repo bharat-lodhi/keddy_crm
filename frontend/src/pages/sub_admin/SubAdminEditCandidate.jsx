@@ -20,7 +20,7 @@ function UpdateCandidate() {
         setLoading(true);
         try {
             const candidateRes = await apiRequest(`/employee-portal/api/candidates/${id}/`);
-            const clientRes = await apiRequest("/employee-portal/clients/list/");
+            const clientRes = await apiRequest("/sub-admin/api/clients/");
             setForm(candidateRes);
             setClients(clientRes.results || []);
         } catch (err) {
@@ -29,6 +29,29 @@ function UpdateCandidate() {
             setLoading(false);
         }
     };
+
+    const [clientSearch, setClientSearch] = useState("");
+            useEffect(() => {
+            const delayDebounceFn = setTimeout(() => {
+                if (clientSearch.length > 0) {
+                    fetchSearchClients(clientSearch);
+                } else {
+                    // Agar search empty hai toh default list (pehle 10)
+                    fetchSearchClients("");
+                }
+            }, 500);
+
+            return () => clearTimeout(delayDebounceFn);
+        }, [clientSearch]);
+
+    const fetchSearchClients = async (query) => {
+            try {
+                const res = await apiRequest(`/sub-admin/api/clients/?search=${query}`);
+                setClients(res.results || []);
+            } catch (err) {
+                console.error("Client search error", err);
+            }
+        };
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -122,7 +145,7 @@ function UpdateCandidate() {
                     <div style={styles.grid}>
                         <div style={styles.inputGroup}>
                             <label style={styles.label}>Vendor Company</label>
-                            <input name="vendor_company_name" style={styles.input} value={form.vendor_company_name || ""} onChange={handleChange} />
+                            <input name="vendor_company_name" style={styles.input} value={form.vendor_company_name || ""} onChange={handleChange} readOnly />
                         </div>
                         <div style={styles.inputGroup}>
                             <label style={styles.label}>Vendor Rate</label>
@@ -145,13 +168,39 @@ function UpdateCandidate() {
                             </select>
                         </div>
 
-                        <div style={styles.inputGroup}>
+                        {/* <div style={styles.inputGroup}>
                             <label style={styles.label}>Select Client</label>
                             <select name="client" style={styles.input} value={form.client || ""} onChange={handleChange}>
                                 <option value="">-- Choose Client --</option>
                                 {clients.map(c => <option key={c.id} value={c.id}>{c.client_name} - {c.company_name}</option>)}
                             </select>
-                        </div>
+                        </div> */}
+
+                        <div style={styles.inputGroup}>
+    <label style={styles.label}>Select Client</label>
+    {/* Search Input added inside the same group */}
+    <input 
+        type="text" 
+        placeholder="Type to search client..." 
+        style={{...styles.input, marginBottom: '5px', borderStyle: 'dashed'}} 
+        value={clientSearch}
+        onChange={(e) => setClientSearch(e.target.value)}
+    />
+    <select 
+        name="client" 
+        style={styles.input} 
+        value={form.client || ""} 
+        onChange={handleChange}
+    >
+        <option value="">-- Choose Client --</option>
+        {clients.map(c => (
+            <option key={c.id} value={c.id}>
+                {c.client_name} - {c.company_name}
+            </option>
+        ))}
+    </select>
+</div>
+                        
                         <div style={styles.inputGroup}>
                             <label style={styles.label}>Client Rate</label>
                             <input name="client_rate" style={styles.input} value={form.client_rate || ""} onChange={handleChange} />
@@ -174,49 +223,6 @@ function UpdateCandidate() {
 
                     </div>
                 </div>
-
-
-                {/* Section 3: Status & Management */}
-                {/* <div style={styles.section}>
-                    <h3 style={styles.secTitle}>3. Status & Governance</h3>
-                    <div style={styles.grid}>
-                        <div style={styles.inputGroup}>
-                            <label style={styles.label}>Main Status</label>
-                            <select name="main_status" style={styles.input} value={form.main_status || ""} onChange={handleChange}>
-                                <option value="SCREENING">Screening</option>
-                                <option value="L1">L1</option>
-                                <option value="L2">L2</option>
-                                <option value="L3">L3</option>
-                                <option value="OTHER">Other</option>
-                                <option value="SELECTED">Selected</option>
-                                <option value="HOLD">Hold</option>
-                                <option value="NOT_MATCHED">Not Matched</option>
-                                <option value="REJECTED">Rejected</option>
-                                
-                            </select>
-                        </div>
-                        <div style={styles.inputGroup}>
-                            <label style={styles.label}>Sub Status</label>
-                            <select name="sub_status" style={styles.input} value={form.sub_status || ""} onChange={handleChange}>
-                                <option value="NONE">None</option>
-                                <option value="SCHEDULED">Scheduled</option>
-                                <option value="SELECTED">Selected</option>
-                                <option value="DONE">Done</option>
-                                
-                            </select>
-                        </div>
-                        <div style={{...styles.inputGroup, flexDirection: 'row', alignItems: 'center', gap: '20px', paddingTop: '25px'}}>
-                            <label style={{fontWeight: '700', fontSize: '13px'}}><input type="checkbox" name="verification_status" checked={form.verification_status || false} onChange={handleChange} /> Verified</label>
-                            <label style={{fontWeight: '700', fontSize: '13px', color: 'red'}}><input type="checkbox" name="is_blocklisted" checked={form.is_blocklisted || false} onChange={handleChange} /> Blocklisted</label>
-                        </div>
-                        {form.is_blocklisted && (
-                            <div style={styles.inputGroup}>
-                                <label style={styles.label}>Blocklist Reason</label>
-                                <input name="blocklisted_reason" style={{...styles.input, borderColor: 'red'}} value={form.blocklisted_reason || ""} onChange={handleChange} />
-                            </div>
-                        )}
-                    </div>
-                </div> */}
 
                 {/* Section 4: Files & Remarks */}
                 <div style={styles.section}>

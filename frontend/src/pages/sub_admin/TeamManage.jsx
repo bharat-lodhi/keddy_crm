@@ -96,7 +96,7 @@ function UserManagement() {
                     />
                 </div>
                 <button onClick={() => navigate("/sub-admin/add-user")} style={styles.addBtn}>
-                    + Add Member
+                    + Add Employee
                 </button>
             </div>
 

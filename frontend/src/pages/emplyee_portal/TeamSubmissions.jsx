@@ -42,10 +42,33 @@ function TeamSubmissions() {
         } catch (err) { console.error("Client fetch failed"); }
     };
 
+
     useEffect(() => {
         fetchTeamSubmissions();
         fetchClients();
     }, []);
+
+
+    
+    const searchClientsApi = async (query = "") => {
+        try {
+            const res = await apiRequest(`/employee-portal/clients/list/?search=${query}`, "GET");
+            setClientsList(res.results || (Array.isArray(res) ? res : []));
+        } catch (err) {
+            console.error("Client search failed");
+        }
+    };
+
+    useEffect(() => {
+            if (showClientModal) {
+                const delayDebounceFn = setTimeout(() => {
+                    searchClientsApi(clientSearch);
+                }, 500);
+
+                return () => clearTimeout(delayDebounceFn);
+            }
+        }, [clientSearch, showClientModal]);
+
 
     const notify = (msg, type = "success") => {
         setToast({ show: true, msg, type });
@@ -189,13 +212,39 @@ function TeamSubmissions() {
                         <h3 style={{color:'#25343F', marginBottom:'15px', fontWeight: '800'}}>Submit to Client</h3>
                         <div style={styles.inputGroup}>
                             <label style={styles.modalLabel}>Select Client</label>
-                            <input type="text" placeholder="Search client..." style={styles.modalInput} onChange={(e) => setClientSearch(e.target.value)} />
+                            
+                            {/* <input type="text" placeholder="Search client..." style={styles.modalInput} onChange={(e) => setClientSearch(e.target.value)} />
                             <select style={styles.modalSelect} size="5" value={submitData.target_id} onChange={(e) => setSubmitData({...submitData, target_id: e.target.value})}>
                                 <option value="">-- Choose Client --</option>
                                 {clientsList.filter(c => (c.company_name || c.client_name).toLowerCase().includes(clientSearch.toLowerCase())).map(item => (
                                     <option key={item.id} value={item.id}>{item.company_name || item.client_name}</option>
                                 ))}
-                            </select>
+                            </select> */}
+                            
+                        {/* Modal Search Input */}
+                        <input 
+                            type="text" 
+                            placeholder="Search client..." 
+                            style={styles.modalInput} 
+                            value={clientSearch} // Bind value
+                            onChange={(e) => setClientSearch(e.target.value)} 
+                        />
+
+                        <select 
+                            style={styles.modalSelect} 
+                            size="5" 
+                            value={submitData.target_id} 
+                            onChange={(e) => setSubmitData({...submitData, target_id: e.target.value})}
+                        >
+                            <option value="">-- Choose Client --</option>
+                            {/* .filter hata kar direct map karein */}
+                            {clientsList.map(item => (
+                                <option key={item.id} value={item.id}>
+                                    {item.company_name || item.client_name}
+                                </option>
+                            ))}
+                        </select>
+
                         </div>
                         <div style={{display:'flex', gap:'10px'}}>
                             <div style={{flex:1}}><label style={styles.modalLabel}>Rate</label><input type="number" style={styles.modalInput} value={submitData.client_rate} onChange={(e) => setSubmitData({...submitData, client_rate: e.target.value})} /></div>
@@ -242,6 +291,8 @@ const styles = {
 };
 
 export default TeamSubmissions;
+
+
 
 
 

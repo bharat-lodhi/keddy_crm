@@ -317,6 +317,25 @@ class Candidate(models.Model):
         related_name="scheduled_candidates"
     )
     #--------------------------------------  
+    #-------------For Invoicing------------
+    # ========= BILLING INFO =========
+    billing_start_date = models.DateField(blank=True, null=True)
+    billing_end_date = models.DateField(blank=True, null=True)
+
+    default_billing_rate = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        blank=True,
+        null=True
+    )
+
+    default_billing_rate_type = models.CharField(
+        max_length=10,
+        choices=RateType.choices,
+        blank=True,
+        null=True
+    )
+    #-----------------------------------------------
     def __str__(self):
         return self.candidate_name
 

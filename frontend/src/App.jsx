@@ -5,7 +5,6 @@ import Register from "./pages/Register";
 
 import ProtectedRoute from "./pages/components/ProtectedRoute";
 
-
 import SubAdminDashboard from "./pages/sub_admin/SubAdminDashboard";
 import CentralAdminDashboard from "./pages/central_admin/CentralAdminDashboard";
 import EmployeeDashboard from "./pages/emplyee_portal/EmployeeDashboard";
@@ -50,6 +49,19 @@ import SubAdminDocView from "./pages/sub_admin/DocViewer";
 import SubAdminTeamManage from "./pages/sub_admin/TeamManage";
 import AddUser from "./pages/sub_admin/AddUser";
 import SubAdminClientView from "./pages/sub_admin/ClientView";
+import SubadminTotalSubmittedProfiles from "./pages/sub_admin/TotalSubmittedProfiles";
+import SubadminTotalOnbording from "./pages/sub_admin/TotalOnbording";
+import SubadminTodaysSubmittedProfiles from "./pages/sub_admin/TodaysSubmittedProfiles";
+import SubadminTodaysNewProfiles from "./pages/sub_admin/TodaysNewProfiles";
+import SubadminPipeline from "./pages/sub_admin/Pipeline";
+// -------Invoice---
+import SubadminCreateInvoice from "./pages/sub_admin/invoice/CreateInvoice";
+import SubadminInvoicePreview from "./pages/sub_admin/invoice/InvoicePreview";
+import SubadminInvoices from "./pages/sub_admin/invoice/InvoiceList";
+import SubadminSettings from "./pages/sub_admin/invoice/CompanySettingsView";
+import SubadminSettingsEdit from "./pages/sub_admin/invoice/CompanySettingsEdit";
+import SubadminEditInvoice from "./pages/sub_admin/invoice/EditInvoice";
+import CandidateInvoiceHistory from "./pages/sub_admin/invoice/CandidateHistory";
 // ========================================================
 
 function App() {
@@ -103,10 +115,29 @@ function App() {
                 <Route path="/sub-admin/team-manage" element={<ProtectedRoute><SubAdminTeamManage /></ProtectedRoute>} />
                 <Route path="/sub-admin/add-user" element={<ProtectedRoute><AddUser /></ProtectedRoute>} />
                 <Route path="/sub-admin/client/view/:id" element={<ProtectedRoute><SubAdminClientView /></ProtectedRoute>} />
+                <Route path="/sub-admin/total-submitted-profiles" element={<ProtectedRoute><SubadminTotalSubmittedProfiles /></ProtectedRoute>} />
+
+                <Route path="/sub-admin/total-onbording" element={<ProtectedRoute><SubadminTotalOnbording /></ProtectedRoute>} />
+                <Route path="/sub-admin/todays-submitted-profiles" element={<ProtectedRoute><SubadminTodaysSubmittedProfiles /></ProtectedRoute>} />
+
+                <Route path="/sub-admin/todays-New-Profiles" element={<ProtectedRoute><SubadminTodaysNewProfiles /></ProtectedRoute>} />
+
+                <Route path="/sub-admin/Pipeline" element={<ProtectedRoute><SubadminPipeline /></ProtectedRoute>} />
+                
+                <Route path="/sub-admin/create-invoice" element={<ProtectedRoute><SubadminCreateInvoice /></ProtectedRoute>} />
+
+                <Route path="/sub-admin/invoice/preview/:invoice_id" element={<ProtectedRoute><SubadminInvoicePreview /></ProtectedRoute>} />
+
+                <Route path="/sub-admin/invoices" element={<ProtectedRoute><SubadminInvoices /></ProtectedRoute>} />
+
+                <Route path="/sub-admin/invoice/settings" element={<ProtectedRoute><SubadminSettings /></ProtectedRoute>} />
+                <Route path="/sub-admin/invoice/settings/edit" element={<ProtectedRoute><SubadminSettingsEdit /></ProtectedRoute>} />
+                <Route path="/sub-admin/invoice/edit/:id" element={<ProtectedRoute><SubadminEditInvoice /></ProtectedRoute>} />
+                
+                <Route path="/sub-admin/invoice/candidate-history/:candidateId" element={<ProtectedRoute><CandidateInvoiceHistory /></ProtectedRoute>} />
                 {/* ======================================================================== */}
 
                 <Route path="/central-admin" element={<ProtectedRoute><CentralAdminDashboard /></ProtectedRoute>} />
-
 
             </Routes>
         </BrowserRouter>

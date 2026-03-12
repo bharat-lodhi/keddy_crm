@@ -20,6 +20,91 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.timezone import now
 from datetime import timedelta
 
+# @api_view(["GET"])
+# @permission_classes([IsAuthenticated])
+# def dashboard_stats(request):
+#     user = request.user
+#     UserModel = get_user_model()
+
+#     today = now().date()
+#     two_days_ago = now() - timedelta(days=2)
+
+#     # ===== Company Isolation =====
+#     if user.role == "SUB_ADMIN":
+#         company_root = user
+#     elif user.role == "EMPLOYEE" and user.parent_user:
+#         company_root = user.parent_user
+#     else:
+#         return Response({"detail": "Invalid role."}, status=403)
+
+#     company_users = UserModel.objects.filter(
+#         Q(id=company_root.id) | Q(parent_user=company_root)
+#     )
+
+#     # ===== Vendors (exclude soft deleted) =====
+#     total_vendors = Vendor.objects.filter(
+#         created_by__in=company_users,
+#         is_deleted=False
+#     ).count()
+
+#     # ===== Clients (exclude soft deleted) =====
+#     total_clients = Client.objects.filter(
+#         created_by__in=company_users,
+#         is_deleted=False
+#     ).count()
+
+#     # ===== Candidates (exclude soft deleted) =====
+#     total_profiles = Candidate.objects.filter(
+#         created_by__in=company_users,
+#         is_deleted=False
+#     ).count()
+
+#     today_profiles = Candidate.objects.filter(
+#         created_by__in=company_users,
+#         created_at__date=today,
+#         is_deleted=False
+#     ).count()
+    
+
+#     today_submitted_profiles = Candidate.objects.filter(
+#         created_by__in=company_users,
+#         created_at__date=today,
+#         verification_status=True,
+#         is_deleted=False
+#     ).count()
+
+#     # ===== Pipeline Count =====
+#     total_pipelines = Candidate.objects.filter(
+#         created_by__in=company_users,
+#         verification_status=True,
+#         is_deleted=False
+#     ).filter(
+#         Q(main_status__iexact="SCREENING") |
+#         Q(main_status__iexact="L1") |
+#         Q(main_status__iexact="L2") |
+#         Q(main_status__iexact="L3") |
+#         Q(main_status__iexact="OTHER")
+#     ).exclude(
+#         sub_status="REJECTED"
+#     ).filter(
+#         Q(sub_status="ON_HOLD", created_at__gte=two_days_ago) |
+#         ~Q(sub_status="ON_HOLD")
+#     ).count()
+
+#     data = {
+#         "user_name": user.get_full_name() or user.email,
+#         "total_vendors": total_vendors,
+#         "total_clients": total_clients,
+#         "total_profiles": total_profiles,
+#         "today_profiles": today_profiles,
+#         "today_submitted_profiles": today_submitted_profiles,
+#         "total_pipelines": total_pipelines,
+#     }
+
+#     return Response(data)
+
+
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def dashboard_stats(request):
@@ -41,19 +126,25 @@ def dashboard_stats(request):
         Q(id=company_root.id) | Q(parent_user=company_root)
     )
 
-    # ===== Vendors (exclude soft deleted) =====
+    # ===== Employees =====
+    total_employees = UserModel.objects.filter(
+        parent_user=company_root,
+        role="EMPLOYEE"
+    ).count()
+
+    # ===== Vendors =====
     total_vendors = Vendor.objects.filter(
         created_by__in=company_users,
         is_deleted=False
     ).count()
 
-    # ===== Clients (exclude soft deleted) =====
+    # ===== Clients =====
     total_clients = Client.objects.filter(
         created_by__in=company_users,
         is_deleted=False
     ).count()
 
-    # ===== Candidates (exclude soft deleted) =====
+    # ===== Profiles =====
     total_profiles = Candidate.objects.filter(
         created_by__in=company_users,
         is_deleted=False
@@ -64,26 +155,39 @@ def dashboard_stats(request):
         created_at__date=today,
         is_deleted=False
     ).count()
-    
 
+    # ===== Submitted Profiles =====
     today_submitted_profiles = Candidate.objects.filter(
         created_by__in=company_users,
         created_at__date=today,
         verification_status=True,
         is_deleted=False
+    ).filter(
+        Q(submitted_to__isnull=False) | Q(client__isnull=False)
     ).count()
 
-    # ===== Pipeline Count =====
-    total_pipelines = Candidate.objects.filter(
+    total_submitted_profiles = Candidate.objects.filter(
         created_by__in=company_users,
         verification_status=True,
         is_deleted=False
     ).filter(
-        Q(main_status__iexact="SCREENING") |
-        Q(main_status__iexact="L1") |
-        Q(main_status__iexact="L2") |
-        Q(main_status__iexact="L3") |
-        Q(main_status__iexact="OTHER")
+        Q(submitted_to__isnull=False) | Q(client__isnull=False)
+    ).count()
+
+    # ===== Onboard =====
+    onboard_profiles = Candidate.objects.filter(
+        created_by__in=company_users,
+        main_status="ONBORD",
+        is_deleted=False
+    ).count()
+
+    # ===== Team Pipeline =====
+    team_pipeline = Candidate.objects.filter(
+        created_by__in=company_users,
+        verification_status=True,
+        is_deleted=False
+    ).filter(
+        Q(main_status__in=["SCREENING", "L1", "L2", "L3", "OTHER"])
     ).exclude(
         sub_status="REJECTED"
     ).filter(
@@ -93,15 +197,23 @@ def dashboard_stats(request):
 
     data = {
         "user_name": user.get_full_name() or user.email,
+
+        "total_employees": total_employees,
         "total_vendors": total_vendors,
         "total_clients": total_clients,
+
         "total_profiles": total_profiles,
         "today_profiles": today_profiles,
+
         "today_submitted_profiles": today_submitted_profiles,
-        "total_pipelines": total_pipelines,
+        "total_submitted_profiles": total_submitted_profiles,
+
+        "onboard_profiles": onboard_profiles,
+        "team_pipeline": team_pipeline,
     }
 
     return Response(data)
+
 
 
 @api_view(["GET"])
@@ -791,11 +903,45 @@ from employee_portal.models import Client
 
 
 from .serializers import SubAdminClientListSerializer
+# class SubAdminClientListAPIView(generics.ListAPIView):
+#     permission_classes = [IsAuthenticated]
+#     serializer_class = SubAdminClientListSerializer
+
+#     def get_queryset(self):
+#         user = self.request.user
+
+#         if user.role != "SUB_ADMIN":
+#             return Client.objects.none()
+
+#         # Company users (SubAdmin + employees)
+#         company_users = User.objects.filter(
+#             Q(id=user.id) | Q(parent_user=user)
+#         )
+
+#         return Client.objects.filter(
+#             created_by__in=company_users,
+#             is_deleted=False
+#         ).distinct().order_by("-created_at")
+        
+        
+from rest_framework.filters import SearchFilter
+from django.db.models import Q
+
 class SubAdminClientListAPIView(generics.ListAPIView):
+
     permission_classes = [IsAuthenticated]
     serializer_class = SubAdminClientListSerializer
 
+    filter_backends = [SearchFilter]
+
+    search_fields = [
+        "client_name",
+        "company_name",
+        "phone_number",
+    ]
+
     def get_queryset(self):
+
         user = self.request.user
 
         if user.role != "SUB_ADMIN":
@@ -1083,3 +1229,153 @@ class SubAdminCandidateHardDeleteAPIView(SubAdminCandidateBaseMixin, generics.De
             status=status.HTTP_200_OK
         )
 # =============================================================
+from rest_framework.pagination import PageNumberPagination
+
+class SubAdminSubmittedProfilesAPIView(generics.ListAPIView):
+    serializer_class = CandidateListSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = PageNumberPagination  # default DRF pagination
+
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    filterset_class = CandidateFilter
+
+    search_fields = [
+        "candidate_name",
+        "candidate_email",
+        "skills",
+        "technology",
+        "vendor__company_name",
+    ]
+
+    ordering_fields = "__all__"
+
+    def get_queryset(self):
+        user = self.request.user
+        UserModel = get_user_model()
+
+        # 🔐 Role restriction
+        if user.role != "SUB_ADMIN":
+            raise PermissionDenied("You do not have permission to access this data.")
+
+        # 🏢 Company users (SubAdmin + employees)
+        company_users = UserModel.objects.filter(
+            Q(id=user.id) | Q(parent_user=user)
+        )
+
+        # 📦 Submitted profiles (internal OR client)
+        return (
+            Candidate.objects.select_related(
+                "vendor",
+                "client",
+                "created_by",
+                "submitted_to",
+            )
+            .filter(
+                created_by__in=company_users,
+                verification_status=True,
+                is_deleted=False,
+            )
+            .filter(
+                Q(submitted_to__isnull=False) | Q(client__isnull=False)
+            )
+            .order_by("-created_at")
+        )
+        
+# ==========================================================================
+from django.utils import timezone
+
+class SubAdminTodayProfilesAPIView(generics.ListAPIView):
+    serializer_class = CandidateListSerializer
+    permission_classes = [IsAuthenticated]
+
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    filterset_class = CandidateFilter
+
+    search_fields = [
+        "candidate_name",
+        "candidate_email",
+        "skills",
+        "technology",
+        "vendor__company_name",
+    ]
+
+    ordering_fields = "__all__"
+
+    def get_queryset(self):
+        user = self.request.user
+        UserModel = get_user_model()
+
+        # 🔐 Role restriction
+        if user.role != "SUB_ADMIN":
+            raise PermissionDenied("You do not have permission to access this data.")
+
+        # 🏢 Company users (SubAdmin + employees)
+        company_users = UserModel.objects.filter(
+            Q(id=user.id) | Q(parent_user=user)
+        )
+
+        today = timezone.localdate()
+
+        return (
+            Candidate.objects.select_related(
+                "vendor",
+                "client",
+                "created_by",
+                "submitted_to",
+            )
+            .filter(
+                created_by__in=company_users,
+                created_at__date=today,
+                is_deleted=False,
+            )
+            .order_by("-created_at")
+        )
+        
+
+# ================================================================
+
+class SubAdminOnboardProfilesAPIView(generics.ListAPIView):
+    serializer_class = CandidateListSerializer
+    permission_classes = [IsAuthenticated]
+
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    filterset_class = CandidateFilter
+
+    search_fields = [
+        "candidate_name",
+        "candidate_email",
+        "skills",
+        "technology",
+        "vendor__company_name",
+    ]
+
+    ordering_fields = "__all__"
+
+    def get_queryset(self):
+        user = self.request.user
+        UserModel = get_user_model()
+
+        # 🔐 Role restriction
+        if user.role != "SUB_ADMIN":
+            raise PermissionDenied("You do not have permission to access this data.")
+
+        # 🏢 Company users (SubAdmin + employees)
+        company_users = UserModel.objects.filter(
+            Q(id=user.id) | Q(parent_user=user)
+        )
+
+        return (
+            Candidate.objects.select_related(
+                "vendor",
+                "client",
+                "created_by",
+                "submitted_to",
+            )
+            .filter(
+                created_by__in=company_users,
+                main_status="ONBORD",
+                is_deleted=False,
+            )
+            .order_by("-created_at")
+        )
+        

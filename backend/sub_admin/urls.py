@@ -44,6 +44,9 @@ urlpatterns = [
     path("candidates/<int:pk>/restore/", views.SubAdminCandidateRestoreAPIView.as_view()),  #U N
     path("candidates/<int:pk>/hard-delete/", views.SubAdminCandidateHardDeleteAPIView.as_view()),  #U N
     
+    #=====================================
+    path("api/candidates/submitted/",views.SubAdminSubmittedProfilesAPIView.as_view(),name="subadmin-submitted-profiles",),
+    path("api/dashboard/today-profiles/",views.SubAdminTodayProfilesAPIView.as_view(),name="subadmin-today-profiles",),
+
+    path("api/candidates/onboard/",views.SubAdminOnboardProfilesAPIView.as_view(),name="subadmin-onboard-profiles",),
 ]
-
-

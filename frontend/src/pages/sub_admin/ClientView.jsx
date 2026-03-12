@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { apiRequest } from "../../services/api";
-import BaseLayout from "../components/emp_base";
+import BaseLayout from "../components/SubAdminLayout";
 
 function ClientView() {
     const { id } = useParams();

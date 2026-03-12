@@ -34,7 +34,8 @@ INSTALLED_APPS = [
     'calendar_service',
     'django_filters',
     'rest_framework',
-    "rest_framework_simplejwt.token_blacklist",
+    'rest_framework_simplejwt.token_blacklist',
+    'invoicing',
     
 ]
 

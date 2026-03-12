@@ -297,9 +297,38 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
 
+# class ClientListAPIView(generics.ListAPIView):
+#     serializer_class = ClientSerializer
+#     permission_classes = [IsAuthenticated]
+
+#     def get_queryset(self):
+#         user = self.request.user
+
+#         if user.role != "EMPLOYEE":
+#             return Client.objects.none()
+
+#         return Client.objects.filter(
+#             Q(created_by=user) | Q(assigned_employees=user),
+#             is_deleted=False
+#         ).distinct().order_by('-created_at')
+        
+        
+from django.db.models import Q
+from rest_framework.filters import SearchFilter
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import generics
+from rest_framework.permissions import IsAuthenticated
+
 class ClientListAPIView(generics.ListAPIView):
     serializer_class = ClientSerializer
     permission_classes = [IsAuthenticated]
+
+    filter_backends = [SearchFilter]
+    search_fields = [
+        "client_name",
+        "company_name",
+        "phone_number",
+    ]
 
     def get_queryset(self):
         user = self.request.user
@@ -310,7 +339,8 @@ class ClientListAPIView(generics.ListAPIView):
         return Client.objects.filter(
             Q(created_by=user) | Q(assigned_employees=user),
             is_deleted=False
-        ).distinct().order_by('-created_at')
+        ).distinct().order_by("-created_at")
+                
     
 from .serializers import ClientDetailSerializer
 class ClientDetailAPIView(APIView):
