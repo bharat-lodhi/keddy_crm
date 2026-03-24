@@ -82,8 +82,64 @@ class LoginAPIView(APIView):
             },
             status=status.HTTP_200_OK,
         )
+
+
         
-        
+# @method_decorator(csrf_exempt, name="dispatch")
+# class LoginAPIView(APIView):
+#     authentication_classes = ()
+#     permission_classes = ()
+
+#     def post(self, request):
+#         serializer = LoginSerializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+
+#         email = serializer.validated_data["email"].lower()
+#         password = serializer.validated_data["password"]
+
+#         try:
+#             user = User.objects.get(email__iexact=email)
+#         except User.DoesNotExist:
+#             return Response(
+#                 {
+#                     "status": "error",
+#                     "message": "Invalid email or password"
+#                 },
+#                 status=status.HTTP_401_UNAUTHORIZED
+#             )
+
+#         if not check_password(password, user.password):
+#             return Response(
+#                 {
+#                     "status": "error",
+#                     "message": "Invalid email or password"
+#                 },
+#                 status=status.HTTP_401_UNAUTHORIZED
+#             )
+
+#         login(request, user)
+#         request.session.set_expiry(86400)
+
+#         # Generate JWT tokens
+#         refresh = RefreshToken.for_user(user)
+#         access_token = str(refresh.access_token)
+
+#         return Response(
+#             {
+#                 "status": "success",
+#                 "message": "Login successful",
+#                 "data": {
+#                     "user_id": user.id,
+#                     "email": user.email,
+#                     "role": user.role,
+#                 },
+#                 "tokens": {
+#                     "access": access_token,
+#                     "refresh": str(refresh),
+#                 }
+#             },
+#             status=status.HTTP_200_OK,
+#         )
 
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated

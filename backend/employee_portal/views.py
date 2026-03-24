@@ -12,6 +12,7 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 import os
 from django.core.files.storage import default_storage
+from jd_mapping.models import Requirement
 
 
 from .resume_parser.extractor import extract_text_from_resume
@@ -422,11 +423,19 @@ class ClientSoftDeleteAPIView(APIView):
 # =========================Candidate==========================================
 
 
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from django.db.models import Q
+from landing.models import User
+
+
 class EmployeeDropdownAPIView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
         user = request.user
+        search_query = request.query_params.get('search', '').strip()
 
         # Identify company admin
         if user.role == "SUB_ADMIN":
@@ -436,13 +445,25 @@ class EmployeeDropdownAPIView(APIView):
         else:
             return Response([], status=200)
 
-        # Get only company employees
+        # Base queryset
         employees = User.objects.filter(
             parent_user=company_admin,
             role="EMPLOYEE"
-        ).values("id", "first_name", "last_name")
+        )
 
-        return Response(employees)
+        # Search filter - id, first_name, last_name
+        if search_query:
+            employees = employees.filter(
+                Q(id__icontains=search_query) |
+                Q(first_name__icontains=search_query) |
+                Q(last_name__icontains=search_query)
+            )
+
+        # Same response format - no change
+        employees_data = employees.values("id", "first_name", "last_name")
+
+        return Response(employees_data)
+    
 # -------------------------
 
 import io
@@ -591,8 +612,6 @@ class ResumeParseAPIView(APIView):
 
 
 class CandidateCreateAPIView(generics.CreateAPIView):
-    # authentication_classes = (CsrfExemptSessionAuthentication,)
-    # permission_classes = (IsAuthenticated,)
     authentication_classes = (JWTAuthentication,)
     permission_classes = [IsAuthenticated,]
     queryset = Candidate.objects.all()
@@ -970,6 +989,7 @@ class CandidateDetailAPIView(generics.RetrieveAPIView):
 
 
 #=============================Employee Dashboard====================================================
+
 from django.utils.timezone import now
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -1001,15 +1021,15 @@ def dashboard_stats(request):
 
     # ===== Vendors (exclude soft deleted) =====
     total_vendors = Vendor.objects.filter(
-        created_by=user,
+        Q(created_by=user) | Q(assigned_employees=user),
         is_deleted=False
     ).count()
 
     # ===== Clients (exclude soft deleted) =====
-    total_clients = Client.objects.filter(
-        created_by=user,
+    total_clients =Client.objects.filter(
+        Q(created_by=user) | Q(assigned_employees=user),
         is_deleted=False
-    ).count()
+            ).distinct().count()
 
     # ===== Candidates (exclude soft deleted) =====
     total_profiles = Candidate.objects.filter(
@@ -1027,10 +1047,11 @@ def dashboard_stats(request):
     today_submitted_profiles = Candidate.objects.filter(
         created_at__date=today,
         verification_status=True,
-        is_deleted=False
+        is_deleted=False,
+        client__isnull=False
     ).filter(
         Q(created_by=user) |
-        Q(submitted_to=user, client__isnull=False)
+        Q(submitted_to=user)
     ).count()
 
     # ===== Pipeline Count =====
@@ -1050,6 +1071,26 @@ def dashboard_stats(request):
         Q(sub_status="ON_HOLD", created_at__gte=two_days_ago) |
         ~Q(sub_status="ON_HOLD")
     ).count()
+    
+     # ===== Today's Requirements (JDs) =====
+    # JDs created by user today
+    today_created_jds = Requirement.objects.filter(
+        created_by=user,
+        created_at__date=today,
+        is_deleted=False
+    ).count()
+    
+    # JDs assigned to user today
+    today_assigned_jds = Requirement.objects.filter(
+        assignments__assigned_to=user,
+        created_at__date=today,
+        is_deleted=False
+    ).distinct().count()
+    
+    # Total today's requirements (created + assigned)
+    today_total_requirements = today_created_jds + today_assigned_jds
+    
+    # ==============================================================
 
     data = {
         "user_name": user.get_full_name() or user.email,
@@ -1059,6 +1100,7 @@ def dashboard_stats(request):
         "today_profiles": today_profiles,
         "today_submitted_profiles": today_submitted_profiles,
         "total_pipelines": total_pipelines,
+        "today_requirements": today_total_requirements,
     }
 
     return Response(data)
@@ -1115,11 +1157,13 @@ def today_verified_candidates(request):
         Candidate.objects.filter(
             created_at__date=today,
             verification_status=True,
-            is_deleted=False  # ✅ Exclude soft deleted
+            is_deleted=False,  # ✅ Exclude soft deleted
+            client__isnull=False
         )
         .filter(
             Q(created_by=user) |
-            Q(submitted_to=user, client__isnull=False)
+            Q(submitted_to=user)
+            
         )
         .select_related("vendor", "client")
         .order_by("-created_at")

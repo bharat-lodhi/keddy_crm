@@ -40,6 +40,8 @@ function Login() {
             if (res.role === "CENTRAL_ADMIN") navigate("/central-admin");
             else if (res.role === "SUB_ADMIN") navigate("/sub-admin");
             else if (res.role === "EMPLOYEE") navigate("/employee");
+            else if (res.role === "ACCOUNTANT") navigate("/accounts");
+
             else setError("Login failed. Please check your credentials.");
 
         } catch (err) {

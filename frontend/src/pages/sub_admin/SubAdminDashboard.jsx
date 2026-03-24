@@ -94,15 +94,25 @@ function SubAdminDashboard() {
                         <div>To: <b>{truncate(c.submitted_to_name, 15) || '-'}</b></div>
                         <div>By: <b style={{color: "#27AE60"}}>{truncate(c.created_by_name, 15) || '-'}</b></div>
                     </td>
-                    <td style={styles.td}><b>{c.candidate_name}</b></td>
+                    <td style={styles.td}><b>{truncate(c.candidate.name || '', 15)}</b></td>
                     <td style={styles.td}>{truncate(c.technology, 30)}</td>
                     <td style={styles.td}>{c.years_of_experience_manual || '0'} Yrs</td>
-                    <td style={styles.td}>{truncate(c.client_name || c.client || 'N/A', 20)}</td>
+                    <td style={styles.td}>
+                        <b>{truncate(c.client_name || '', 20)}</b>
+                    <small style={styles.subStatusText}>{truncate(c.client_company_name || '', 20)}</small>
+                    </td>
+
                     <td style={styles.td}>
                         <b>{truncate(c.vendor_name || c.vendor, 15)}</b><br/>
-                        <small style={styles.subStatusText}>{c.vendor_number || 'N/A'}</small>
+                        <small style={styles.subStatusText}>{truncate(c.vendor_company_name || '', 15)}</small>
+                        <small style={styles.subStatusText}>{c.vendor_number || ''}</small>
                     </td>
-                    <td style={styles.td}>₹{c.vendor_rate} {c.vendor_rate_type || ''}</td>
+                    <td style={styles.td}>
+                        <b>₹{c.vendor_rate} {c.vendor_rate_type || ''}</b>
+                        <small style={styles.subStatusText}>₹{c.client_rate} {c.client_rate_type || ''}</small>
+
+                        </td>
+
                     <td style={styles.td}>
                         <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
                             <span style={{...styles.badge, color: statusStyle.text, fontWeight: '800'}}>{c.main_status}</span>
@@ -176,7 +186,7 @@ function SubAdminDashboard() {
                             <th style={styles.th}>Submitted To/By</th><th style={styles.th}>Candidate</th>
                             <th style={styles.th}>Tech</th><th style={styles.th}>Exp</th>
                             <th style={styles.th}>Client</th><th style={styles.th}>Vendor</th>
-                            <th style={styles.th}>Rate</th><th style={styles.th}>Status</th>
+                            <th style={styles.th}>Rate (V/C)</th><th style={styles.th}>Status</th>
                             <th style={styles.th}>Action</th>
                         </tr>
                     </thead>

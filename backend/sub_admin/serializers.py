@@ -11,9 +11,55 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+# class UserCreateSerializer(serializers.ModelSerializer):
+#     password = serializers.CharField(write_only=True, required=True)
+#     class Meta:
+#         model = User
+#         fields = [
+#             "id",
+#             "first_name",
+#             "last_name",
+#             "email",
+#             "number",
+#             "role",
+#             "profile_picture",
+#             "password",
+#         ]
+
+#     def create(self, validated_data):
+#         request = self.context.get("request")
+#         password = validated_data.pop("password")
+
+#         user = User(**validated_data)
+
+#         # 🔐 Attach employee to SubAdmin automatically
+#         if request and request.user.role == "SUB_ADMIN":
+#             user.parent_user = request.user
+
+#         user.set_password(password)
+#         user.save()
+#         return user
+
+#     def update(self, instance, validated_data):
+#         request = self.context.get("request")
+#         password = validated_data.pop("password", None)
+
+#         # 🔐 Prevent SubAdmin from changing parent_user manually
+#         validated_data.pop("parent_user", None)
+
+#         for attr, value in validated_data.items():
+#             setattr(instance, attr, value)
+
+#         if password:
+#             instance.set_password(password)
+
+#         instance.save()
+#         return instance
+
 
 class UserCreateSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
+    role = serializers.CharField(required=False)
 
     class Meta:
         model = User
@@ -28,13 +74,23 @@ class UserCreateSerializer(serializers.ModelSerializer):
             "password",
         ]
 
+    def validate_role(self, value):
+        allowed_roles = ["EMPLOYEE", "ACCOUNTANT"]
+        if value not in allowed_roles:
+            raise serializers.ValidationError(
+                "Sub admin can only assign EMPLOYEE or ACCOUNTANT role."
+            )
+        return value
+
     def create(self, validated_data):
         request = self.context.get("request")
         password = validated_data.pop("password")
 
-        user = User(**validated_data)
+        role = validated_data.get("role", "EMPLOYEE")
 
-        # 🔐 Attach employee to SubAdmin automatically
+        user = User(**validated_data)
+        user.role = role
+
         if request and request.user.role == "SUB_ADMIN":
             user.parent_user = request.user
 
@@ -43,11 +99,15 @@ class UserCreateSerializer(serializers.ModelSerializer):
         return user
 
     def update(self, instance, validated_data):
-        request = self.context.get("request")
         password = validated_data.pop("password", None)
 
-        # 🔐 Prevent SubAdmin from changing parent_user manually
         validated_data.pop("parent_user", None)
+
+        role = validated_data.get("role")
+        if role and role not in ["EMPLOYEE", "ACCOUNTANT"]:
+            raise serializers.ValidationError(
+                {"role": "Only EMPLOYEE or ACCOUNTANT allowed."}
+            )
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)

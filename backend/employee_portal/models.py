@@ -173,6 +173,17 @@ class Client(models.Model):
     
     is_deleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    #================Bank Accounts===================
+    # ================= BILLING INFORMATION =================
+    gst_number = models.CharField(max_length=50, blank=True, null=True)
+    billing_address = models.TextField(blank=True, null=True)
+
+    account_holder_name = models.CharField(max_length=255, blank=True, null=True)
+    bank_name = models.CharField(max_length=255, blank=True, null=True)
+    account_number = models.CharField(max_length=100, blank=True, null=True)
+    ifsc_code = models.CharField(max_length=50, blank=True, null=True)
+    # ===============================================
 
     def save(self, *args, **kwargs):
         if self.nda_document and not self.nda_uploaded_date:
@@ -335,7 +346,26 @@ class Candidate(models.Model):
         blank=True,
         null=True
     )
-    #-----------------------------------------------
+    
+    # =============================================
+    company = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="company_candidates",
+        null=True,
+        blank=True
+    )
+    
+    def save(self, *args, **kwargs):
+        # Auto-set company from created_by
+        if not self.company and self.created_by:
+            if self.created_by.role == 'SUB_ADMIN':
+                self.company = self.created_by
+            elif self.created_by.role == 'EMPLOYEE' and self.created_by.parent_user:
+                self.company = self.created_by.parent_user
+        super().save(*args, **kwargs)
+    # =============================================
+
     def __str__(self):
         return self.candidate_name
 

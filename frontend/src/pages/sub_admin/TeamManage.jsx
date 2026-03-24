@@ -130,7 +130,9 @@ function UserManagement() {
                                         <td style={styles.td}>{user.email}</td>
                                         <td style={styles.td}>{user.number || "N/A"}</td>
                                         <td style={styles.td}>
-                                            <span style={styles.roleBadge}>{user.role}</span>
+                                            <span style={styles.roleBadge}>
+                                                {user.role === "EMPLOYEE" ? "Recruiter" : "Accountant"}
+                                            </span>
                                         </td>
                                         <td style={styles.actionTd}>
                                             <button onClick={() => navigate(`/sub-admin/users/view/${user.id}`)} style={styles.viewBtn}>View</button>

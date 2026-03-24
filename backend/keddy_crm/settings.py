@@ -14,7 +14,14 @@ SECRET_KEY = 'django-insecure-cmy-_b!s584f%+-ftjb6qmxk5kvy397o2$b@b%axl+d^83de14
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
+# ALLOWED_HOSTS = [
+#     "keddyzerobouncevelidetor.com",
+#     "www.keddyzerobouncevelidetor.com",
+#     "84.247.161.47"
+# ]
+
 ALLOWED_HOSTS = ["*"]
+
 
 # Application definition
 
@@ -36,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
     'invoicing',
+    'jd_mapping',
     
 ]
 
@@ -49,7 +57,7 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.AllowAny",
     ),
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-    "PAGE_SIZE": 10,
+    "PAGE_SIZE": 20,
     
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
@@ -180,6 +188,7 @@ CORS_ALLOWED_ORIGINS = [
     #=========== new domain ==============
     "https://keddyzerobouncevelidetor.com",
     "https://www.keddyzerobouncevelidetor.com",
+    "https://crm.keddyzerobouncevelidetor.com",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -190,6 +199,7 @@ CSRF_TRUSTED_ORIGINS = [
     #=========== new domain ==============
     "https://keddyzerobouncevelidetor.com",
     "https://www.keddyzerobouncevelidetor.com",
+    "https://crm.keddyzerobouncevelidetor.com",
 ]
 # ===============================================
 

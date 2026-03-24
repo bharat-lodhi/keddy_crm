@@ -94,7 +94,7 @@ function DetailedViewCandidate() {
             <div style={styles.contentGrid}>
                 {/* 1. Basic Information */}
                 <div style={styles.card}>
-                    <h3 style={styles.cardTitle}>📌 Personal Information</h3>
+                    <h3 style={styles.cardTitle}>Personal Information</h3>
                     <div style={styles.infoBox}>
                         <DetailRow label="Full Name" value={candidate.candidate_name} />
                         <DetailRow label="Email Address" value={candidate.candidate_email} />
@@ -108,7 +108,7 @@ function DetailedViewCandidate() {
 
                 {/* 2. Professional & Technical */}
                 <div style={styles.card}>
-                    <h3 style={styles.cardTitle}>💻 Technical Profile</h3>
+                    <h3 style={styles.cardTitle}>Technical Profile</h3>
                     <div style={styles.infoBox}>
                         <DetailRow label="Primary Technology" value={<span style={styles.techTag}>{candidate.technology}</span>} />
                         <DetailRow label="Skills" value={candidate.skills || "N/A"} />
@@ -118,7 +118,7 @@ function DetailedViewCandidate() {
                         <DetailRow label="Current Remark" value={candidate.remark} />
                         <div style={{marginTop: '15px'}}>
                              <a href={candidate.resume} target="_blank" rel="noreferrer" style={styles.resumeLink}>
-                                📄 View Resume / Attachment
+                                View Resume / Attachment
                             </a>
                         </div>
                     </div>
@@ -126,18 +126,16 @@ function DetailedViewCandidate() {
 
                 {/* 3. Vendor & Financial Details (Profit Margin Removed) */}
                 <div style={styles.card}>
-                    <h3 style={styles.cardTitle}>💰 Financial Details</h3>
+                    <h3 style={styles.cardTitle}>Financial Details</h3>
                     <div style={styles.infoBox}>
-                        <DetailRow label="Vendor Company" value={candidate.vendor_company_name || "N/A"} />
+                        <DetailRow label="Vendor Name" value={candidate.vendor_name || ""} />
+                        <DetailRow label="Vendor Company" value={candidate.vendor_company_name || ""} />
                         <DetailRow label="Vendor Phone" value={candidate.vendor_number} />
                         <DetailRow label="Vendor Rate" value={`₹${candidate.vendor_rate} ${candidate.vendor_rate_type || ""}`}  />
-                        <DetailRow label="Client Name" value={candidate.client_name || "N/A"} />
-                        <DetailRow label="Client Company" value={candidate.client_company_name || "N/A"} />
+                        <DetailRow label="Client Name" value={candidate.client_name || ""} />
+                        <DetailRow label="Client Company" value={candidate.client_company_name || ""} />
                         <DetailRow label="Client Rate" value={`₹${candidate.client_rate} ${candidate.client_rate_type || ""}`} />
-                        <DetailRow 
-                            label="Profit Margin" 
-                            value={`₹${(parseFloat(candidate.client_rate || 0) - parseFloat(candidate.vendor_rate || 0)).toFixed(2)} ${candidate.client_rate_type || ""}`} 
-                            />
+                        <DetailRow label="Profit Margin" value={`₹${(parseFloat(candidate.client_rate || 0) - parseFloat(candidate.vendor_rate || 0)).toFixed(2)} ${candidate.client_rate_type || ""}`} />
                     </div>
                 </div>
 
@@ -152,7 +150,7 @@ function DetailedViewCandidate() {
 
                 {/* 5. Status History */}
                 <div style={styles.fullWidthCard}>
-                    <h3 style={styles.cardTitle}>⏳ Status Timeline</h3>
+                    <h3 style={styles.cardTitle}>Status Timeline</h3>
                     <div style={styles.timeline}>
                         {candidate.status_history?.map((h, i) => (
                             <div key={i} style={styles.timelineItem}>
@@ -169,7 +167,7 @@ function DetailedViewCandidate() {
 
                 {/* 6. Remarks History */}
                 <div style={styles.fullWidthCard}>
-                    <h3 style={styles.cardTitle}>💬 Remarks History</h3>
+                    <h3 style={styles.cardTitle}>Remarks History</h3>
                     <div style={styles.remarkList}>
                         {candidate.remark_history?.map((r, i) => (
                             <div key={i} style={styles.remarkItem}>

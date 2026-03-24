@@ -8,6 +8,7 @@ urlpatterns = [
 
     # Today Verified Profiles (sabhi employees)
     path("api/subadmin/dashboard/today-verified/", views.today_verified_candidates, name="subadmin-today-verified"), #U
+    path("api/dashboard/today-profiles/",views.SubAdminTodayProfilesAPIView.as_view(),name="subadmin-today-profiles",),
 
     # Pipeline Candidates (sabhi employees pipeline)
     path("api/subadmin/dashboard/pipeline/", views.active_pipeline_candidates, name="subadmin-pipeline"),  #U
@@ -46,7 +47,6 @@ urlpatterns = [
     
     #=====================================
     path("api/candidates/submitted/",views.SubAdminSubmittedProfilesAPIView.as_view(),name="subadmin-submitted-profiles",),
-    path("api/dashboard/today-profiles/",views.SubAdminTodayProfilesAPIView.as_view(),name="subadmin-today-profiles",),
 
     path("api/candidates/onboard/",views.SubAdminOnboardProfilesAPIView.as_view(),name="subadmin-onboard-profiles",),
 ]

@@ -595,6 +595,9 @@ class CandidateRemarkHistorySerializer(serializers.ModelSerializer):
 
 class CandidateDetailSerializer(serializers.ModelSerializer):
     vendor_name = serializers.CharField(source="vendor.name", read_only=True)
+    vendor_company_name = serializers.CharField(source="vendor.company_name", read_only=True)
+    vendor_number = serializers.CharField(source="vendor.number", read_only=True)
+    
     submitted_to_name = serializers.SerializerMethodField()
     # created_by_name = serializers.CharField(source="created_by.first_name", read_only=True)
     created_by_name = serializers.SerializerMethodField()

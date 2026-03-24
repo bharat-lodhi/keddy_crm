@@ -2,7 +2,6 @@
 from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
 from django.db.models import Q
-
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 # from rest_framework.response import Response
@@ -129,7 +128,7 @@ def dashboard_stats(request):
     # ===== Employees =====
     total_employees = UserModel.objects.filter(
         parent_user=company_root,
-        role="EMPLOYEE"
+        role__in=["EMPLOYEE", "ACCOUNTANT"],
     ).count()
 
     # ===== Vendors =====
@@ -161,6 +160,7 @@ def dashboard_stats(request):
         created_by__in=company_users,
         created_at__date=today,
         verification_status=True,
+        client__isnull=False,
         is_deleted=False
     ).filter(
         Q(submitted_to__isnull=False) | Q(client__isnull=False)
@@ -240,6 +240,7 @@ def today_verified_candidates(request):
         created_at__date=today,
         verification_status=True,
         created_by__in=company_users,
+        client__isnull=False,
         is_deleted=False  # ✅ Exclude soft deleted
     )
 
@@ -395,26 +396,9 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-class SubAdminUserListCreateAPIView(generics.ListCreateAPIView):
-    authentication_classes = (JWTAuthentication,)
-    permission_classes = [IsAuthenticated, IsSubAdmin]
-    serializer_class = UserCreateSerializer
-
-    def get_queryset(self):
-        user = self.request.user
-        return User.objects.filter(
-            role="EMPLOYEE",
-            parent_user=user
-        ).order_by("-id")
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context["request"] = self.request
-        return context
-
 # class SubAdminUserListCreateAPIView(generics.ListCreateAPIView):
-#     authentication_classes = (CsrfExemptSessionAuthentication,)
-#     permission_classes = [IsSubAdmin]
+#     authentication_classes = (JWTAuthentication,)
+#     permission_classes = [IsAuthenticated, IsSubAdmin]
 #     serializer_class = UserCreateSerializer
 
 #     def get_queryset(self):
@@ -429,14 +413,111 @@ class SubAdminUserListCreateAPIView(generics.ListCreateAPIView):
 #         context["request"] = self.request
 #         return context
 
-# class SubAdminUserUpdateAPIView(generics.RetrieveUpdateAPIView):
-#     authentication_classes = (CsrfExemptSessionAuthentication,)
-#     # authentication_classes = [SessionAuthentication]
-#     permission_classes = [IsSubAdmin]
+
+# class SubAdminUserListCreateAPIView(generics.ListCreateAPIView):
+#     authentication_classes = (JWTAuthentication,)
+#     permission_classes = [IsAuthenticated, IsSubAdmin]
 #     serializer_class = UserCreateSerializer
 
 #     def get_queryset(self):
-#         return User.objects.filter(role="EMPLOYEE")
+#         user = self.request.user
+#         return User.objects.filter(
+#             role__in=["EMPLOYEE", "ACCOUNTANT"],
+#             parent_user=user
+#         ).order_by("-id")
+
+#     def get_serializer_context(self):
+#         context = super().get_serializer_context()
+#         context["request"] = self.request
+#         return context
+
+class SubAdminUserListCreateAPIView(generics.ListCreateAPIView):
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = [IsAuthenticated, IsSubAdmin]
+    serializer_class = UserCreateSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        return User.objects.filter(
+            role__in=["EMPLOYEE", "ACCOUNTANT"],
+            parent_user=user
+        ).order_by("-id")
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["request"] = self.request
+        return context
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        if serializer.is_valid():
+            user = serializer.save()
+
+            if user.role == "EMPLOYEE":
+                message = "Recruiter created successfully."
+
+            elif user.role == "ACCOUNTANT":
+                message = "Accountant created successfully."
+
+            else:
+                message = "User created successfully."
+
+            return Response(
+                {
+                    "success": True,
+                    "message": message,
+                    "data": UserCreateSerializer(user).data
+                },
+                status=201
+            )
+
+        return Response(
+            {
+                "success": False,
+                "message": "User creation failed.",
+                "errors": serializer.errors
+            },
+            status=400
+        )
+
+# class SubAdminUserUpdateAPIView(generics.RetrieveUpdateAPIView):
+#     authentication_classes = (JWTAuthentication,)
+#     permission_classes = [IsAuthenticated, IsSubAdmin]
+#     serializer_class = UserCreateSerializer
+
+#     def get_queryset(self):
+#         user = self.request.user
+#         return User.objects.filter(
+#             role="EMPLOYEE",
+#             parent_user=user
+#         )
+
+#     def get_serializer_context(self):
+#         context = super().get_serializer_context()
+#         context["request"] = self.request
+#         return context
+
+#     def update(self, request, *args, **kwargs):
+#         partial = True  # ✅ allow partial updates
+#         instance = self.get_object()
+
+#         serializer = self.get_serializer(
+#             instance,
+#             data=request.data,
+#             partial=partial,
+#             context={"request": request}
+#         )
+
+#         serializer.is_valid(raise_exception=True)
+#         self.perform_update(serializer)
+
+#         return Response(
+#             {
+#                 "message": "Employee updated successfully",
+#                 "data": serializer.data
+#             }
+#         )
 
 class SubAdminUserUpdateAPIView(generics.RetrieveUpdateAPIView):
     authentication_classes = (JWTAuthentication,)
@@ -446,7 +527,7 @@ class SubAdminUserUpdateAPIView(generics.RetrieveUpdateAPIView):
     def get_queryset(self):
         user = self.request.user
         return User.objects.filter(
-            role="EMPLOYEE",
+            role__in=["EMPLOYEE", "ACCOUNTANT"],
             parent_user=user
         )
 
@@ -456,8 +537,15 @@ class SubAdminUserUpdateAPIView(generics.RetrieveUpdateAPIView):
         return context
 
     def update(self, request, *args, **kwargs):
-        partial = True  # ✅ allow partial updates
+        partial = True
         instance = self.get_object()
+
+        role = request.data.get("role")
+        if role and role not in ["EMPLOYEE", "ACCOUNTANT"]:
+            return Response(
+                {"message": "Only EMPLOYEE or ACCOUNTANT role allowed."},
+                status=400
+            )
 
         serializer = self.get_serializer(
             instance,
@@ -469,12 +557,23 @@ class SubAdminUserUpdateAPIView(generics.RetrieveUpdateAPIView):
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 
+        updated_user = serializer.instance
+
+        if updated_user.role == "EMPLOYEE":
+            message = "Recruiter updated successfully."
+        elif updated_user.role == "ACCOUNTANT":
+            message = "Accountant updated successfully."
+        else:
+            message = "User updated successfully."
+
         return Response(
             {
-                "message": "Employee updated successfully",
+                "success": True,
+                "message": message,
                 "data": serializer.data
             }
         )
+
       
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated

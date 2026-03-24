@@ -1,30 +1,53 @@
 from datetime import datetime
-from django.db.models import Max
 from invoicing.models import Invoice
 
+from django.db import transaction
 
 def generate_invoice_number():
-    """
-    Format: INV-YYYY-####
-    Example: INV-2026-0001
-    """
-
     year = datetime.now().year
     prefix = f"INV-{year}-"
 
-    # Find last invoice of this year
-    last_invoice = (
-        Invoice.objects
-        .filter(invoice_number__startswith=prefix)
-        .aggregate(max_no=Max("invoice_number"))
-    )["max_no"]
+    with transaction.atomic():
+        last_invoice = (
+            Invoice.objects
+            .select_for_update()   # 🔥 LOCK
+            .filter(invoice_number__startswith=prefix)
+            .order_by("-id")       # ✅ SAFE
+            .first()
+        )
 
-    if last_invoice:
-        last_serial = int(last_invoice.split("-")[-1])
-        new_serial = last_serial + 1
-    else:
-        new_serial = 1
+        if last_invoice and last_invoice.invoice_number:
+            last_serial = int(last_invoice.invoice_number.split("-")[-1])
+            new_serial = last_serial + 1
+        else:
+            new_serial = 1
 
-    invoice_number = f"{prefix}{str(new_serial).zfill(4)}"
-    return invoice_number
+        return f"{prefix}{str(new_serial).zfill(4)}"
+
+
+
+# def generate_invoice_number():
+#     """
+#     Format: INV-YYYY-####
+#     Example: INV-2026-0001
+#     """
+
+#     year = datetime.now().year
+#     prefix = f"INV-{year}-"
+
+#     last_invoice = (
+#         Invoice.objects
+#         .filter(invoice_number__startswith=prefix)
+#         .order_by("-invoice_number")
+#         .first()
+#     )
+
+#     if last_invoice:
+#         last_serial = int(last_invoice.invoice_number.split("-")[-1])
+#         new_serial = last_serial + 1
+#     else:
+#         new_serial = 1
+
+#     return f"{prefix}{str(new_serial).zfill(4)}"
+
 

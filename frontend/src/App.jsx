@@ -64,6 +64,22 @@ import SubadminEditInvoice from "./pages/sub_admin/invoice/EditInvoice";
 import CandidateInvoiceHistory from "./pages/sub_admin/invoice/CandidateHistory";
 // ========================================================
 
+import AccountsDashboard from "./pages/Accounts/AccountsDashboard";
+import FinanceSettings from "./pages/Accounts/FinanceSettingsPage";
+import FinanceList from "./pages/Accounts/FinanceListView";
+import CreateInvoice from "./pages/Accounts/CreateInvoicePage";
+import AllInvoices from "./pages/Accounts/InvoiceListPage"
+// ========================================================
+
+
+// ========= Requirements ===============
+import RequirementList from "./pages/emplyee_portal/Requirement/RequirementsList";
+import RequirementCreate from "./pages/emplyee_portal/Requirement/RequirementCreate";
+import RequirementUpdate from "./pages/emplyee_portal/Requirement/RequirementUpdate";
+import RequirementView from "./pages/emplyee_portal/Requirement/RequirementView";
+import EmpMyRequirements from "./pages/emplyee_portal/Requirement/MyRequirements";
+
+
 function App() {
     return (
         <BrowserRouter>
@@ -98,6 +114,14 @@ function App() {
                 <Route path="/employee/clients" element={<ProtectedRoute><ClientList /></ProtectedRoute>} />
                 <Route path="/employee/client/add" element={<ProtectedRoute><AddClient /></ProtectedRoute>} />
                 <Route path="/employee/client/view/:id" element={<ProtectedRoute><EmployeeViewClient /></ProtectedRoute>} />
+
+                {/* =========Requiremens Route ======== */}
+                <Route path="/employee/requirements" element={<ProtectedRoute><RequirementList /></ProtectedRoute>} />
+                <Route path="/employee/requirement/create" element={<ProtectedRoute><RequirementCreate /></ProtectedRoute>} />
+                <Route path="/employee/requirement/edit/:id" element={<ProtectedRoute><RequirementUpdate /></ProtectedRoute>} />
+
+                <Route path="/employee/requirement/view/:id" element={<ProtectedRoute><RequirementView /></ProtectedRoute>} />
+                <Route path="/employee/requirements/my" element={<ProtectedRoute><EmpMyRequirements /></ProtectedRoute>} />
 
                 {/* ======================SUB-ADMIN========================================= */}
                 <Route path="/sub-admin" element={<ProtectedRoute><SubAdminDashboard /></ProtectedRoute>} />
@@ -135,7 +159,18 @@ function App() {
                 <Route path="/sub-admin/invoice/edit/:id" element={<ProtectedRoute><SubadminEditInvoice /></ProtectedRoute>} />
                 
                 <Route path="/sub-admin/invoice/candidate-history/:candidateId" element={<ProtectedRoute><CandidateInvoiceHistory /></ProtectedRoute>} />
+
                 {/* ======================================================================== */}
+                {/* ================================Accounts Dashbaord Routes======================================== */}
+
+                <Route path="/accounts" element={<ProtectedRoute><AccountsDashboard /></ProtectedRoute>} />
+                <Route path="/accounts/settings" element={<ProtectedRoute><FinanceSettings /></ProtectedRoute>} />
+                <Route path="/accounts/finance-overview" element={<ProtectedRoute><FinanceList /></ProtectedRoute>} />
+                <Route path="/accounts/create-invoice" element={<ProtectedRoute><CreateInvoice /></ProtectedRoute>} />
+                <Route path="/accounts/all-invoices" element={<ProtectedRoute><AllInvoices /></ProtectedRoute>} />
+
+
+                {/* ================================================================================================= */}
 
                 <Route path="/central-admin" element={<ProtectedRoute><CentralAdminDashboard /></ProtectedRoute>} />
 

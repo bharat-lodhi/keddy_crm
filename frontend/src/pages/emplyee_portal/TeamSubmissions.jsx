@@ -6,6 +6,7 @@ import BaseLayout from "../components/emp_base";
 // Reusable Utilities aur Components
 import { getStatusStyles } from "../../utils/statusHelper";
 import StatusUpdateModal from "../../components/StatusUpdateModal";
+import SubmissionModal from "../../components/SubmissionModal";
 
 const Icons = {
     Edit: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>,
@@ -17,15 +18,13 @@ function TeamSubmissions() {
     const [submissions, setSubmissions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
-    const [clientSearch, setClientSearch] = useState("");
 
     const [showModal, setShowModal] = useState(false);
-    const [showClientModal, setShowClientModal] = useState(false);
-    const [clientsList, setClientsList] = useState([]);
+    const [showSubmitModal, setShowSubmitModal] = useState(false);
     const [selectedCand, setSelectedCand] = useState(null);
     const [editForm, setEditForm] = useState({ main_status: "", sub_status: "", remark: "" });
-    const [submitData, setSubmitData] = useState({ target_id: "", client_rate: "", client_rate_type: "" });
     const [toast, setToast] = useState({ show: false, msg: "", type: "" });
+    const [submissionModalProps, setSubmissionModalProps] = useState({});
 
     const fetchTeamSubmissions = async () => {
         setLoading(true);
@@ -35,40 +34,9 @@ function TeamSubmissions() {
         } catch (err) { console.error(err); } finally { setLoading(false); }
     };
 
-    const fetchClients = async () => {
-        try {
-            const res = await apiRequest("/employee-portal/clients/list/", "GET");
-            setClientsList(res.results || (Array.isArray(res) ? res : []));
-        } catch (err) { console.error("Client fetch failed"); }
-    };
-
-
     useEffect(() => {
         fetchTeamSubmissions();
-        fetchClients();
     }, []);
-
-
-    
-    const searchClientsApi = async (query = "") => {
-        try {
-            const res = await apiRequest(`/employee-portal/clients/list/?search=${query}`, "GET");
-            setClientsList(res.results || (Array.isArray(res) ? res : []));
-        } catch (err) {
-            console.error("Client search failed");
-        }
-    };
-
-    useEffect(() => {
-            if (showClientModal) {
-                const delayDebounceFn = setTimeout(() => {
-                    searchClientsApi(clientSearch);
-                }, 500);
-
-                return () => clearTimeout(delayDebounceFn);
-            }
-        }, [clientSearch, showClientModal]);
-
 
     const notify = (msg, type = "success") => {
         setToast({ show: true, msg, type });
@@ -87,25 +55,12 @@ function TeamSubmissions() {
             notify("Status updated!"); setShowModal(false); fetchTeamSubmissions();
         } catch (err) { notify("Failed", "error"); }
     };
-
-    const handleClientSubmitBtn = (e, cand) => {
-        e.stopPropagation(); setSelectedCand(cand);
-        setSubmitData({ target_id: "", client_rate: "", client_rate_type: "" });
-        setClientSearch(""); setShowClientModal(true);
-    };
-
-    const handleFinalClientSubmit = async () => {
-        if (!submitData.target_id || !submitData.client_rate || !submitData.client_rate_type) 
-            return notify("Please fill all details", "error");
-
-        const payload = {
-            client: submitData.target_id, client_rate: submitData.client_rate,
-            client_rate_type: submitData.client_rate_type, verification_status: true
-        };
-        try {
-            await apiRequest(`/employee-portal/candidates/${selectedCand.id}/update/`, "PUT", payload);
-            notify("Submitted to client!"); setShowClientModal(false); fetchTeamSubmissions();
-        } catch (err) { notify("Submission failed", "error"); }
+    
+    const handleOpenSubmitModal = (e, candidate) => {
+        e.stopPropagation();
+        setSelectedCand(candidate);
+        setSubmissionModalProps({ initialSubmitType: "CLIENT", hideInternalOption: true });
+        setShowSubmitModal(true);
     };
 
     const truncate = (text, limit) => (text?.length > limit ? text.substring(0, limit) + "..." : text);
@@ -162,7 +117,7 @@ function TeamSubmissions() {
                             <div style={{display:'flex', gap:'8px', alignItems:'center'}}>
                                 <button onClick={(e) => handleQuickEdit(e, s)} style={styles.editBtn}><Icons.Edit /></button>
                                 {!(s.client_name || s.client) ? (
-                                    <button style={styles.submitBtn} onClick={(e) => handleClientSubmitBtn(e, s)}>Submit to Client</button>
+                                    <button style={styles.submitBtn} onClick={(e) => handleOpenSubmitModal(e, s)}>Submit to Client</button>
                                 ) : (
                                     <span style={styles.submittedTag}>✓ Submitted</span>
                                 )}
@@ -206,57 +161,14 @@ function TeamSubmissions() {
 
             <StatusUpdateModal isOpen={showModal} onClose={() => setShowModal(false)} formData={editForm} setFormData={setEditForm} onSave={handleUpdateSubmit} />
 
-            {showClientModal && (
-                <div style={styles.modalOverlay} onClick={() => setShowClientModal(false)}>
-                    <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
-                        <h3 style={{color:'#25343F', marginBottom:'15px', fontWeight: '800'}}>Submit to Client</h3>
-                        <div style={styles.inputGroup}>
-                            <label style={styles.modalLabel}>Select Client</label>
-                            
-                            {/* <input type="text" placeholder="Search client..." style={styles.modalInput} onChange={(e) => setClientSearch(e.target.value)} />
-                            <select style={styles.modalSelect} size="5" value={submitData.target_id} onChange={(e) => setSubmitData({...submitData, target_id: e.target.value})}>
-                                <option value="">-- Choose Client --</option>
-                                {clientsList.filter(c => (c.company_name || c.client_name).toLowerCase().includes(clientSearch.toLowerCase())).map(item => (
-                                    <option key={item.id} value={item.id}>{item.company_name || item.client_name}</option>
-                                ))}
-                            </select> */}
-                            
-                        {/* Modal Search Input */}
-                        <input 
-                            type="text" 
-                            placeholder="Search client..." 
-                            style={styles.modalInput} 
-                            value={clientSearch} // Bind value
-                            onChange={(e) => setClientSearch(e.target.value)} 
-                        />
-
-                        <select 
-                            style={styles.modalSelect} 
-                            size="5" 
-                            value={submitData.target_id} 
-                            onChange={(e) => setSubmitData({...submitData, target_id: e.target.value})}
-                        >
-                            <option value="">-- Choose Client --</option>
-                            {/* .filter hata kar direct map karein */}
-                            {clientsList.map(item => (
-                                <option key={item.id} value={item.id}>
-                                    {item.company_name || item.client_name}
-                                </option>
-                            ))}
-                        </select>
-
-                        </div>
-                        <div style={{display:'flex', gap:'10px'}}>
-                            <div style={{flex:1}}><label style={styles.modalLabel}>Rate</label><input type="number" style={styles.modalInput} value={submitData.client_rate} onChange={(e) => setSubmitData({...submitData, client_rate: e.target.value})} /></div>
-                            <div style={{flex:1}}><label style={styles.modalLabel}>Type</label><select style={styles.modalInput} value={submitData.client_rate_type} onChange={(e) => setSubmitData({...submitData, client_rate_type: e.target.value})}><option value="">Type</option><option value="LPM">LPM</option><option value="PHR">PHR</option><option value="LPA">LPA</option></select></div>
-                        </div>
-                        <div style={{display:'flex', gap:'10px', marginTop:'20px'}}>
-                            <button style={styles.saveBtn} onClick={handleFinalClientSubmit}>Confirm</button>
-                            <button style={styles.cancelBtn} onClick={() => setShowClientModal(false)}>Cancel</button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <SubmissionModal 
+                isOpen={showSubmitModal} 
+                onClose={() => setShowSubmitModal(false)} 
+                selectedCand={selectedCand} 
+                notify={notify} 
+                refreshData={fetchTeamSubmissions}
+                {...submissionModalProps}
+            />
         </BaseLayout>
     );
 }

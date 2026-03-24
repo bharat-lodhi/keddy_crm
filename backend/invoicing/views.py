@@ -8,49 +8,95 @@ from .serializers import InvoiceCreateSerializer, InvoiceListSerializer, Invoice
 from .services.invoice_number import generate_invoice_number
 from .services.calculations import calculate_invoice_totals
 from .permissions import IsInvoiceOwnerOrReadOnly
+from django.contrib.auth import get_user_model
+from django.db.models import Q
+from rest_framework.exceptions import PermissionDenied
+
+UserModel = get_user_model()
+
+User = get_user_model()
 
 class CreateInvoiceAPIView(APIView):
-    permission_classes = [IsAuthenticated, IsInvoiceOwnerOrReadOnly]
+    permission_classes = [IsAuthenticated]
+
+    def get_company_root(self, user):
+        # Role Check: Only SUB_ADMIN or ACCOUNTANT
+        if user.role not in ["SUB_ADMIN", "ACCOUNTANT"]:
+            raise PermissionDenied("You do not have permission to create invoices.")
+
+        if user.role == "SUB_ADMIN":
+            return user
+        if user.role == "ACCOUNTANT" and user.parent_user:
+            return user.parent_user
+        
+        raise PermissionDenied("Invalid company structure.")
 
     @transaction.atomic
     def post(self, request):
-        serializer = InvoiceCreateSerializer(data=request.data)
+        user = request.user
+        company_root = self.get_company_root(user)
+
+        serializer = InvoiceCreateSerializer(
+            data=request.data,
+            context={"request": request, "company_root": company_root}
+        )
         serializer.is_valid(raise_exception=True)
 
-        invoice = serializer.save(created_by=request.user)
+        # Client Isolation Check
+        client = serializer.validated_data.get("client")
+        
+        if client and not (
+            client.created_by == company_root or
+            client.created_by.parent_user == company_root
+        ):
+            raise PermissionDenied("Client does not belong to your company.")
 
-        # Auto Invoice Number
+        invoice = serializer.save()
+
+        # Logic for Invoice Number & Totals
+        
         invoice.invoice_number = generate_invoice_number()
+        
+        from .models import CompanyFinanceSettings
 
-        # Calculate totals
+        # =========================
+        # DEFAULT GST APPLY
+        # =========================
+        if not invoice.gst_rate or invoice.gst_rate == 0:
+            company_settings = CompanyFinanceSettings.objects.filter(
+                created_by=company_root
+            ).first()
+
+            if company_settings and company_settings.default_gst_rate:
+                invoice.gst_rate = company_settings.default_gst_rate
+                
+        # calculate_invoice_totals logic will handle Billable Days vs Hourly
         subtotal, gst_amount, total_amount, gst_rate = calculate_invoice_totals(invoice)
+
         invoice.subtotal = subtotal
         invoice.gst_amount = gst_amount
         invoice.total_amount = total_amount
-        invoice.gst_rate = gst_rate
+        invoice.gst_rate = gst_rate # Editable from settings or manual
         invoice.status = "GENERATED"
         invoice.save()
 
-        # History
+        # History Entry
         InvoiceHistory.objects.create(
             invoice=invoice,
             change_type="CREATED",
             new_data={"invoice_number": invoice.invoice_number},
-            changed_by=request.user
+            changed_by=user
         )
 
         return Response({
             "message": "Invoice created successfully",
             "invoice_id": invoice.id,
             "invoice_number": invoice.invoice_number
-        })
-        
+        })        
 
 from rest_framework.generics import UpdateAPIView
 from django.forms.models import model_to_dict
-
 from .serializers import InvoiceUpdateSerializer
-
 from decimal import Decimal
 from datetime import date, datetime
 from django.db.models.fields.files import FieldFile
@@ -87,7 +133,13 @@ class UpdateInvoiceAPIView(APIView):
 
     def put(self, request, id):
         try:
-            invoice = Invoice.objects.get(id=id)
+            invoice = Invoice.objects.filter(id=id).first()
+
+            if not invoice:
+                return Response({"error": "Invoice not found"}, status=404)
+
+            if invoice.created_by != request.user and invoice.created_by.parent_user != request.user:
+                raise PermissionDenied("Invoice does not belong to your company.")
 
             serializer = InvoiceUpdateSerializer(invoice, data=request.data)
             serializer.is_valid(raise_exception=True)
@@ -211,13 +263,100 @@ from .models import Invoice, InvoiceHistory
 from .services.pdf_generator import generate_invoice_pdf
 
 
+# class GenerateInvoicePDFAPIView(APIView):
+#     permission_classes = [IsAuthenticated, IsInvoiceOwnerOrReadOnly]
+
+#     def post(self, request, id):
+#         invoice = Invoice.objects.filter(id=id).first()
+
+#         if not invoice:
+#             return Response({"error": "Invoice not found"}, status=404)
+
+#         pdf_url = generate_invoice_pdf(invoice,request)
+
+#         InvoiceHistory.objects.create(
+#             invoice=invoice,
+#             change_type="PDF_REGENERATED",
+#             new_data={"pdf": pdf_url},
+#             changed_by=request.user
+#         )
+
+#         return Response({
+#             "message": "PDF generated successfully",
+#             "pdf_url": pdf_url
+#         })
+        
+from django.db.models import Q
+
+# class GenerateInvoicePDFAPIView(APIView):
+#     permission_classes = [IsAuthenticated, IsInvoiceOwnerOrReadOnly]
+
+#     def get_company_root(self, user):
+#         if user.role == "SUB_ADMIN":
+#             return user
+#         if user.parent_user:
+#             return user.parent_user
+#         raise PermissionDenied("Invalid company structure.")
+
+#     def post(self, request, id):
+#         user = request.user
+#         company_root = self.get_company_root(user)
+
+#         try:
+#             invoice = Invoice.objects.get(
+#                 Q(created_by=company_root) |
+#                 Q(created_by__parent_user=company_root),
+#                 id=id
+#             )
+#         except Invoice.DoesNotExist:
+#             return Response({"error": "Invoice not found"}, status=404)
+
+#         pdf_url = generate_invoice_pdf(invoice, request)
+
+#         InvoiceHistory.objects.create(
+#             invoice=invoice,
+#             change_type="PDF_REGENERATED",
+#             new_data={"pdf": pdf_url},
+#             changed_by=request.user
+#         )
+
+#         return Response({
+#             "message": "PDF generated successfully",
+#             "pdf_url": pdf_url
+#         })
+
+from django.db.models import Q
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
 class GenerateInvoicePDFAPIView(APIView):
     permission_classes = [IsAuthenticated, IsInvoiceOwnerOrReadOnly]
 
-    def post(self, request, id):
-        invoice = Invoice.objects.get(id=id)
+    def get_company_root(self, user):
+        if user.role == "SUB_ADMIN":
+            return user
+        
+        if user.role == "ACCOUNTANT" and user.parent_user:
+            return user.parent_user
+        
+        raise PermissionDenied("Only SubAdmin or Accountant allowed")
 
-        pdf_url = generate_invoice_pdf(invoice,request)
+    def post(self, request, id):
+        user = request.user
+        company_root = self.get_company_root(user)
+
+        try:
+            invoice = Invoice.objects.get(
+                id=id,
+                created_by__in=[company_root] + list(
+                    User.objects.filter(parent_user=company_root)
+                )
+            )
+        except Invoice.DoesNotExist:
+            return Response({"error": "Invoice not found"}, status=404)
+
+        pdf_url = generate_invoice_pdf(invoice, request)
 
         InvoiceHistory.objects.create(
             invoice=invoice,
@@ -230,7 +369,7 @@ class GenerateInvoicePDFAPIView(APIView):
             "message": "PDF generated successfully",
             "pdf_url": pdf_url
         })
-        
+
 
 from rest_framework.generics import ListAPIView
 from .serializers import CandidateInvoiceHistorySerializer
@@ -242,12 +381,21 @@ class CandidateInvoiceHistoryAPIView(ListAPIView):
 
     def get_queryset(self):
         candidate_id = self.kwargs.get("candidate_id")
+        
+        user = self.request.user
+
+        company_root = user if user.role == "SUB_ADMIN" else user.parent_user
+
+        company_users = UserModel.objects.filter(
+            Q(id=company_root.id) | Q(parent_user=company_root)
+        )
+
         return Invoice.objects.filter(
-            candidate_id=candidate_id
+            candidate_id=candidate_id,
+            created_by__in=company_users
         ).order_by("-invoice_date")
         
-    
-    
+        
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from rest_framework.generics import ListAPIView
@@ -261,31 +409,38 @@ class GlobalInvoiceListAPIView(ListAPIView):
     serializer_class = InvoiceListSerializer
 
     def get_company_root(self, user):
+        # 1. Agar SubAdmin hai toh wo khud owner hai
         if user.role == "SUB_ADMIN":
             return user
-        if user.role == "EMPLOYEE" and user.parent_user:
+        
+        # 2. Agar Accountant hai toh uska parent_user (SubAdmin) owner hai
+        if user.role == "ACCOUNTANT" and user.parent_user:
             return user.parent_user
-        raise PermissionDenied("Invalid company structure.")
+        
+        # 3. Baaki roles (like EMPLOYEE) ke liye access mana hai
+        raise PermissionDenied("Only Accountants or SubAdmins can manage Invoices.")
+
 
     def get_queryset(self):
         user = self.request.user
         company_root = self.get_company_root(user)
 
-        # All users under this company
+        # Company users (SubAdmin + all under him)
         company_users = UserModel.objects.filter(
             Q(id=company_root.id) | Q(parent_user=company_root)
         )
 
         qs = Invoice.objects.filter(
             created_by__in=company_users
-        ).order_by("-created_at")
+        ).select_related("candidate").order_by("-created_at")
 
         # ===== Filters =====
         month = self.request.query_params.get("month")
         status_param = self.request.query_params.get("status")
         invoice_type = self.request.query_params.get("type")
-        candidate_id = self.request.query_params.get("candidate")
-        candidate_name = self.request.query_params.get("candidate_name")
+
+        # ===== Search Filters =====
+        search = self.request.query_params.get("search")
 
         if month:
             qs = qs.filter(billing_month=month)
@@ -296,32 +451,49 @@ class GlobalInvoiceListAPIView(ListAPIView):
         if invoice_type:
             qs = qs.filter(invoice_type=invoice_type)
 
-        if candidate_id:
-            qs = qs.filter(candidate_id=candidate_id)
+        if search:
+            qs = qs.filter(
+                Q(invoice_number__icontains=search) |
+                Q(candidate__candidate_name__icontains=search) |
+                Q(items__candidate__candidate_name__icontains=search) |
+                Q(bill_to_name__icontains=search)
+            ).distinct()
             
-        if candidate_name: 
-            qs = qs.filter(candidate__candidate_name__icontains=candidate_name)
+        # ===== Date filter =====
+        invoice_date = self.request.query_params.get("invoice_date")
+        if invoice_date:
+            qs = qs.filter(invoice_date=invoice_date)
 
         return qs
-    
+        
 
 from rest_framework.generics import RetrieveUpdateAPIView
 from .serializers import CompanyFinanceSettingsSerializer
 from .models import CompanyFinanceSettings
 
+from rest_framework.exceptions import PermissionDenied
+
 class CompanyFinanceSettingsAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
-    # def get(self, request):
-    #     obj, created = CompanyFinanceSettings.objects.get_or_create(
-    #         created_by=request.user
-    #     )
-    #     serializer = CompanyFinanceSettingsSerializer(obj)
-    #     return Response(serializer.data)
-    
+    def get_company_root(self, user):
+        # 1. Agar SubAdmin hai toh wo khud owner hai
+        if user.role == "SUB_ADMIN":
+            return user
+        
+        # 2. Agar Accountant hai toh uska parent_user (SubAdmin) owner hai
+        if user.role == "ACCOUNTANT" and user.parent_user:
+            return user.parent_user
+        
+        # 3. Baaki roles (like EMPLOYEE) ke liye access mana hai
+        raise PermissionDenied("Only Accountants or SubAdmins can manage finance settings.")
+
     def get(self, request):
+        # Accountant ko SubAdmin ka data dikhane ke liye root fetch karo
+        company_root = self.get_company_root(request.user)
+        
         obj, created = CompanyFinanceSettings.objects.get_or_create(
-            created_by=request.user
+            created_by=company_root
         )
         serializer = CompanyFinanceSettingsSerializer(
             obj,
@@ -330,11 +502,14 @@ class CompanyFinanceSettingsAPIView(APIView):
         return Response(serializer.data)
 
     def put(self, request):
+        company_root = self.get_company_root(request.user)
+        
         obj, created = CompanyFinanceSettings.objects.get_or_create(
-            created_by=request.user
+            created_by=company_root
         )
 
-        serializer = CompanyFinanceSettingsSerializer(obj, data=request.data)
+        # partial=True taaki agar sirf logo update karna ho toh baaki fields error na dein
+        serializer = CompanyFinanceSettingsSerializer(obj, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
@@ -342,4 +517,3 @@ class CompanyFinanceSettingsAPIView(APIView):
             {"message": "Company settings updated successfully"},
             status=status.HTTP_200_OK
         )
-        
