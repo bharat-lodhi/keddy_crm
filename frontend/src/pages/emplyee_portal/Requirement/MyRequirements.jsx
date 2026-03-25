@@ -73,7 +73,7 @@ function MyRequirements() {
                      <div style={styles.filterGroup}>
                          <button onClick={() => navigate("/employee/requirements/my?type=today")} style={typeParam === 'today' ? styles.activeFilterBtn : styles.filterBtn}>Today</button>
                          <button onClick={() => navigate("/employee/requirements/my?type=yesterday")} style={typeParam === 'yesterday' ? styles.activeFilterBtn : styles.filterBtn}>Yesterday</button>
-                         {/* <button onClick={() => navigate("/employee/requirements/my?type=both")} style={typeParam === 'both' ? styles.activeFilterBtn : styles.filterBtn}>Both</button> */}
+                         <button onClick={() => navigate("/employee/requirements")} style={typeParam === 'both' ? styles.activeFilterBtn : styles.filterBtn}>All</button>
                      </div>
                 </div>
 

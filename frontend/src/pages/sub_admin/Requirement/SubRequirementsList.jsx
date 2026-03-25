@@ -110,6 +110,7 @@ function SubAdminRequirementList() {
                     <div style={styles.filterGroup}>
                          <button onClick={() => navigate("/sub-admin/requirements/my?type=today")} style={styles.filterBtn}>Today's</button>
                          <button onClick={() => navigate("/sub-admin/requirements/my?type=yesterday")} style={styles.filterBtn}>Yesterday's</button>
+                         <button onClick={() => navigate("/sub-admin/requirements")} style={styles.filterBtn}>All</button>
                     </div>
                 </div>
                 <div style={styles.searchContainer}>
@@ -145,7 +146,7 @@ function SubAdminRequirementList() {
                                 <td style={styles.td}><input type="radio" checked={selectedRequirementId === req.id} onChange={() => setSelectedRequirementId(req.id)} /></td>
                                 <td style={styles.td}>
                                     <div style={styles.reqIdBadge}>{req.requirement_id}</div>
-                                    <div style={styles.dateText}>{new Date(req.created_at).toLocaleDateString('en-GB')}</div>
+                                    <div style={styles.dateText}>{new Date(req.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
                                 </td>
                                 <td style={styles.td}>
                                     <div style={styles.primaryText}>{truncateText(req.title, 30)}</div>

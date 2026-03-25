@@ -191,7 +191,7 @@ function EmployeeDashboard() {
                     { label: "Total Pipeline", val: stats.total_pipelines, icon: <Icons.Pipeline />, col: "#25343F", url: "/employee" },
                     { label: "Today's Profiles", val: stats.today_profiles, icon: <Icons.UserPlus />, col: "#25343F", url: "/employee" },
                     { label: "Today Submitted", val: stats.today_submitted_profiles, icon: <Icons.Send />, col: "#FF9B51", url: "/employee" },
-                    { label: "Total Requirements", val: stats.today_requirements, icon: <Icons.Requirement />, col: "#25343F", url: "/employee/requirements" },
+                    { label: "My Requirements", val: stats.today_requirements, icon: <Icons.Requirement />, col: "#25343F", url: "/employee/requirements/my?type=today" },
                     { label: "Total Vendors", val: stats.total_vendors, icon: <Icons.Vendor />, col: "#25343F", url: "/employee/user-vendors" },
                     { label: "Total Clients", val: stats.total_clients, icon: <Icons.Client />, col: "#25343F", url: "/employee/clients" },
                     { label: "Total Profiles", val: stats.total_profiles, icon: <Icons.Users />, col: "#25343F", url: "/employee/user-candidates" },

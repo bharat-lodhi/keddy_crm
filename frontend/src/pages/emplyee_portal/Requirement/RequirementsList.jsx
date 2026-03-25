@@ -77,7 +77,7 @@ function RequirementList() {
                      <div style={styles.filterGroup}>
                          <button onClick={() => navigate("/employee/requirements/my?type=today")} style={styles.filterBtn}>Today's</button>
                          <button onClick={() => navigate("/employee/requirements/my?type=yesterday")} style={styles.filterBtn}>Yesterday's</button>
-                         <button onClick={() => navigate("/employee/requirements/my?type=both")} style={styles.filterBtn}>Today & Yesterday</button>
+                         <button onClick={() => navigate("/employee/requirements")} style={styles.filterBtn}>All</button>
                      </div>
                 </div>
 
