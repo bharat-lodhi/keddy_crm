@@ -990,3 +990,171 @@ class MyJDsAPIView(APIView):
         }
         
         return Response(response_data, status=status.HTTP_200_OK)
+    
+from datetime import datetime, timedelta
+from django.utils import timezone
+from django.db.models import Q, Count
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Requirement
+from .serializers import MyJDDetailSerializer
+from landing.models import User
+
+from datetime import datetime, timedelta
+from django.utils import timezone
+from django.db.models import Q
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Requirement
+from .serializers import MyJDDetailSerializer
+from landing.models import User
+
+
+class CompanyJDsAPIView(APIView):
+    """
+    API: Get Company JDs (Today & Yesterday) - For Sub-Admin
+    GET /api/jd/company-jds/
+    
+    Returns: All JDs of company employees (today/yesterday)
+    Same response format as MyJDsAPIView
+    
+    Query Params:
+    ?type=today          # Today's JDs
+    ?type=yesterday      # Yesterday's JDs
+    ?type=both           # Both today and yesterday (default)
+    ?search=python       # Search in title, req_id, skills, client_name
+    ?employee_id=5       # Filter by specific employee (optional)
+    """
+    permission_classes = [IsAuthenticatedAndActive]
+    
+    def get_company(self, user):
+        """Get company (Sub-Admin) for the user"""
+        if user.role == 'SUB_ADMIN':
+            return user
+        elif user.role == 'CENTRAL_ADMIN':
+            return None
+        return None
+    
+    def get(self, request):
+        user = request.user
+        
+        # Only Sub-admin and Central Admin can access
+        if user.role not in ['SUB_ADMIN', 'CENTRAL_ADMIN']:
+            return Response({
+                "success": False,
+                "message": "Only Sub-admin and Central Admin can access this API"
+            }, status=status.HTTP_403_FORBIDDEN)
+        
+        # Get company
+        if user.role == 'SUB_ADMIN':
+            company = user
+        else:
+            # Central Admin - can pass company_id in query
+            company_id = request.query_params.get('company_id')
+            if company_id:
+                try:
+                    company = User.objects.get(id=company_id, role='SUB_ADMIN')
+                except User.DoesNotExist:
+                    return Response({
+                        "success": False,
+                        "message": "Company not found"
+                    }, status=status.HTTP_404_NOT_FOUND)
+            else:
+                return Response({
+                    "success": False,
+                    "message": "company_id is required for Central Admin"
+                }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Get query params
+        query_type = request.query_params.get('type', 'both')
+        search_query = request.query_params.get('search', '').strip()
+        employee_id = request.query_params.get('employee_id')
+        
+        # Get date ranges
+        today = timezone.now().date()
+        yesterday = today - timedelta(days=1)
+        
+        if query_type == 'today':
+            start_date = datetime.combine(today, datetime.min.time())
+            end_date = datetime.combine(today, datetime.max.time())
+            date_range = [today, today]
+        elif query_type == 'yesterday':
+            start_date = datetime.combine(yesterday, datetime.min.time())
+            end_date = datetime.combine(yesterday, datetime.max.time())
+            date_range = [yesterday, yesterday]
+        else:  # both
+            start_date = datetime.combine(yesterday, datetime.min.time())
+            end_date = datetime.combine(today, datetime.max.time())
+            date_range = [yesterday, today]
+        
+        # Get all employees of this company
+        employees = User.objects.filter(
+            parent_user=company,
+            role='EMPLOYEE'
+        )
+        
+        # Filter by specific employee if provided
+        if employee_id:
+            employees = employees.filter(id=employee_id)
+        
+        # Collect all JDs from all employees
+        all_jds = Requirement.objects.none()
+        created_count = 0
+        assigned_count = 0
+        
+        for employee in employees:
+            # JDs created by this employee
+            created_jds = Requirement.objects.filter(
+                created_by=employee,
+                created_at__date__range=date_range,
+                is_deleted=False
+            )
+            
+            # JDs assigned to this employee
+            assigned_jds = Requirement.objects.filter(
+                assignments__assigned_to=employee,
+                created_at__date__range=date_range,
+                is_deleted=False
+            )
+            
+            # Combine
+            all_jds = (all_jds | created_jds | assigned_jds).distinct()
+            
+            # Count (without search filter first)
+            created_count += created_jds.count()
+            assigned_count += assigned_jds.count()
+        
+        # Order by created_at
+        all_jds = all_jds.order_by('-created_at')
+        
+        # Apply search filter
+        if search_query:
+            all_jds = all_jds.filter(
+                Q(title__icontains=search_query) |
+                Q(requirement_id__icontains=search_query) |
+                Q(skills__icontains=search_query) |
+                Q(client__company_name__icontains=search_query)
+            )
+            # Recalculate counts after search
+            created_count = all_jds.filter(created_by__in=employees).count()
+            assigned_count = all_jds.filter(assignments__assigned_to__in=employees).distinct().count()
+        
+        # Serialize
+        serializer = MyJDDetailSerializer(all_jds, many=True)
+        
+        # Same response format as MyJDsAPIView
+        response_data = {
+            "success": True,
+            "type": query_type,
+            "count": all_jds.count(),
+            "stats": {
+                "total": all_jds.count(),
+                "created_by_company": created_count,
+                "assigned_to_company": assigned_count
+            },
+            "results": serializer.data
+        }
+        
+        return Response(response_data, status=status.HTTP_200_OK)

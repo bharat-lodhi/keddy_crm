@@ -75,9 +75,9 @@ import AllInvoices from "./pages/Accounts/InvoiceListPage"
 
 // ========= Requirements ===============
 import RequirementList from "./pages/emplyee_portal/Requirement/RequirementsList";
-import RequirementCreate from "./pages/sub_admin/Requirement/SubRequirementCreate";
-import RequirementUpdate from "./pages/sub_admin/Requirement/SubRequirementUpdate";
-import RequirementView from "./pages/sub_admin/Requirement/SubRequirementView";
+import RequirementCreate from "./pages/emplyee_portal/Requirement/RequirementCreate";
+import RequirementUpdate from "./pages/emplyee_portal/Requirement/RequirementUpdate";
+import RequirementView from "./pages/emplyee_portal/Requirement/RequirementView";
 import EmpMyRequirements from "./pages/emplyee_portal/Requirement/MyRequirements";
 // Sub-admin Requirement List
 import SubAdminRequirementList from "./pages/sub_admin/Requirement/SubRequirementsList";

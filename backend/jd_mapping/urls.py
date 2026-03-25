@@ -27,6 +27,8 @@ urlpatterns = [
     path('api/submissions/create/', views.CandidateSubmissionCreateAPIView.as_view(), name='submission-create'),
     path('api/submissions/<int:pk>/delete/', views.CandidateSubmissionDeleteAPIView.as_view(), name='submission-delete'),
     path('my-jds/', views.MyJDsAPIView.as_view(), name='my-jds'),
+    #sub-admin
+    path('company-jds/', views.CompanyJDsAPIView.as_view(), name='company-jds'),
     
     #=================================================================================================================
     
