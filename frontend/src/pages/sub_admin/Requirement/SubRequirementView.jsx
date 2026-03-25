@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { apiRequest } from "../../../services/api";
-import BaseLayout from "../../components/emp_base";
+import BaseLayout from "../../components/SubAdminLayout";
 
 function RequirementView() {
     const { id } = useParams();
@@ -42,7 +42,7 @@ function RequirementView() {
                 <div style={styles.badgeGroup}>
                     <span style={styles.statBadge}>👥 Submissions: {data.total_submissions || 0}</span>
                     <span style={styles.statBadge}>⭐ Unique: {data.unique_candidates || 0}</span>
-                    <button onClick={() => navigate(`/employee/requirement/edit/${id}`)} style={styles.editBtn}>Edit Requirement</button>
+                    <button onClick={() => navigate(`/sub-admin/requirement/edit/${id}`)} style={styles.editBtn}>Edit Requirement</button>
                     {/* <span style={data.is_active ? styles.activeBadge : styles.blockBadge}>
                         {data.is_active ? "Active" : "Inactive"}
                     </span> */}

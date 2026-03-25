@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiRequest } from "../../../services/api";
-import BaseLayout from "../../components/emp_base";
+import BaseLayout from "../../components/SubAdminLayout";
 
 function RequirementCreate() {
     const navigate = useNavigate();
@@ -33,7 +33,7 @@ function RequirementCreate() {
     // Fetch Clients for Searchable Dropdown
     const fetchClients = async (search = "") => {
         try {
-            const data = await apiRequest(`/employee-portal/clients/list/?search=${search}`, "GET");
+            const data = await apiRequest(`/sub-admin/api/clients/?search=${search}`, "GET");
             setClients(data.results || []);
         } catch (error) {
             console.error("Error fetching clients:", error);

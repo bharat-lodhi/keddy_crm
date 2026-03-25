@@ -1072,7 +1072,7 @@ def dashboard_stats(request):
         ~Q(sub_status="ON_HOLD")
     ).count()
     
-     # ===== Today's Requirements (JDs) =====
+    # ===== Today's Requirements (JDs) =====
     # JDs created by user today
     today_created_jds = Requirement.objects.filter(
         created_by=user,

@@ -33,23 +33,14 @@ SKILL_KEYWORDS = [
     "linux", "unix", "nginx", "apache",
     "prometheus", "grafana",
 
-    # # ---------- Data Science & AI/ML ----------
-    # "machine learning", "deep learning", "data science", "data analysis",
-    # "pandas", "numpy", "scikit-learn", "tensorflow", "pytorch",
-    # "nlp", "computer vision", "power bi", "tableau",
-
     # ---------- Low-Code/No-Code Platforms ----------
     "power apps", "power automate", "mendix", "outsystems",
-    # "salesforce", "salesforce admin", "salesforce developer",
     "zoho crm", "dynamics 365", "servicenow",
     "wix", "webflow",
 
     # ---------- E-commerce & CMS ----------
     "wordpress", "woocommerce", "shopify", "magento",
     "drupal", "joomla",
-
-    # ---------- ERP & Business Systems ----------
-    # "sap", "sap fico", "sap mm", "sap abap",
 
     # ---------- UI/UX Design ----------
     "ui", "ux", "ui/ux", "figma", "adobe xd",
@@ -297,4 +288,87 @@ SKILL_KEYWORDS = [
     "synthetic data", "data augmentation", "gan for data generation",
     "active learning", "human in the loop", "label studio", "prodigy",
     "data labeling", "annotation tools", "scale ai", "appen", "lionbridge ai",
+    
+    # ========================================================
+    # ---------- Programming Languages & Runtimes ----------
+"powershell", "groovy", "objective-c", "elixir", "haskell", "julia", "nim", 
+"crystal", "deno", "bun", "zig", "lua", "fortran", "cobol", "solidity", 
+"webassembly", "assembly",
+
+# ---------- Modern Frameworks & Frontend ----------
+"micronaut", "quarkus", "vert.x", "phoenix", "ktor", "play framework", 
+"svelte", "sveltekit", "astro", "solidjs", "qwik", "ember.js", "backbone.js", 
+"alpine.js", "lit", "stencil", "three.js", "babylon.js", "postcss", "rollup", 
+"storybook", "chromatic", "lighthouse", "web vitals",
+
+# ---------- Mobile & Cross-Platform ----------
+"expo", "swiftui", "jetpack compose",
+
+# ---------- Databases & Storage ----------
+"opensearch", "neo4j", "cockroachdb", "yugabytedb", "snowflake", "clickhouse", 
+"influxdb", "timescaledb", "planetscale", "vitess", "minio", "ceph", 
+"glusterfs", "rocksdb", "leveldb",
+
+# ---------- Messaging & API Gateways ----------
+"apache pulsar", "rabbitmq", "nats", "zeromq", "grpc", "openapi", "swagger", 
+"kong gateway", "apigee", "tyk", "envoy",
+
+# ---------- Cloud, Infrastructure & GitOps ----------
+"vercel", "netlify", "fly.io", "cloudflare workers", "openstack", "argo cd", 
+"flux cd", "rancher", "k3s", "kind", "k9s", "terragrunt", "pulumi", "packer", 
+"nomad", "vault", "opentelemetry", "jaeger", "loki", "fluentd",
+
+# ---------- CI/CD & Security (DevSecOps) ----------
+"circleci", "teamcity", "travis ci", "sonarqube", "snyk", "mend (whitesource)", 
+"jfrog artifactory", "jfrog xray", "octopus deploy", "blue-green deployment", 
+"canary deployment", "gitops", "finops", "chaos engineering", "litmuschaos", 
+"chaos mesh", "pagerduty", "opsgenie", "runbooks", "incident management",
+
+# ---------- Data Engineering & Analytics ----------
+"dbt", "apache flink", "apache beam", "apache storm", "kafka streams", 
+"ksqldb", "debezium", "delta lake", "apache iceberg", "apache hudi", 
+"trino", "presto", "superset", "metabase", "looker", "qlik sense", 
+"segment", "mixpanel", "amplitude", "fivetran", "hevo", 
+
+# ---------- AI/ML & LLM Ops ----------
+"langchain", "llamaindex", "pinecone", "weaviate", "milvus", "rag", 
+"prompt engineering", "llmops", "detectron2", "automl", "feature stores", 
+"feast", "tecton", "multimodal ai", "reranking models", "hybrid search", 
+"long-context llms", "agent frameworks", "multi-agent systems", "tool calling", 
+"function calling", "llm evals", "safety alignment", "red teaming", 
+"hallucination mitigation", "vector databases", "embeddings", "semantic search",
+
+# ---------- Security & Compliance ----------
+"okta", "keycloak", "oauth2", "openid connect", "saml", "jwt", "zero trust", 
+"siem", "soar", "splunk", "crowdstrike", "palo alto networks", "fortinet", 
+"waf", "secrets management", "sbom", "dlp", "encryption at rest", 
+"encryption in transit", "iso 27001", "soc 2", "rbac", "abac", "policy-as-code", 
+"cloud security posture management", "runtime security", "threat modeling", 
+"secure sdlc", "supply chain security", "secrets scanning", "code signing",
+
+# ---------- Testing & Performance ----------
+"pact", "jmeter", "k6", "locust", "gatling", "testcontainers", "appium", 
+"crashlytics", "app store optimization", "performance profiling", 
+"memory leak detection", "code coverage", "contract testing", 
+"visual regression testing", "snapshot testing",
+
+# ---------- Integration & Business Automation ----------
+"mulesoft", "boomi", "talend", "informatica", "apache nifi", "camunda", 
+"temporal", "bpmn", "zapier", "workato", "tray.io", "asana", "trello", 
+"notion",
+
+# ---------- Specialized Domains ----------
+"wcag", "accessibility testing", "svn", "oauth pkce", "mfa", "conditional access", 
+"identity governance", "secrets rotation", "vulnerability scanning", 
+"penetration testing", "bug bounty", "compliance automation", "audit logging", 
+"data lineage", "metadata management", "data contracts", "change data capture", 
+"etl pipelines", "elt pipelines", "semantic layer", "product analytics", 
+"roadmapping", "backlog grooming", "stakeholder management", "technical writing", 
+"requirements engineering", "process automation", "digital transformation", 
+"edge computing", "mqtt", "coap", "opc-ua", "digital twins", "ros",
+
+# ---------- Package Managers & SDKs ----------
+"npm", "yarn", "pnpm", "maven", "gradle", "poetry", "pipenv", "homebrew", 
+"chocolatey", "winget", "sdks", "event-driven architecture"
+        
 ]

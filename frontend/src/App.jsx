@@ -54,6 +54,7 @@ import SubadminTotalOnbording from "./pages/sub_admin/TotalOnbording";
 import SubadminTodaysSubmittedProfiles from "./pages/sub_admin/TodaysSubmittedProfiles";
 import SubadminTodaysNewProfiles from "./pages/sub_admin/TodaysNewProfiles";
 import SubadminPipeline from "./pages/sub_admin/Pipeline";
+
 // -------Invoice---
 import SubadminCreateInvoice from "./pages/sub_admin/invoice/CreateInvoice";
 import SubadminInvoicePreview from "./pages/sub_admin/invoice/InvoicePreview";
@@ -74,10 +75,16 @@ import AllInvoices from "./pages/Accounts/InvoiceListPage"
 
 // ========= Requirements ===============
 import RequirementList from "./pages/emplyee_portal/Requirement/RequirementsList";
-import RequirementCreate from "./pages/emplyee_portal/Requirement/RequirementCreate";
-import RequirementUpdate from "./pages/emplyee_portal/Requirement/RequirementUpdate";
-import RequirementView from "./pages/emplyee_portal/Requirement/RequirementView";
+import RequirementCreate from "./pages/sub_admin/Requirement/SubRequirementCreate";
+import RequirementUpdate from "./pages/sub_admin/Requirement/SubRequirementUpdate";
+import RequirementView from "./pages/sub_admin/Requirement/SubRequirementView";
 import EmpMyRequirements from "./pages/emplyee_portal/Requirement/MyRequirements";
+// Sub-admin Requirement List
+import SubAdminRequirementList from "./pages/sub_admin/Requirement/SubRequirementsList";
+import SubAdminRequirementCreate from "./pages/sub_admin/Requirement/SubRequirementCreate";
+import SubAdminRequirementUpdate from "./pages/sub_admin/Requirement/SubRequirementUpdate";
+import SubAdminRequirementView from "./pages/sub_admin/Requirement/SubRequirementView";   
+import SubAdminMyRequirements from "./pages/sub_admin/Requirement/SubMyRequirements";      
 
 
 function App() {
@@ -122,7 +129,12 @@ function App() {
 
                 <Route path="/employee/requirement/view/:id" element={<ProtectedRoute><RequirementView /></ProtectedRoute>} />
                 <Route path="/employee/requirements/my" element={<ProtectedRoute><EmpMyRequirements /></ProtectedRoute>} />
-
+                {/* sub-admin */}
+                <Route path="/sub-admin/requirements" element={<ProtectedRoute><SubAdminRequirementList /></ProtectedRoute>} />
+                <Route path="/sub-admin/requirement/create" element={<ProtectedRoute><SubAdminRequirementCreate /></ProtectedRoute>} />
+                <Route path="/sub-admin/requirement/edit/:id" element={<ProtectedRoute><SubAdminRequirementUpdate /></ProtectedRoute>} />
+                <Route path="/sub-admin/requirement/view/:id" element={<ProtectedRoute><SubAdminRequirementView /></ProtectedRoute>} /> 
+                <Route path="/sub-admin/requirements/my" element={<ProtectedRoute><SubAdminMyRequirements /></ProtectedRoute>} />
                 {/* ======================SUB-ADMIN========================================= */}
                 <Route path="/sub-admin" element={<ProtectedRoute><SubAdminDashboard /></ProtectedRoute>} />
                 <Route path="/sub-admin/all-candidates" element={<ProtectedRoute><AllCandidateList /></ProtectedRoute>} />

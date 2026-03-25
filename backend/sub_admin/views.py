@@ -18,6 +18,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from django.utils.timezone import now
 from datetime import timedelta
+from jd_mapping.models import Requirement
 
 # @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
@@ -194,6 +195,26 @@ def dashboard_stats(request):
         Q(sub_status="ON_HOLD", created_at__gte=two_days_ago) |
         ~Q(sub_status="ON_HOLD")
     ).count()
+    
+    # ===== Today's Requirements (JDs) =====
+    # JDs created by user today
+    today_created_jds = Requirement.objects.filter(
+        created_by=user,
+        created_at__date=today,
+        is_deleted=False
+    ).count()
+    
+    # JDs assigned to user today
+    today_assigned_jds = Requirement.objects.filter(
+        assignments__assigned_to=user,
+        created_at__date=today,
+        is_deleted=False
+    ).distinct().count()
+    
+    # Total today's requirements (created + assigned)
+    today_total_requirements = today_created_jds + today_assigned_jds
+    
+    # ==============================================================
 
     data = {
         "user_name": user.get_full_name() or user.email,
@@ -210,6 +231,8 @@ def dashboard_stats(request):
 
         "onboard_profiles": onboard_profiles,
         "team_pipeline": team_pipeline,
+        
+        "today_requirements": today_total_requirements,
     }
 
     return Response(data)

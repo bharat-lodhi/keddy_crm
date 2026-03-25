@@ -83,7 +83,7 @@ function SubAdminDashboard() {
     const truncate = (text, limit) => (text?.length > limit ? text.substring(0, limit) + "..." : text);
 
     const renderRows = (list = []) => {
-        return list.map((c, i) => {
+        return list?.map((c, i) => {
             const currentDate = new Date(c.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
             const statusStyle = getStatusStyles(c.main_status || 'SUBMITTED');
 
@@ -94,7 +94,7 @@ function SubAdminDashboard() {
                         <div>To: <b>{truncate(c.submitted_to_name, 15) || '-'}</b></div>
                         <div>By: <b style={{color: "#27AE60"}}>{truncate(c.created_by_name, 15) || '-'}</b></div>
                     </td>
-                    <td style={styles.td}><b>{truncate(c.candidate.name || '', 15)}</b></td>
+                    <td style={styles.td}><b>{truncate(c.candidate_name || '', 15)}</b></td>
                     <td style={styles.td}>{truncate(c.technology, 30)}</td>
                     <td style={styles.td}>{c.years_of_experience_manual || '0'} Yrs</td>
                     <td style={styles.td}>
@@ -161,7 +161,8 @@ function SubAdminDashboard() {
                     { label: "Total Clients", val: stats.total_clients, icon: <Icons.Client />, col: "#25343F", path: "/sub-admin/clients" },
                     { label: "Total Profiles", val: stats.total_profiles, icon: <Icons.Users />, col: "#25343F", path: "/sub-admin/all-candidates" },
                     { label: "Total Employees", val: stats.total_employees, icon: <Icons.Users />, col: "#25343F", path: "/sub-admin/team-manage" },
-                ].map((s, i) => (
+                    { label: "Requirements", val: stats.today_requirements, icon: <Icons.Users />, col: "#25343F", path: "/sub-admin/requirements" },
+                ]?.map((s, i) => (
                     <div 
                         key={i} 
                         style={{ ...styles.statCard, cursor: 'pointer' }} 

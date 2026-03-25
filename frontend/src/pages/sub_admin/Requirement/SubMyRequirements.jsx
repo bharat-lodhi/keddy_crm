@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { apiRequest } from "../../../services/api";
-import BaseLayout from "../../components/emp_base";
+import BaseLayout from "../../components/SubAdminLayout";
 
 function useQuery() {
     return new URLSearchParams(useLocation().search);
@@ -69,11 +69,11 @@ function MyRequirements() {
         <BaseLayout>
             <div style={styles.topBar}>
                 <div style={styles.leftActions}>
-                     <button onClick={() => navigate('/employee')} style={styles.backBtn}>← Dashboard</button>
+                     <button onClick={() => navigate('/sub-admin')} style={styles.backBtn}>← Dashboard</button>
                      <div style={styles.filterGroup}>
-                         <button onClick={() => navigate("/employee/requirements/my?type=today")} style={typeParam === 'today' ? styles.activeFilterBtn : styles.filterBtn}>Today</button>
-                         <button onClick={() => navigate("/employee/requirements/my?type=yesterday")} style={typeParam === 'yesterday' ? styles.activeFilterBtn : styles.filterBtn}>Yesterday</button>
-                         {/* <button onClick={() => navigate("/employee/requirements/my?type=both")} style={typeParam === 'both' ? styles.activeFilterBtn : styles.filterBtn}>Both</button> */}
+                         <button onClick={() => navigate("/sub-admin/requirements/my?type=today")} style={typeParam === 'today' ? styles.activeFilterBtn : styles.filterBtn}>Today</button>
+                         <button onClick={() => navigate("/sub-admin/requirements/my?type=yesterday")} style={typeParam === 'yesterday' ? styles.activeFilterBtn : styles.filterBtn}>Yesterday</button>
+                         {/* <button onClick={() => navigate("/sub-admin/requirements/my?type=both")} style={typeParam === 'both' ? styles.activeFilterBtn : styles.filterBtn}>Both</button> */}
                      </div>
                 </div>
 
@@ -143,8 +143,8 @@ function MyRequirements() {
                                         </td>
                                         <td style={styles.actionTd}>
                                             <div style={styles.actionGroup}>
-                                                <button title="View Details" style={styles.viewBtn} onClick={() => navigate(`/employee/requirement/view/${req.id}`)}>View</button>
-                                                <button title="Update Requirement" style={styles.editBtn} onClick={() => navigate(`/employee/requirement/edit/${req.id}`)}>Update</button>
+                                                <button title="View Details" style={styles.viewBtn} onClick={() => navigate(`/sub-admin/requirement/view/${req.id}`)}>View</button>
+                                                <button title="Update Requirement" style={styles.editBtn} onClick={() => navigate(`/sub-admin/requirement/edit/${req.id}`)}>Update</button>
                                             </div>
                                         </td>
                                     </tr>
