@@ -174,6 +174,7 @@ function RequirementCreate() {
                             <option value="EST">EST</option>
                             <option value="PST">PST</option>
                             <option value="GMT">GMT</option>
+                            <option value="OTHER">OTHER</option>
                         </select>
                     </div>
 

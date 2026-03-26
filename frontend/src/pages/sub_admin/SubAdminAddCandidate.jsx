@@ -37,8 +37,8 @@ function AddCandidate() {
     const fetchVendors = async (query) => {
         try {
             const url = query 
-                ? `/employee-portal/api/vendors/?search=${query}` 
-                : "/employee-portal/api/vendors/";
+                ? `/sub-admin/api/admin-vendors/?search=${query}` 
+                : "/sub-admin/api/admin-vendors/";
             const res = await apiRequest(url);
             setVendors(res.results || []);
         } catch (err) {

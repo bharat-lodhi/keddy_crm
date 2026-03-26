@@ -209,7 +209,7 @@ function VendorList() {
             )}
 
             {/* Assign Modal */}
-            {showAssignModal && (
+            {/* {showAssignModal && (
                 <div style={styles.modalOverlay}>
                     <div style={styles.modalContent}>
                         <h3>Assign Vendors to Employees</h3>
@@ -228,7 +228,112 @@ function VendorList() {
                         </div>
                     </div>
                 </div>
-            )}
+            )} */}
+
+            {/* Assign Modal */}
+{/* Assign Modal */}
+{showAssignModal && (
+    <div style={styles.modalOverlay}>
+        <div style={styles.modalContent}>
+            <h3 style={{ marginBottom: '15px', textAlign: 'center', fontWeight: 'bold' }}>
+                Assign Vendors to Employees
+            </h3>
+            
+            {/* Search Bar Fixed */}
+            <div style={{ width: '100%', marginBottom: '15px' }}>
+                <input 
+                    placeholder="Search by name..." 
+                    style={{
+                        width: '100%', 
+                        padding: '10px', 
+                        borderRadius: '8px', 
+                        border: '1px solid #ddd',
+                        boxSizing: 'border-box' // Isse search bar bahar nahi jayega
+                    }} 
+                    onChange={e => setEmpSearch(e.target.value)} 
+                />
+            </div>
+
+            <div style={{ 
+                maxHeight: '300px', 
+                overflowY: 'auto', 
+                border: '1px solid #eee', 
+                borderRadius: '8px',
+                marginBottom: '20px' 
+            }}>
+                {employees
+                    .filter(e => 
+                        `${e.first_name} ${e.last_name}`.toLowerCase().includes(empSearch.toLowerCase())
+                    )
+                    ?.map(emp => {
+                        const isEmployeeRole = emp.role?.toUpperCase() === "EMPLOYEE";
+                        // Role ko "RECRUITER" Capital mein dikhane ke liye
+                        const displayRole = isEmployeeRole ? "RECRUITER" : (emp.role?.toUpperCase() || "NO ROLE");
+
+                        return (
+                            <div key={emp.id} style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                padding: '10px 12px',
+                                borderBottom: '1px solid #eee',
+                                opacity: isEmployeeRole ? 1 : 0.6,
+                                backgroundColor: isEmployeeRole ? '#fff' : '#f9f9f9',
+                                cursor: isEmployeeRole ? 'pointer' : 'not-allowed'
+                            }}>
+                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                    {isEmployeeRole ? (
+                                        <input 
+                                            type="checkbox" 
+                                            style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                                            checked={selectedEmployees.includes(emp.id)} 
+                                            onChange={() => setSelectedEmployees(prev => 
+                                                prev.includes(emp.id) ? prev.filter(x => x !== emp.id) : [...prev, emp.id]
+                                            )} 
+                                        />
+                                    ) : (
+                                        <span style={{ width: '16px', textAlign: 'center', color: '#ccc' }}>×</span>
+                                    )}
+                                    
+                                    <span style={{ marginLeft: '10px', fontWeight: '600', fontSize: '14px', color: '#333' }}>
+                                        {emp.first_name} {emp.last_name}
+                                    </span>
+                                </div>
+
+                                <span style={{
+                                    fontSize: '10px',
+                                    padding: '3px 8px',
+                                    borderRadius: '4px',
+                                    backgroundColor: isEmployeeRole ? '#E0F2FE' : '#F1F5F9',
+                                    color: isEmployeeRole ? '#0369A1' : '#64748B',
+                                    fontWeight: '800',
+                                    letterSpacing: '0.5px'
+                                }}>
+                                    {displayRole}
+                                </span>
+                            </div>
+                        );
+                    })
+                }
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px' }}>
+                <button 
+                    style={{ ...styles.saveBtn, flex: 1, padding: '12px', borderRadius: '8px' }} 
+                    onClick={handleAssignSubmit}
+                >
+                    Assign Now
+                </button>
+                <button 
+                    style={{ ...styles.cancelBtn, flex: 1, padding: '12px', borderRadius: '8px' }} 
+                    onClick={() => setShowAssignModal(false)}
+                >
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+)}
         </BaseLayout>
     );
 }

@@ -122,7 +122,7 @@ function RequirementUpdate() {
             const response = await apiRequest(`/jd-mapping/api/requirements/${id}/update/`, "PUT", payload);
             if (response && response.success) {
                 notify("Requirement updated successfully", "success");
-                setTimeout(() => navigate("/employee/requirements"), 1500);
+                setTimeout(() => navigate("/sub-admin/requirements"), 1500);
             }
         } catch (error) {
             notify("Error: Update failed.", "error");
@@ -197,6 +197,7 @@ function RequirementUpdate() {
                             <option value="EST">EST</option>
                             <option value="PST">PST</option>
                             <option value="GMT">GMT</option>
+                            <option value="OTHER">OTHER</option>
                         </select>
                     </div>
 

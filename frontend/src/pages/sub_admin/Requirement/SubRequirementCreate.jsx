@@ -95,7 +95,7 @@ function RequirementCreate() {
             const response = await apiRequest("/jd-mapping/api/requirements/", "POST", payload);
             if (response) {
                 notify("Requirement created successfully", "success");
-                setTimeout(() => navigate("/employee/requirements"), 2000);
+                setTimeout(() => navigate("/sub-admin/requirements"), 2000);
             }
         } catch (error) {
             notify("Error: Requirement could not be created.", "error");
@@ -174,6 +174,7 @@ function RequirementCreate() {
                             <option value="EST">EST</option>
                             <option value="PST">PST</option>
                             <option value="GMT">GMT</option>
+                            <option value="OTHER">OTHER</option>
                         </select>
                     </div>
 

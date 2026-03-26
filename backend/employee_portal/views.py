@@ -35,9 +35,9 @@ class VendorCreateAPIView(APIView):
     def post(self, request):
         user = request.user
 
-        if user.role != "EMPLOYEE":
+        if user.role not in ["EMPLOYEE", "SUB_ADMIN"]:
             return Response(
-                {"error": "Only employees can create vendors."},
+                {"error": "Only employees and sub-admins can create vendors."},
                 status=status.HTTP_403_FORBIDDEN
             )
 
