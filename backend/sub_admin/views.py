@@ -125,6 +125,13 @@ def dashboard_stats(request):
     company_users = UserModel.objects.filter(
         Q(id=company_root.id) | Q(parent_user=company_root)
     )
+    
+    # Get all employee IDs of this company
+    employee_ids = UserModel.objects.filter(
+        parent_user=company_root,
+        role="EMPLOYEE"
+    ).values_list('id', flat=True)
+
 
     # ===== Employees =====
     total_employees = UserModel.objects.filter(
@@ -196,23 +203,30 @@ def dashboard_stats(request):
         ~Q(sub_status="ON_HOLD")
     ).count()
     
-    # ===== Today's Requirements (JDs) =====
-    # JDs created by user today
-    today_created_jds = Requirement.objects.filter(
-        created_by=user,
-        created_at__date=today,
-        is_deleted=False
-    ).count()
-    
-    # JDs assigned to user today
-    today_assigned_jds = Requirement.objects.filter(
-        assignments__assigned_to=user,
-        created_at__date=today,
-        is_deleted=False
-    ).distinct().count()
-    
-    # Total today's requirements (created + assigned)
-    today_total_requirements = today_created_jds + today_assigned_jds
+    # ===== Today's Requirements (JDs) - Company Wide =====
+    # Same logic as CompanyJDsAPIView with type=today
+    if employee_ids:
+        # JDs created by any employee of this company today
+        today_created_jds_company = Requirement.objects.filter(
+            created_by_id__in=employee_ids,
+            created_at__date=today,
+            is_deleted=False
+        ).count()
+        
+        # JDs assigned to any employee of this company today
+        today_assigned_jds_company = Requirement.objects.filter(
+            assignments__assigned_to_id__in=employee_ids,
+            created_at__date=today,
+            is_deleted=False
+        ).distinct().count()
+        
+        # Total today's requirements (created + assigned) for the company
+        today_total_requirements_company = today_created_jds_company + today_assigned_jds_company
+    else:
+        today_created_jds_company = 0
+        today_assigned_jds_company = 0
+        today_total_requirements_company = 0
+
     
     # ==============================================================
 
@@ -232,7 +246,7 @@ def dashboard_stats(request):
         "onboard_profiles": onboard_profiles,
         "team_pipeline": team_pipeline,
         
-        "today_requirements": today_total_requirements,
+        "today_requirements": today_total_requirements_company,
     }
 
     return Response(data)

@@ -21,7 +21,7 @@ function MyRequirements() {
     const fetchMyRequirements = async (type, search) => {
         setLoading(true);
         try {
-            const response = await apiRequest(`/jd-mapping/my-jds/?type=${type}&search=${search}`, "GET");
+            const response = await apiRequest(`/jd-mapping/company-jds/?type=${type}&search=${search}`, "GET");
             if (response && response.success) {
                 setRequirements(response.results || []);
                 setStats(response.stats || { total: 0, created_by_me: 0, assigned_to_me: 0 });

@@ -136,7 +136,7 @@ function App() {
                 <Route path="/sub-admin/requirement/view/:id" element={<ProtectedRoute><SubAdminRequirementView /></ProtectedRoute>} /> 
                 <Route path="/sub-admin/requirements/my" element={<ProtectedRoute><SubAdminMyRequirements /></ProtectedRoute>} />
                 {/* ======================SUB-ADMIN========================================= */}
-                <Route path="/sub-admin" element={<ProtectedRoute><SubAdminDashboard /></ProtectedRoute>} />
+                <Route path="/sub-admin" element={<ProtectedRoute ><SubAdminDashboard /></ProtectedRoute>} />
                 <Route path="/sub-admin/all-candidates" element={<ProtectedRoute><AllCandidateList /></ProtectedRoute>} />
                 <Route path="/sub-admin/all-Vendors" element={<ProtectedRoute><AllVendorList /></ProtectedRoute>} />
                 <Route path="/sub-admin/add-vendor" element={<ProtectedRoute><SubAdminAddVendor /></ProtectedRoute>} />
