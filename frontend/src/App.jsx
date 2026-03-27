@@ -181,7 +181,6 @@ function App() {
                 <Route path="/accounts/create-invoice" element={<ProtectedRoute><CreateInvoice /></ProtectedRoute>} />
                 <Route path="/accounts/all-invoices" element={<ProtectedRoute><AllInvoices /></ProtectedRoute>} />
 
-
                 {/* ================================================================================================= */}
 
                 <Route path="/central-admin" element={<ProtectedRoute><CentralAdminDashboard /></ProtectedRoute>} />

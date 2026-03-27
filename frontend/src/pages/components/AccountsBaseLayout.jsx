@@ -31,12 +31,12 @@ const AccountsBaseLayout = ({ children }) => {
 
     // --- ACCOUNTS SPECIFIC MENU ITEMS ---
     const menuItems = [
-        { label: "Accounts Dashboard", path: "/accounts" },
+        { label: "Dashboard", path: "/accounts" },
         { label: "Create Invoice", path: "/accounts/create-invoice" },
-        { label: "Invoice List", path: "/accounts/invoices" },
-        { label: "Pending Payments", path: "/accounts/pending" },
-        { label: "Expense Tracking", path: "/accounts/expenses" },
-        { label: "Reports", path: "/accounts/reports" },
+        { label: "Invoice List", path: "/accounts/all-invoices" },
+        // { label: "Pending Payments", path: "/accounts/pending" },
+        // { label: "Expense Tracking", path: "/accounts/expenses" },
+        // { label: "Reports", path: "/accounts/reports" },
     ];
 
     return (

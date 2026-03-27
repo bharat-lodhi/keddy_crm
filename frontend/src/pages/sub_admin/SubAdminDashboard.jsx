@@ -146,7 +146,7 @@ function SubAdminDashboard() {
                 <div style={styles.btnGroup}>
                     <button style={{...styles.actionBtn, background: '#25343F'}} onClick={() => navigate("/sub-admin/team-manage")}><Icons.Manage /> Manage Team</button>
                     <button style={styles.actionBtn} onClick={() => navigate("/sub-admin/add-user")}><Icons.UserPlus /> Add Employee</button>
-                    <button style={styles.actionBtn} onClick={() => navigate("/sub-admin/invoices")}><Icons.Invoice /> Manage Invoice</button>
+                    <button style={styles.actionBtn} onClick={() => navigate("/sub-admin/requirement/create")}><Icons.Invoice /> Add Requirement</button>
                 </div>
             </div>
 
@@ -161,7 +161,7 @@ function SubAdminDashboard() {
                     { label: "Total Clients", val: stats.total_clients, icon: <Icons.Client />, col: "#25343F", path: "/sub-admin/clients" },
                     { label: "Total Profiles", val: stats.total_profiles, icon: <Icons.Users />, col: "#25343F", path: "/sub-admin/all-candidates" },
                     { label: "Total Employees", val: stats.total_employees, icon: <Icons.Users />, col: "#25343F", path: "/sub-admin/team-manage" },
-                    { label: "Requirements", val: stats.today_requirements, icon: <Icons.Users />, col: "#25343F", path: "/sub-admin/requirements/my?type=today" },
+                    { label: "Today's Requirements", val: stats.today_requirements, icon: <Icons.Users />, col: "#25343F", path: "/sub-admin/requirements/my?type=today" },
                 ]?.map((s, i) => (
                     <div 
                         key={i} 
