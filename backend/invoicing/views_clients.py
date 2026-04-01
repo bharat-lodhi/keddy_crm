@@ -20,10 +20,6 @@ class InvoiceClientCreateSerializer(serializers.ModelSerializer):
             "email",
             "gst_number",
             "billing_address",
-            "account_holder_name",
-            "bank_name",
-            "account_number",
-            "ifsc_code",
         ]
 
 
@@ -37,10 +33,6 @@ class InvoiceClientListSerializer(serializers.ModelSerializer):
             "phone_number",
             "gst_number",
             "billing_address",
-            "account_holder_name",
-            "bank_name",
-            "account_number",
-            "ifsc_code",
         ]
         
 class InvoiceClientUpdateSerializer(serializers.ModelSerializer):
@@ -52,10 +44,6 @@ class InvoiceClientUpdateSerializer(serializers.ModelSerializer):
             "phone_number",
             "gst_number",
             "billing_address",
-            "account_holder_name",
-            "bank_name",
-            "account_number",
-            "ifsc_code",
         ]
         
 

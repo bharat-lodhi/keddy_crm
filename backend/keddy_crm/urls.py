@@ -15,6 +15,7 @@ urlpatterns = [
     path('calendar/', include('calendar_service.urls')),
     path("invoice/", include("invoicing.urls")),
     path('jd-mapping/', include('jd_mapping.urls')),
+     path('attendance/', include('attendance_tracker.urls')),
 
 ]
 if settings.DEBUG:

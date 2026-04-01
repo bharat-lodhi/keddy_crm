@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'invoicing',
     'jd_mapping',
+    'attendance_tracker',
     
 ]
 
@@ -144,13 +145,23 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'  # Change from UTC to IST
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = True  # Keep True
 
 AUTH_USER_MODEL = "landing.User"
+
+# LANGUAGE_CODE = 'en-us'
+
+# TIME_ZONE = 'UTC'
+
+# USE_I18N = True
+
+# USE_TZ = True
+
+# AUTH_USER_MODEL = "landing.User"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/

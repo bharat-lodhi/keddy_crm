@@ -29,6 +29,13 @@ class User(AbstractUser):
         blank=True,
         related_name="employees"
     )
+    
+    #=====================Attndace-Model===========================
+    attendance_streak = models.PositiveIntegerField(default=0)
+    last_attendance_date = models.DateField(null=True, blank=True)
+    late_warning_count = models.PositiveIntegerField(default=0)
+    total_points = models.PositiveIntegerField(default=0) 
+    #==============================================================
     #===============================================================
     def get_company(self):
         """Return the company (Sub-Admin) this user belongs to"""
