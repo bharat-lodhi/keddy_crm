@@ -31,6 +31,7 @@ class InvoiceClientListSerializer(serializers.ModelSerializer):
             "client_name",
             "company_name",
             "phone_number",
+            "email",
             "gst_number",
             "billing_address",
         ]
@@ -42,6 +43,7 @@ class InvoiceClientUpdateSerializer(serializers.ModelSerializer):
             "client_name",
             "company_name",
             "phone_number",
+            "email",
             "gst_number",
             "billing_address",
         ]

@@ -21,6 +21,35 @@ const Toaster = ({ msg, type, onClose }) => {
 };
 
 
+const numberToWordsIndian = (num) => {
+  if (num === 0) return "";
+  const a = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+  const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+
+  const format = (n, suffix) => {
+    if (n === 0) return "";
+    let str = "";
+    if (n > 19) {
+      str = b[Math.floor(n / 10)] + (n % 10 !== 0 ? " " + a[n % 10] : "");
+    } else {
+      str = a[n];
+    }
+    return str + " " + suffix + " ";
+  };
+
+  let res = "";
+  res += format(Math.floor(num / 10000000), "Crore");
+  res += format(Math.floor((num / 100000) % 100), "Lakh");
+  res += format(Math.floor((num / 1000) % 100), "Thousand");
+  res += format(Math.floor((num / 100) % 10), "Hundred");
+  
+  const lastTwo = num % 100;
+  if (num > 100 && lastTwo > 0) res += "and ";
+  res += format(lastTwo, "");
+
+  return res.trim() + " Only";
+};
+
 const Icons = {
   Settings: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
 
@@ -39,12 +68,14 @@ const AddClientModal = ({ isOpen, onClose, onClientAdded, notify }) => {
   const validate = () => {
     let newErrors = {};
     if (!formData.client_name.trim()) newErrors.client_name = "Client Name is required";
+    if (!formData.company_name.trim()) newErrors.company_name = "Company Name is required";
     if (!formData.phone_number.trim()) newErrors.phone_number = "Phone Number is required";
     if (!formData.email.trim()) {
       newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = "Email is invalid";
     }
+    if (!formData.gst_number.trim()) newErrors.gst_number = "GST Number is required";
     if (!formData.billing_address.trim()) newErrors.billing_address = "Address is required";
     
     setErrors(newErrors);
@@ -90,12 +121,27 @@ const AddClientModal = ({ isOpen, onClose, onClientAdded, notify }) => {
           <div style={styles.modalBody}>
             <div style={styles.formSectionTitle}>Basic Information</div>
             <div style={styles.formGridModern}>
+
               <div style={styles.inputGroup}>
                 <label style={styles.label}>Client Name *</label>
                 <input style={{...styles.input, borderColor: errors.client_name ? '#EF4444' : '#E2E8F0'}} type="text" value={formData.client_name} onChange={e => setFormData({ ...formData, client_name: e.target.value })} />
                 {errors.client_name && <span style={styles.errorText}>{errors.client_name}</span>}
               </div>
-              <div style={styles.inputGroup}><label style={styles.label}>Company Name</label><input style={styles.input} type="text" value={formData.company_name} onChange={e => setFormData({ ...formData, company_name: e.target.value })} /></div>
+
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Company Name *</label>
+                <input 
+                  style={{
+                    ...styles.input, 
+                    borderColor: errors.company_name ? '#EF4444' : '#E2E8F0' 
+                  }} 
+                  type="text" 
+                  value={formData.company_name} 
+                  onChange={e => setFormData({ ...formData, company_name: e.target.value })} 
+                />
+                {errors.company_name && <span style={styles.errorText}>{errors.company_name}</span>}
+              </div>
+
               <div style={styles.inputGroup}>
                 <label style={styles.label}>Phone Number *</label>
                 <input style={{...styles.input, borderColor: errors.phone_number ? '#EF4444' : '#E2E8F0'}} type="tel" value={formData.phone_number} onChange={e => setFormData({ ...formData, phone_number: e.target.value })} />
@@ -106,7 +152,20 @@ const AddClientModal = ({ isOpen, onClose, onClientAdded, notify }) => {
                 <input style={{...styles.input, borderColor: errors.email ? '#EF4444' : '#E2E8F0'}} type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
                 {errors.email && <span style={styles.errorText}>{errors.email}</span>}
               </div>
-              <div style={{ ...styles.inputGroup, gridColumn: "1 / -1" }}><label style={styles.label}>GST Number</label><input style={styles.input} type="text" value={formData.gst_number} onChange={e => setFormData({ ...formData, gst_number: e.target.value })} /></div>
+              <div style={{ ...styles.inputGroup, gridColumn: "1 / -1" }}>
+                <label style={styles.label}>GST Number *</label>
+                <input 
+                  style={{
+                    ...styles.input, 
+                    borderColor: errors.gst_number ? '#EF4444' : '#E2E8F0' // Yahan spread (...) zaroori hai
+                  }} 
+                  type="text" 
+                  value={formData.gst_number} 
+                  onChange={e => setFormData({ ...formData, gst_number: e.target.value })} 
+                />
+                {errors.gst_number && <span style={styles.errorText}>{errors.gst_number}</span>}
+              </div>
+
               <div style={{ ...styles.inputGroup, gridColumn: "1 / -1" }}>
                 <label style={styles.label}>Billing Address *</label>
                 <textarea style={{...styles.textarea, borderColor: errors.billing_address ? '#EF4444' : '#E2E8F0'}} value={formData.billing_address} onChange={e => setFormData({ ...formData, billing_address: e.target.value })} />
@@ -114,13 +173,7 @@ const AddClientModal = ({ isOpen, onClose, onClientAdded, notify }) => {
               </div>
             </div>
             
-            <div style={styles.formSectionTitle}>Bank Details</div>
-            <div style={styles.formGridModern}>
-              <div style={styles.inputGroup}><label style={styles.label}>Account Holder</label><input style={styles.input} type="text" value={formData.account_holder_name} onChange={e => setFormData({ ...formData, account_holder_name: e.target.value })} /></div>
-              <div style={styles.inputGroup}><label style={styles.label}>Bank Name</label><input style={styles.input} type="text" value={formData.bank_name} onChange={e => setFormData({ ...formData, bank_name: e.target.value })} /></div>
-              <div style={styles.inputGroup}><label style={styles.label}>Account Number</label><input style={styles.input} type="text" value={formData.account_number} onChange={e => setFormData({ ...formData, account_number: e.target.value })} /></div>
-              <div style={styles.inputGroup}><label style={styles.label}>IFSC Code</label><input style={styles.input} type="text" value={formData.ifsc_code} onChange={e => setFormData({ ...formData, ifsc_code: e.target.value })} /></div>
-            </div>
+            
           </div>
           <div style={styles.modalFooter}>
             <button type="button" onClick={onClose} style={styles.cancelBtn}>Cancel</button>
@@ -135,8 +188,7 @@ const AddClientModal = ({ isOpen, onClose, onClientAdded, notify }) => {
 // Update Client Modal Component
 const UpdateClientModal = ({ isOpen, onClose, client, onClientUpdated, notify }) => {
   const [formData, setFormData] = useState({
-    client_name: "", company_name: "", phone_number: "", gst_number: "",
-    billing_address: ""
+    client_name: "", company_name: "", phone_number: "", email: "", gst_number: "", billing_address: ""
   });
   const [loading, setLoading] = useState(false);
 
@@ -144,7 +196,7 @@ const UpdateClientModal = ({ isOpen, onClose, client, onClientUpdated, notify })
     if (client) {
       setFormData({
         client_name: client.client_name || "", company_name: client.company_name || "",
-        phone_number: client.phone_number || "", gst_number: client.gst_number || "",
+        phone_number: client.phone_number || "",email: client.email || "", gst_number: client.gst_number || "",
         billing_address: client.billing_address || ""
       });
     }
@@ -182,7 +234,7 @@ const UpdateClientModal = ({ isOpen, onClose, client, onClientUpdated, notify })
               <div style={styles.inputGroup}><label style={styles.label}>Client Name</label><input style={styles.input} type="text" value={formData.client_name} onChange={e => setFormData({ ...formData, client_name: e.target.value })} /></div>
               <div style={styles.inputGroup}><label style={styles.label}>Company Name</label><input style={styles.input} type="text" value={formData.company_name} onChange={e => setFormData({ ...formData, company_name: e.target.value })} /></div>
               <div style={styles.inputGroup}><label style={styles.label}>Phone Number</label><input style={styles.input} type="text" value={formData.phone_number} onChange={e => setFormData({ ...formData, phone_number: e.target.value })} /></div>
-              <div style={styles.inputGroup}><label style={styles.label}>Email</label><input style={styles.input} type="text" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} /></div>
+              <div style={styles.inputGroup}><label style={styles.label}>Email</label><input style={styles.input} type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} /></div>
               <div style={styles.inputGroup}><label style={styles.label}>GST Number</label><input style={styles.input} type="text" value={formData.gst_number} onChange={e => setFormData({ ...formData, gst_number: e.target.value })} /></div>
               <div style={styles.inputGroup}><label style={styles.label}>Billing Address</label><input style={styles.input} type="text" value={formData.billing_address} onChange={e => setFormData({ ...formData, billing_address: e.target.value })} /></div>
             </div>
@@ -388,25 +440,38 @@ export default function CreateInvoice() {
                   </div>
                 )}
 
-              {/* <label style={styles.label}>Select Client</label>
-              <input style={styles.inputSearch} placeholder="Search Client..." value={clientSearch} onChange={e => { setClientSearch(e.target.value); fetchClients(e.target.value); setShowClientDropdown(true); }} onFocus={() => setShowClientDropdown(true)} />
-              {showClientDropdown && (
-                <div style={styles.dropdownList}>
-                  {loadingClients ? <div style={styles.dropdownItem}>Loading...</div> : clients.map(c => <div key={c.id} style={styles.dropdownItem} onClick={() => { setSelectedClient(c); setClientSearch(c.client_name); setShowClientDropdown(false); }}>{c.client_name}- {c.company_name}</div>)}
-                </div>
-              )} */}
 
             </div>
             <div style={{ display: 'flex', alignItems: 'flex-end' }}>
               <button onClick={() => setIsAddClientModalOpen(true)} style={styles.addBtn}>+ Add Client</button>
             </div>
           </div>
-          {selectedClient && !BasBillingDetails(selectedClient) && (
+          {/* {selectedClient && !BasBillingDetails(selectedClient) && (
             <div style={styles.warningBox}>
               <span style={{ fontSize: '12px', color: '#B45309' }}>⚠️ details missing.</span>
               <button onClick={() => setIsUpdateClientModalOpen(true)} style={styles.updateBtn}>Update</button>
             </div>
-          )}
+          )} */}
+
+          {selectedClient && (
+              <div style={styles.warningBox}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                  <span style={{ fontSize: '13px', fontWeight: '700', color: '#1E293B' }}>
+                    Selected: {selectedClient.company_name}
+                  </span>
+                  {/* Message sirf tab dikhega jab details missing honge */}
+                  {!BasBillingDetails(selectedClient) && (
+                    <span style={{ fontSize: '12px', color: '#B45309', fontWeight: '600' }}>
+                      ⚠️ GST or Billing Address missing.
+                    </span>
+                  )}
+                </div>
+                {/* Button hamesha dikhega */}
+                <button onClick={() => setIsUpdateClientModalOpen(true)} style={styles.updateBtn}>
+                  Edit Client Info
+                </button>
+              </div>
+            )}
         </div>
 
         <div style={styles.section}>
@@ -451,7 +516,9 @@ export default function CreateInvoice() {
                 <div><label style={styles.label}>Description</label><input style={styles.input} value={item.description} onChange={e => updateItem(i, "description", e.target.value)} /></div>
                 <div><label style={styles.label}>SAC Code</label><input style={styles.input} value={item.sac_code} onChange={e => updateItem(i, "sac_code", e.target.value)} /></div>
               </div>
-              <div style={styles.gridCalculations}>
+              
+              {/* <div style={styles.gridCalculations}>
+                
                 {item.billing_type === "BILLABLE_DAYS" && (<>
                   <div><label style={styles.label}>Monthly Rate</label><input style={styles.input} type="number" value={item.monthly_rate} onChange={e => updateItem(i, "monthly_rate", Number(e.target.value))} /></div>
                   <div><label style={styles.label}>Total Days</label><input style={styles.input} type="number" value={item.total_days} onChange={e => updateItem(i, "total_days", Number(e.target.value))} /></div>
@@ -462,7 +529,50 @@ export default function CreateInvoice() {
                   <div><label style={styles.label}>Total Hours</label><input style={styles.input} type="number" value={item.total_hours} onChange={e => updateItem(i, "total_hours", Number(e.target.value))} /></div>
                 </>)}
                 {item.billing_type === "MANUAL" && <div><label style={styles.label}>Amount</label><input style={styles.input} type="number" value={item.amount} onChange={e => updateItem(i, "amount", Number(e.target.value))} /></div>}
+              </div> */}
+
+              <div style={styles.gridCalculations}>
+                {item.billing_type === "BILLABLE_DAYS" && (
+                  <>
+                    <div style={{ position: 'relative' }}>
+                      <label style={styles.label}>Monthly Rate</label>
+                      <input style={styles.input} type="number" value={item.monthly_rate} onChange={e => updateItem(i, "monthly_rate", Number(e.target.value))} />
+                      {item.monthly_rate > 0 && <small style={styles.wordText}>{numberToWordsIndian(item.monthly_rate)}</small>}
+                    </div>
+                    <div>
+                      <label style={styles.label}>Total Days</label>
+                      <input style={styles.input} type="number" value={item.total_days} onChange={e => updateItem(i, "total_days", Number(e.target.value))} />
+                    </div>
+                    <div>
+                      <label style={styles.label}>Working Days</label>
+                      <input style={styles.input} type="number" value={item.working_days} onChange={e => updateItem(i, "working_days", Number(e.target.value))} />
+                    </div>
+                  </>
+                )}
+
+                {item.billing_type === "HOURLY" && (
+                  <>
+                    <div style={{ position: 'relative' }}>
+                      <label style={styles.label}>Hourly Rate</label>
+                      <input style={styles.input} type="number" value={item.hourly_rate} onChange={e => updateItem(i, "hourly_rate", Number(e.target.value))} />
+                      {item.hourly_rate > 0 && <small style={styles.wordText}>{numberToWordsIndian(item.hourly_rate)}</small>}
+                    </div>
+                    <div>
+                      <label style={styles.label}>Total Hours</label>
+                      <input style={styles.input} type="number" value={item.total_hours} onChange={e => updateItem(i, "total_hours", Number(e.target.value))} />
+                    </div>
+                  </>
+                )}
+
+                {item.billing_type === "MANUAL" && (
+                  <div style={{ position: 'relative' }}>
+                    <label style={styles.label}>Amount</label>
+                    <input style={styles.input} type="number" value={item.amount} onChange={e => updateItem(i, "amount", Number(e.target.value))} />
+                    {item.amount > 0 && <small style={styles.wordText}>{numberToWordsIndian(item.amount)}</small>}
+                  </div>
+                )}
               </div>
+              
               <div style={styles.summaryRow}>
                 <div><label style={styles.label}>GST %</label><input style={{ ...styles.input, width: '60px' }} type="number" value={item.gst_rate} onChange={e => updateItem(i, "gst_rate", Number(e.target.value))} /></div>
                 <div><small style={styles.label}>Amount</small><div style={styles.readonlyValue}>₹{item.calc_amount}</div></div>
@@ -529,7 +639,8 @@ const styles = {
   submitBtn: { padding: '10px 20px', background: '#10B981', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '700' },
   saveBtn: { padding: '10px 20px', background: '#3B82F6', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '700' },
   inputGroup: { display: 'flex', flexDirection: 'column', gap: '2px' },
-  errorText: { color: '#EF4444', fontSize: '11px', fontWeight: '600', marginTop: '2px' }
+  errorText: { color: '#EF4444', fontSize: '11px', fontWeight: '600', marginTop: '2px' },
+  wordText: {display: 'block',fontSize: '13px',color: '#6366F1',fontWeight: '600',marginTop: '4px',fontStyle: 'italic',lineHeight: '1.2'}
 };
 
 

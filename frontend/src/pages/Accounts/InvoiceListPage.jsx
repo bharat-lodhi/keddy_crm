@@ -156,7 +156,7 @@ export default function InvoiceList() {
                 <tr key={inv.id} style={styles.tableRow}>
                   <td style={styles.td}>{inv.invoice_number}</td>
                   <td style={styles.td}>{new Date(inv.invoice_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
-                  <td style={styles.td}>{inv.bill_to_name || '-'}</td>
+                  <td style={styles.td}>{inv.bill_to_company || '-'}</td>
                   <td style={styles.td}>{inv.candidate_names || '-'}</td>
                   <td style={{...styles.td, textAlign: 'right', fontWeight: '700'}}>
                     {formatAmount(inv.total_amount)}
@@ -185,7 +185,7 @@ export default function InvoiceList() {
                       <span style={{ color: '#94A3B8' }}>-</span>
                     )}
                   </td>
-                  <td style={{...styles.td, textAlign: 'center'}}>
+                  {/* <td style={{...styles.td, textAlign: 'center'}}>
                     <button
                       onClick={() => handlePdfGenerate(inv.id)}
                       disabled={generatingPdf[inv.id]}
@@ -198,6 +198,35 @@ export default function InvoiceList() {
                     >
                       {generatingPdf[inv.id] ? 'Generating...' : (inv.pdf_url ? 'Regenerate PDF' : 'Generate PDF')}
                     </button>
+                    
+                  </td> */}
+
+
+                  <td style={{...styles.td, textAlign: 'center'}}>
+                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                      <button
+                        onClick={() => handlePdfGenerate(inv.id)}
+                        disabled={generatingPdf[inv.id]}
+                        style={{
+                          ...styles.actionBtn,
+                          backgroundColor: inv.pdf_url ? '#1E293B' : '#FF9B51',
+                          opacity: generatingPdf[inv.id] ? 0.7 : 1,
+                          cursor: generatingPdf[inv.id] ? 'not-allowed' : 'pointer'
+                        }}
+                      >
+                        {generatingPdf[inv.id] ? 'Generating...' : (inv.pdf_url ? 'Regenerate PDF' : 'Generate PDF')}
+                      </button>
+                      
+                      <button
+                        onClick={() => navigate(`/accounts/invoice/edit/${inv.id}`)}
+                        style={{
+                          ...styles.actionBtn,
+                          backgroundColor: '#3B82F6'
+                        }}
+                      >
+                        Edit
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))

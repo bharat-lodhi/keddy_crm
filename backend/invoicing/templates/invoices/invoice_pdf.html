@@ -95,8 +95,7 @@
     <tr>
         <td>
             <strong style="color: var(--brand-color);">BILL TO:</strong><br>
-            <div class="bold">{{ invoice.bill_to_name }}</div>
-            {{ invoice.bill_to_company }}<br>
+            <div class="bold">{{ invoice.bill_to_company }}</div>
             {{ invoice.bill_to_address }}<br>
             <strong>GSTIN:</strong> {{ invoice.bill_to_gstin|default:"-" }}
         </td>
@@ -109,7 +108,7 @@
             <th style="text-align:left;">Description</th>
             <th>SAC</th>
             <th class="right">Rate</th>
-            <th class="right">Qty</th>
+            <th class="right">Days</th>
             <th class="right">Amount</th>
         </tr>
     </thead>

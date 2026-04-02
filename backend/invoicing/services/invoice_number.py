@@ -24,30 +24,3 @@ def generate_invoice_number():
 
         return f"{prefix}{str(new_serial).zfill(4)}"
 
-
-
-# def generate_invoice_number():
-#     """
-#     Format: INV-YYYY-####
-#     Example: INV-2026-0001
-#     """
-
-#     year = datetime.now().year
-#     prefix = f"INV-{year}-"
-
-#     last_invoice = (
-#         Invoice.objects
-#         .filter(invoice_number__startswith=prefix)
-#         .order_by("-invoice_number")
-#         .first()
-#     )
-
-#     if last_invoice:
-#         last_serial = int(last_invoice.invoice_number.split("-")[-1])
-#         new_serial = last_serial + 1
-#     else:
-#         new_serial = 1
-
-#     return f"{prefix}{str(new_serial).zfill(4)}"
-
-

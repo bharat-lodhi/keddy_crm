@@ -26,6 +26,4 @@ urlpatterns = [
     path('admin/reports/', views.AdminReportListView.as_view(), name='admin-reports'),
     path('admin/reports/<int:id>/delete/', views.AdminReportDeleteView.as_view(), name='admin-report-delete'),
     
-    #
-
 ]

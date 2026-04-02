@@ -48,7 +48,7 @@ class InvoiceCreateSerializer(serializers.ModelSerializer):
             "bill_to_gstin": {"required": False},
             "bill_to_email": {"required": False},
             "bill_to_phone": {"required": False},
-            "invoice_date": {"required": False},  # 👈 YE ADD KARNA HAI
+            "invoice_date": {"required": False}, 
         }
 
     def create(self, validated_data):
@@ -319,6 +319,7 @@ class InvoiceListSerializer(serializers.ModelSerializer):
             "candidate_names",
             "invoice_date",
             "bill_to_name",
+            "bill_to_company",
             "total_amount",
             "status",
             "pdf_url",
@@ -344,28 +345,28 @@ class InvoiceListSerializer(serializers.ModelSerializer):
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-class InvoiceUpdateSerializer(serializers.ModelSerializer):
-    items = InvoiceItemSerializer(many=True)
+# class InvoiceUpdateSerializer(serializers.ModelSerializer):
+#     items = InvoiceItemSerializer(many=True)
 
-    class Meta:
-        model = Invoice
-        exclude = ("invoice_number", "created_by", "created_at")
+#     class Meta:
+#         model = Invoice
+#         exclude = ("invoice_number", "created_by", "created_at")
 
-    def update(self, instance, validated_data):
-        items_data = validated_data.pop("items", [])
+#     def update(self, instance, validated_data):
+#         items_data = validated_data.pop("items", [])
 
-        # Update invoice fields
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.version += 1
-        instance.save()
+#         # Update invoice fields
+#         for attr, value in validated_data.items():
+#             setattr(instance, attr, value)
+#         instance.version += 1
+#         instance.save()
 
-        # Replace items (simple & clean approach)
-        instance.items.all().delete()
-        for item in items_data:
-            InvoiceItem.objects.create(invoice=instance, **item)
+#         # Replace items (simple & clean approach)
+#         instance.items.all().delete()
+#         for item in items_data:
+#             InvoiceItem.objects.create(invoice=instance, **item)
 
-        return instance
+#         return instance
     
 class InvoiceStatusSerializer(serializers.ModelSerializer):
     class Meta:
@@ -415,3 +416,259 @@ class CompanyFinanceSettingsSerializer(serializers.ModelSerializer):
             return request.build_absolute_uri(obj.signature.url)
         return None
     
+    
+# =======================update-preview =========================
+# invoice/serializers.py — Add these serializers to your existing serializers.py
+
+from rest_framework import serializers
+from .models import Invoice, InvoiceItem
+from employee_portal.models import Candidate, Client
+from decimal import Decimal
+
+
+# =================================================
+# InvoiceItem — Full detail serializer (for GET)
+# =================================================
+class InvoiceItemDetailSerializer(serializers.ModelSerializer):
+    candidate_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = InvoiceItem
+        fields = [
+            "id",
+            "candidate",
+            "candidate_name",
+            "title",
+            "description",
+            "sac_code",
+            "billing_type",
+            # BILLABLE_DAYS
+            "monthly_rate",
+            "total_days",
+            "working_days",
+            # HOURLY
+            "hourly_rate",
+            "total_hours",
+            # MANUAL
+            "amount",
+            # VENDOR / CLIENT rates (internal)
+            "vendor_rate",
+            "client_rate",
+        ]
+
+    def get_candidate_name(self, obj):
+        if obj.candidate:
+            return obj.candidate.candidate_name
+        return None
+
+
+# =================================================
+# Client — minimal nested read (for GET prefill)
+# =================================================
+class ClientMinimalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Client
+        fields = [
+            "id",
+            "client_name",
+            "company_name",
+            "email",
+            "phone_number",
+            "gst_number",
+            "billing_address",
+        ]
+
+
+# =================================================
+# Invoice RETRIEVE Serializer  (GET /invoices/<id>/)
+# =================================================
+class InvoiceRetrieveSerializer(serializers.ModelSerializer):
+    """
+    Full invoice detail — used to prefill the Edit form.
+    Returns nested client object + all items with their billing-type fields.
+    """
+    items = InvoiceItemDetailSerializer(many=True, read_only=True)
+    client_detail = ClientMinimalSerializer(source="client", read_only=True)
+
+    class Meta:
+        model = Invoice
+        fields = [
+            "id",
+            "invoice_number",
+            "invoice_type",
+            "billing_type",
+            "status",
+            # Relations
+            "client",
+            "client_detail",       # nested client for prefill
+            "company_bank_account",
+            # Snapshot fields (bill_to_*)
+            "bill_to_name",
+            "bill_to_company",
+            "bill_to_address",
+            "bill_to_gstin",
+            "bill_to_email",
+            "bill_to_phone",
+            # Dates
+            "invoice_date",
+            "billing_month",
+            "due_date",
+            # Totals
+            "rate",
+            "quantity",
+            "amount",
+            "gst_rate",
+            "gst_amount",
+            "subtotal",
+            "total_amount",
+            # Extra
+            "notes",
+            "version",
+            "created_at",
+            "updated_at",
+            # Items
+            "items",
+        ]
+
+
+# =================================================
+# InvoiceItem — Write serializer (for PATCH)
+# =================================================
+class InvoiceItemUpdateSerializer(serializers.ModelSerializer):
+    # id is needed to identify existing items during update
+    id = serializers.IntegerField(required=False)
+
+    class Meta:
+        model = InvoiceItem
+        fields = [
+            "id",
+            "candidate",
+            "title",
+            "description",
+            "sac_code",
+            "billing_type",
+            "monthly_rate",
+            "total_days",
+            "working_days",
+            "hourly_rate",
+            "total_hours",
+            "amount",
+            "vendor_rate",
+            "client_rate",
+        ]
+        extra_kwargs = {
+            "title": {"required": False},
+            "billing_type": {"required": False},
+        }
+
+
+# =================================================
+# Invoice UPDATE Serializer  (PATCH /invoices/<id>/update/)
+# =================================================
+class InvoiceUpdateSerializer(serializers.ModelSerializer):
+    """
+    Partial update serializer.
+    - Accepts items list: existing items (with id) are updated,
+      items without id are created, items missing from list are deleted.
+    """
+    items = InvoiceItemUpdateSerializer(many=True, required=False)
+
+    class Meta:
+        model = Invoice
+        fields = [
+            "invoice_type",
+            "client",
+            "company_bank_account",
+            # Snapshot override (optional — auto-synced from client if not sent)
+            "bill_to_name",
+            "bill_to_company",
+            "bill_to_address",
+            "bill_to_gstin",
+            "bill_to_email",
+            "bill_to_phone",
+            # Dates
+            "invoice_date",
+            "billing_month",
+            "due_date",
+            # Tax
+            "gst_rate",
+            # Extra
+            "notes",
+            # Items
+            "items",
+        ]
+        extra_kwargs = {f: {"required": False} for f in [
+            "invoice_type", "client", "company_bank_account",
+            "bill_to_name", "bill_to_company", "bill_to_address",
+            "bill_to_gstin", "bill_to_email", "bill_to_phone",
+            "invoice_date", "billing_month", "due_date", "gst_rate", "notes",
+        ]}
+
+    def validate_items(self, items_data):
+        """Validate each item based on its billing_type."""
+        for item in items_data:
+            billing_type = item.get("billing_type", "MANUAL")
+
+            if billing_type == "BILLABLE_DAYS":
+                if not item.get("monthly_rate"):
+                    raise serializers.ValidationError(
+                        "monthly_rate is required for BILLABLE_DAYS billing."
+                    )
+                if not item.get("total_days") or not item.get("working_days"):
+                    raise serializers.ValidationError(
+                        "total_days and working_days are required for BILLABLE_DAYS."
+                    )
+
+            elif billing_type == "HOURLY":
+                if not item.get("hourly_rate") or not item.get("total_hours"):
+                    raise serializers.ValidationError(
+                        "hourly_rate and total_hours are required for HOURLY billing."
+                    )
+
+            elif billing_type == "MANUAL":
+                if not item.get("amount") and item.get("amount") != 0:
+                    raise serializers.ValidationError(
+                        "amount is required for MANUAL billing."
+                    )
+
+        return items_data
+
+    def update(self, instance, validated_data):
+        items_data = validated_data.pop("items", None)
+
+        # ── Auto-sync bill_to_* from client if client changed ──
+        new_client = validated_data.get("client", instance.client)
+        if new_client and "client" in validated_data:
+            validated_data.setdefault("bill_to_name", new_client.client_name)
+            validated_data.setdefault("bill_to_company", new_client.company_name)
+            validated_data.setdefault("bill_to_address", new_client.billing_address)
+            validated_data.setdefault("bill_to_gstin", new_client.gst_number)
+            validated_data.setdefault("bill_to_email", new_client.email)
+            validated_data.setdefault("bill_to_phone", new_client.phone_number)
+
+        # ── Update invoice scalar fields ──
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        # ── Handle items (upsert + delete) ──
+        if items_data is not None:
+            existing_ids = {item.id for item in instance.items.all()}
+            sent_ids = {item["id"] for item in items_data if "id" in item}
+
+            # Delete items not present in the new list
+            ids_to_delete = existing_ids - sent_ids
+            if ids_to_delete:
+                instance.items.filter(id__in=ids_to_delete).delete()
+
+            for item_data in items_data:
+                item_id = item_data.pop("id", None)
+
+                if item_id and item_id in existing_ids:
+                    # Update existing item
+                    InvoiceItem.objects.filter(id=item_id).update(**item_data)
+                else:
+                    # Create new item
+                    InvoiceItem.objects.create(invoice=instance, **item_data)
+
+        instance.save()
+        return instance

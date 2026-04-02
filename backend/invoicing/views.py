@@ -11,6 +11,7 @@ from .permissions import IsInvoiceOwnerOrReadOnly
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from rest_framework.exceptions import PermissionDenied
+from django.db.models import Q as models_Q
 
 UserModel = get_user_model()
 
@@ -517,3 +518,160 @@ class CompanyFinanceSettingsAPIView(APIView):
             {"message": "Company settings updated successfully"},
             status=status.HTTP_200_OK
         )
+        
+# ======================invoice-edit-preview==============================
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import PermissionDenied, NotFound
+from rest_framework import status
+from django.db import transaction
+from django.contrib.auth import get_user_model
+
+from .models import Invoice, InvoiceHistory
+from .serializers import (
+    InvoiceRetrieveSerializer,
+    InvoiceUpdateSerializer,
+)
+from .services.calculations import calculate_invoice_totals
+
+UserModel = get_user_model()
+
+
+# ─────────────────────────────────────────────────────────────────
+# HELPER — company root resolver (same as CreateInvoiceAPIView)
+# ─────────────────────────────────────────────────────────────────
+def get_company_root(user):
+    if user.role not in ["SUB_ADMIN", "ACCOUNTANT"]:
+        raise PermissionDenied("You do not have permission to manage invoices.")
+    if user.role == "SUB_ADMIN":
+        return user
+    if user.role == "ACCOUNTANT" and user.parent_user:
+        return user.parent_user
+    raise PermissionDenied("Invalid company structure.")
+
+
+# ─────────────────────────────────────────────────────────────────
+# HELPER — invoice ownership check
+# ─────────────────────────────────────────────────────────────────
+def get_invoice_for_company(invoice_id, company_root):
+    """
+    Returns invoice only if it was created by someone in the same company.
+    Raises 404 or 403 otherwise.
+    """
+    # Collect all user IDs in this company (SUB_ADMIN + his EMPLOYEEs)
+    company_user_ids = UserModel.objects.filter(
+        models_Q(id=company_root.id) | models_Q(parent_user=company_root)
+    ).values_list("id", flat=True)
+
+    try:
+        invoice = Invoice.objects.get(id=invoice_id, created_by__id__in=company_user_ids)
+    except Invoice.DoesNotExist:
+        raise NotFound("Invoice not found or you don't have access.")
+
+    return invoice
+
+
+# ─────────────────────────────────────────────────────────────────
+# VIEW 1 — GET  /invoice/api/invoices/<id>/
+# Returns full invoice detail for Edit-page prefill
+# ─────────────────────────────────────────────────────────────────
+class InvoiceRetrieveAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        company_root = get_company_root(request.user)
+
+        from django.db.models import Q as models_Q
+        company_user_ids = UserModel.objects.filter(
+            models_Q(id=company_root.id) | models_Q(parent_user=company_root)
+        ).values_list("id", flat=True)
+
+        try:
+            invoice = Invoice.objects.prefetch_related("items__candidate").get(
+                id=pk,
+                created_by__id__in=company_user_ids
+            )
+        except Invoice.DoesNotExist:
+            raise NotFound("Invoice not found or access denied.")
+
+        serializer = InvoiceRetrieveSerializer(invoice, context={"request": request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# ─────────────────────────────────────────────────────────────────
+# VIEW 2 — PATCH  /invoice/api/invoices/<id>/update/
+# Partial update — recalculates totals after save
+# ─────────────────────────────────────────────────────────────────
+class InvoiceUpdateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @transaction.atomic
+    def patch(self, request, pk):
+        user = request.user
+        company_root = get_company_root(user)
+
+        from django.db.models import Q as models_Q
+        company_user_ids = UserModel.objects.filter(
+            models_Q(id=company_root.id) | models_Q(parent_user=company_root)
+        ).values_list("id", flat=True)
+
+        try:
+            invoice = Invoice.objects.prefetch_related("items").get(
+                id=pk,
+                created_by__id__in=company_user_ids
+            )
+        except Invoice.DoesNotExist:
+            raise NotFound("Invoice not found or access denied.")
+
+        # ── Save old data snapshot for history ──
+        old_snapshot = InvoiceRetrieveSerializer(invoice).data
+
+        # ── Validate & update ──
+        serializer = InvoiceUpdateSerializer(
+            invoice,
+            data=request.data,
+            partial=True,
+            context={"request": request}
+        )
+        serializer.is_valid(raise_exception=True)
+        updated_invoice = serializer.save()
+
+        # ── Recalculate totals (UPDATED VERSION - now updates invoice.amount, rate, quantity) ──
+        subtotal, gst_amount, total_amount, gst_rate = calculate_invoice_totals(updated_invoice)
+        
+        updated_invoice.subtotal = subtotal
+        updated_invoice.gst_amount = gst_amount
+        updated_invoice.total_amount = total_amount
+        updated_invoice.gst_rate = gst_rate
+        
+        # ये 3 lines नई हैं - यही main fix है
+        # invoice.amount, invoice.rate, invoice.quantity अब calculate_invoice_totals() से आएंगे
+        # क्योंकि उस function ने पहले ही invoice.amount, invoice.rate, invoice.quantity set कर दिए हैं
+        
+        updated_invoice.version += 1
+        updated_invoice.save(update_fields=[
+            "subtotal", "gst_amount", "total_amount", "gst_rate", 
+            "amount", "rate", "quantity", "version"  # amount, rate, quantity added
+        ])
+
+        # ── History entry ──
+        InvoiceHistory.objects.create(
+            invoice=updated_invoice,
+            change_type="UPDATED",
+            old_data=dict(old_snapshot),
+            new_data={"updated_fields": list(request.data.keys())},
+            changed_by=user
+        )
+
+        # ── Return updated invoice for frontend confirmation ──
+        response_serializer = InvoiceRetrieveSerializer(
+            updated_invoice, context={"request": request}
+        )
+        return Response({
+            "message": "Invoice updated successfully.",
+            "invoice": response_serializer.data
+        }, status=status.HTTP_200_OK)
+        
+# ===================================================

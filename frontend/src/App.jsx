@@ -70,6 +70,7 @@ import FinanceSettings from "./pages/Accounts/FinanceSettingsPage";
 import FinanceList from "./pages/Accounts/FinanceListView";
 import CreateInvoice from "./pages/Accounts/CreateInvoicePage";
 import AllInvoices from "./pages/Accounts/InvoiceListPage"
+import EditInvoice from "./pages/Accounts/Editinvoicepage";
 // ========================================================
 
 
@@ -180,6 +181,7 @@ function App() {
                 <Route path="/accounts/finance-overview" element={<ProtectedRoute><FinanceList /></ProtectedRoute>} />
                 <Route path="/accounts/create-invoice" element={<ProtectedRoute><CreateInvoice /></ProtectedRoute>} />
                 <Route path="/accounts/all-invoices" element={<ProtectedRoute><AllInvoices /></ProtectedRoute>} />
+                <Route path="/accounts/invoice/edit/:id" element={<ProtectedRoute><EditInvoice /></ProtectedRoute>} />
 
                 {/* ================================================================================================= */}
 
