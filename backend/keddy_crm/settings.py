@@ -12,7 +12,7 @@ load_dotenv()
 SECRET_KEY = 'django-insecure-cmy-_b!s584f%+-ftjb6qmxk5kvy397o2$b@b%axl+d^83de14'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 # ALLOWED_HOSTS = [
 #     "keddyzerobouncevelidetor.com",
@@ -215,8 +215,8 @@ CSRF_TRUSTED_ORIGINS = [
 # ===============================================
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),  # Access token ko 1 din rakha
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),     # Refresh token ko 1 din rakha
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1), 
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),  
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': False,
     'UPDATE_LAST_LOGIN': False,
