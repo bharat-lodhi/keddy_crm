@@ -87,6 +87,13 @@ import SubAdminRequirementUpdate from "./pages/sub_admin/Requirement/SubRequirem
 import SubAdminRequirementView from "./pages/sub_admin/Requirement/SubRequirementView";   
 import SubAdminMyRequirements from "./pages/sub_admin/Requirement/SubMyRequirements";      
 
+// ========AttedanceDashboard============EMPLOYEE=====
+import AttendanceDashboard from "./pages/emplyee_portal/Attendance/Attendancedashboard";
+import AttendanceBoard     from "./pages/emplyee_portal/Attendance/Attendanceboard";
+import MyMonthly           from "./pages/emplyee_portal/Attendance/Mymonthly";
+
+// ===============AttedanceDashboard=====SUBADMIN======
+import TeamReports from "./pages/sub_admin/Attendance/TeamReports";
 
 function App() {
     return (
@@ -122,6 +129,13 @@ function App() {
                 <Route path="/employee/clients" element={<ProtectedRoute><ClientList /></ProtectedRoute>} />
                 <Route path="/employee/client/add" element={<ProtectedRoute><AddClient /></ProtectedRoute>} />
                 <Route path="/employee/client/view/:id" element={<ProtectedRoute><EmployeeViewClient /></ProtectedRoute>} />
+
+                {/* ================================================ */}
+                {/* ===== ATTENDANCE MODULE ===== */}
+                <Route path="/employee/attendance"         element={<ProtectedRoute><AttendanceDashboard /></ProtectedRoute>} />
+                <Route path="/employee/attendance/board"   element={<ProtectedRoute><AttendanceBoard /></ProtectedRoute>} />
+                <Route path="/employee/attendance/monthly" element={<ProtectedRoute><MyMonthly /></ProtectedRoute>} />
+                {/* ================================================ */}
 
                 {/* =========Requiremens Route ======== */}
                 <Route path="/employee/requirements" element={<ProtectedRoute><RequirementList /></ProtectedRoute>} />
@@ -183,6 +197,10 @@ function App() {
                 <Route path="/accounts/all-invoices" element={<ProtectedRoute><AllInvoices /></ProtectedRoute>} />
                 <Route path="/accounts/invoice/edit/:id" element={<ProtectedRoute><EditInvoice /></ProtectedRoute>} />
 
+                {/* ================================================================================================= */}
+
+                {/* =================================Attendance - admin ================================================================ */}
+                <Route path="/sub-admin/team-reports" element={<ProtectedRoute><TeamReports /></ProtectedRoute>} />
                 {/* ================================================================================================= */}
 
                 <Route path="/central-admin" element={<ProtectedRoute><CentralAdminDashboard /></ProtectedRoute>} />

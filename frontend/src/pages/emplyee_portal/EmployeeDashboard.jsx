@@ -195,6 +195,8 @@ function EmployeeDashboard() {
                     { label: "Total Vendors", val: stats.total_vendors, icon: <Icons.Vendor />, col: "#25343F", url: "/employee/user-vendors" },
                     { label: "Total Clients", val: stats.total_clients, icon: <Icons.Client />, col: "#25343F", url: "/employee/clients" },
                     { label: "Total Profiles", val: stats.total_profiles, icon: <Icons.Users />, col: "#25343F", url: "/employee/user-candidates" },
+
+                    { label: "Attendance", val: stats.attendance, icon: <Icons.Users />, col: "#25343F", url: "/employee/attendance" },
                 ].map((s, i) => (
                     <div key={i} style={styles.statCard} onClick={() => navigate(s.url)}>
                         <div style={{overflow:'hidden'}}><p style={styles.statLabel}>{s.label}</p><h3 style={{...styles.statValue, color: s.col}}>{s.val || 0}</h3></div>

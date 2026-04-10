@@ -260,9 +260,160 @@ class MyTodayAPIView(APIView):
         
         return Response(data)
 
+# class MyMonthlyAPIView(APIView):
+#     """GET /attendance/my-monthly/?month=2026-03"""
+#     permission_classes = [IsAuthenticated, IsEmployee]
+    
+#     def get(self, request):
+#         user = request.user
+#         month = request.query_params.get('month', timezone.now().strftime("%Y-%m"))
+#         year, month_num = map(int, month.split('-'))
+        
+#         # Get all attendance for month
+#         attendances = Attendance.objects.filter(
+#             user=user,
+#             date__year=year,
+#             date__month=month_num
+#         )
+        
+#         # Get all reports for month
+#         reports = DailyWorkReport.objects.filter(
+#             user=user,
+#             date__year=year,
+#             date__month=month_num
+#         )
+        
+#         # Get all performance for month
+#         performances = PerformanceTracker.objects.filter(
+#             user=user,
+#             date__year=year,
+#             date__month=month_num
+#         )
+        
+#         # Get points for month
+#         points = PointsLog.objects.filter(
+#             user=user,
+#             date__year=year,
+#             date__month=month_num
+#         )
+        
+#         # Calculate attendance summary
+#         attendance_summary = {
+#             'total_days': attendances.count(),
+#             'on_time': attendances.filter(status=Attendance.Status.ON_TIME).count(),
+#             'late': attendances.filter(status=Attendance.Status.LATE).count(),
+#             'absent': attendances.filter(status=Attendance.Status.ABSENT).count(),
+#         }
+        
+#         # Calculate performance summary manually (since performance_percentage is property)
+#         total_sourced = 0
+#         total_submitted = 0
+#         total_percentage = 0
+#         performance_count = performances.count()
+        
+#         for perf in performances:
+#             total_sourced += perf.sourced_today
+#             total_submitted += perf.submitted_today
+#             total_percentage += perf.performance_percentage  # property works here
+        
+#         performance_summary = {
+#             'total_sourced': total_sourced,
+#             'total_submitted': total_submitted,
+#             'avg_performance': round(total_percentage / performance_count, 2) if performance_count > 0 else 0,
+#         }
+        
+#         # Points summary
+#         total_points = 0
+#         positive_points = 0
+#         negative_points = 0
+        
+#         for p in points:
+#             total_points += p.points
+#             if p.points > 0:
+#                 positive_points += p.points
+#             else:
+#                 negative_points += p.points
+        
+#         points_summary = {
+#             'total_points': total_points,
+#             'positive_points': positive_points,
+#             'negative_points': negative_points,
+#         }
+        
+#         # Daily data with pagination
+#         daily_data = []
+#         for day in range(1, 32):
+#             daily = {
+#                 'date': f"{year}-{month_num:02d}-{day:02d}",
+#                 'attendance': None,
+#                 'report': None,
+#                 'performance': None
+#             }
+            
+#             att = attendances.filter(date__day=day).first()
+#             if att:
+#                 daily['attendance'] = {
+#                     'check_in': att.check_in.strftime("%I:%M %p") if att.check_in else None,
+#                     'check_out': att.check_out.strftime("%I:%M %p") if att.check_out else None,
+#                     'status': att.status
+#                 }
+            
+#             rep = reports.filter(date__day=day).first()
+#             if rep:
+#                 daily['report'] = {
+#                     'work_done': rep.work_done,
+#                     'challenges': rep.challenges,
+#                     'plan_for_tomorrow': rep.plan_for_tomorrow
+#                 }
+            
+#             perf = performances.filter(date__day=day).first()
+#             if perf:
+#                 daily['performance'] = {
+#                     'sourced_today': perf.sourced_today,
+#                     'submitted_today': perf.submitted_today,
+#                     'color_code': perf.color_code,
+#                     'performance_percentage': perf.performance_percentage
+#                 }
+            
+#             if daily['attendance'] or daily['report'] or daily['performance']:
+#                 daily_data.append(daily)
+        
+#         # Pagination
+#         page = int(request.query_params.get('page', 1))
+#         page_size = int(request.query_params.get('page_size', 31))
+#         paginator = Paginator(daily_data, page_size)
+#         current_page = paginator.get_page(page)
+        
+#         return Response({
+#             'success': True,
+#             'data': {
+#                 'month': month,
+#                 'attendance_summary': attendance_summary,
+#                 'performance_summary': performance_summary,
+#                 'points_summary': points_summary,
+#                 'daily_data': current_page.object_list,
+#                 'pagination': {
+#                     'total_pages': paginator.num_pages,
+#                     'current_page': page,
+#                     'total_items': paginator.count,
+#                     'has_next': current_page.has_next(),
+#                     'has_previous': current_page.has_previous()
+#                 }
+#             }
+#         })
+
+
 class MyMonthlyAPIView(APIView):
     """GET /attendance/my-monthly/?month=2026-03"""
     permission_classes = [IsAuthenticated, IsEmployee]
+    
+    def format_time(self, dt):
+        """Convert UTC time to local timezone and format"""
+        if dt:
+            local_tz = pytz.timezone(settings.TIME_ZONE)
+            local_time = dt.astimezone(local_tz)
+            return local_time.strftime("%I:%M %p")
+        return None
     
     def get(self, request):
         user = request.user
@@ -305,7 +456,7 @@ class MyMonthlyAPIView(APIView):
             'absent': attendances.filter(status=Attendance.Status.ABSENT).count(),
         }
         
-        # Calculate performance summary manually (since performance_percentage is property)
+        # Calculate performance summary manually
         total_sourced = 0
         total_submitted = 0
         total_percentage = 0
@@ -314,7 +465,7 @@ class MyMonthlyAPIView(APIView):
         for perf in performances:
             total_sourced += perf.sourced_today
             total_submitted += perf.submitted_today
-            total_percentage += perf.performance_percentage  # property works here
+            total_percentage += perf.performance_percentage
         
         performance_summary = {
             'total_sourced': total_sourced,
@@ -353,9 +504,10 @@ class MyMonthlyAPIView(APIView):
             att = attendances.filter(date__day=day).first()
             if att:
                 daily['attendance'] = {
-                    'check_in': att.check_in.strftime("%I:%M %p") if att.check_in else None,
-                    'check_out': att.check_out.strftime("%I:%M %p") if att.check_out else None,
-                    'status': att.status
+                    'check_in': self.format_time(att.check_in),
+                    'check_out': self.format_time(att.check_out),
+                    'status': att.status,
+                    'status_display': att.get_status_display()
                 }
             
             rep = reports.filter(date__day=day).first()
@@ -378,10 +530,33 @@ class MyMonthlyAPIView(APIView):
             if daily['attendance'] or daily['report'] or daily['performance']:
                 daily_data.append(daily)
         
+        # Order by date descending (recent first)
+        daily_data.sort(key=lambda x: x['date'], reverse=True)
+        
         # Pagination
         page = int(request.query_params.get('page', 1))
         page_size = int(request.query_params.get('page_size', 31))
         paginator = Paginator(daily_data, page_size)
+        
+        if page > paginator.num_pages:
+            return Response({
+                'success': True,
+                'data': {
+                    'month': month,
+                    'attendance_summary': attendance_summary,
+                    'performance_summary': performance_summary,
+                    'points_summary': points_summary,
+                    'daily_data': [],
+                    'pagination': {
+                        'total_pages': paginator.num_pages,
+                        'current_page': page,
+                        'total_items': paginator.count,
+                        'has_next': False,
+                        'has_previous': page > 1
+                    }
+                }
+            })
+        
         current_page = paginator.get_page(page)
         
         return Response({
@@ -402,7 +577,6 @@ class MyMonthlyAPIView(APIView):
             }
         })
 
-
 class AttendanceBoardAPIView(APIView):
     """GET /attendance/attendance-board/?page=1&page_size=20"""
     permission_classes = [IsAuthenticated, IsCompanyUser]
@@ -417,7 +591,7 @@ class AttendanceBoardAPIView(APIView):
             company=company,
             date=today,
             status__in=[Attendance.Status.ON_TIME, Attendance.Status.LATE]
-        ).select_related('user')
+        ).select_related('user').order_by('-created_at')
         
         # Pagination
         page = int(request.query_params.get('page', 1))
@@ -964,9 +1138,312 @@ class AdminAttendanceDeleteView(APIView):
 from .serializers import AdminReportListSerializer
 
 
+# class AdminReportListView(APIView):
+#     """GET /attendance/admin/reports/ - View all daily reports with filters"""
+#     permission_classes = [IsAuthenticated, IsSubAdmin]
+    
+#     def get(self, request):
+#         company = request.user
+        
+#         # Filters
+#         user_id = request.query_params.get('user_id', '')
+#         date = request.query_params.get('date', '')
+#         from_date = request.query_params.get('from_date', '')
+#         to_date = request.query_params.get('to_date', '')
+#         search = request.query_params.get('search', '')
+        
+#         # Base queryset - company employees reports
+#         company_users = User.objects.filter(parent_user=company, role='EMPLOYEE')
+#         reports = DailyWorkReport.objects.filter(user__in=company_users, company=company)
+        
+#         # Apply filters
+#         if user_id:
+#             reports = reports.filter(user_id=user_id)
+        
+#         if date:
+#             reports = reports.filter(date=date)
+        
+#         if from_date:
+#             reports = reports.filter(date__gte=from_date)
+        
+#         if to_date:
+#             reports = reports.filter(date__lte=to_date)
+        
+#         if search:
+#             reports = reports.filter(
+#                 Q(work_done__icontains=search) |
+#                 Q(challenges__icontains=search) |
+#                 Q(plan_for_tomorrow__icontains=search)
+#             )
+        
+#         # Order by
+#         ordering = request.query_params.get('ordering', '-date')
+#         reports = reports.order_by(ordering)
+        
+#         # Pagination
+#         page = int(request.query_params.get('page', 1))
+#         page_size = int(request.query_params.get('page_size', 20))
+#         paginator = Paginator(reports, page_size)
+        
+#         # Check if page is valid
+#         if page > paginator.num_pages:
+#             return Response({
+#                 'success': True,
+#                 'data': {
+#                     'reports': [],
+#                     'pagination': {
+#                         'total_pages': paginator.num_pages,
+#                         'current_page': page,
+#                         'total_items': paginator.count,
+#                         'page_size': page_size,
+#                         'has_next': False,
+#                         'has_previous': page > 1
+#                     }
+#                 }
+#             })
+        
+#         current_page = paginator.get_page(page)
+#         serializer = AdminReportListSerializer(current_page.object_list, many=True)
+        
+#         return Response({
+#             'success': True,
+#             'data': {
+#                 'reports': serializer.data,
+#                 'pagination': {
+#                     'total_pages': paginator.num_pages,
+#                     'current_page': page,
+#                     'total_items': paginator.count,
+#                     'page_size': page_size,
+#                     'has_next': current_page.has_next(),
+#                     'has_previous': current_page.has_previous()
+#                 }
+#             }
+#         })
+
+# class AdminReportListView(APIView):
+#     """GET /attendance/admin/reports/ - View all daily reports with filters"""
+#     permission_classes = [IsAuthenticated, IsSubAdmin]
+    
+#     def get(self, request):
+#         company = request.user
+        
+#         # Filters
+#         user_id = request.query_params.get('user_id', '')
+#         date = request.query_params.get('date', '')
+#         from_date = request.query_params.get('from_date', '')
+#         to_date = request.query_params.get('to_date', '')
+#         search = request.query_params.get('search', '')
+        
+#         # Base queryset - company employees reports
+#         company_users = User.objects.filter(parent_user=company, role='EMPLOYEE')
+#         reports = DailyWorkReport.objects.filter(
+#             user__in=company_users, 
+#             company=company
+#         ).select_related('user')  # Optimize query
+        
+#         # Apply filters
+#         if user_id:
+#             reports = reports.filter(user_id=user_id)
+        
+#         if date:
+#             reports = reports.filter(date=date)
+        
+#         if from_date:
+#             reports = reports.filter(date__gte=from_date)
+        
+#         if to_date:
+#             reports = reports.filter(date__lte=to_date)
+        
+#         if search:
+#             reports = reports.filter(
+#                 Q(work_done__icontains=search) |
+#                 Q(challenges__icontains=search) |
+#                 Q(plan_for_tomorrow__icontains=search)
+#             )
+        
+#         # Order by (recent first)
+#         ordering = request.query_params.get('ordering', '-date')
+#         reports = reports.order_by(ordering)
+        
+#         # Pagination
+#         page = int(request.query_params.get('page', 1))
+#         page_size = int(request.query_params.get('page_size', 20))
+#         paginator = Paginator(reports, page_size)
+        
+#         # Check if page is valid
+#         if page > paginator.num_pages:
+#             return Response({
+#                 'success': True,
+#                 'data': {
+#                     'reports': [],
+#                     'pagination': {
+#                         'total_pages': paginator.num_pages,
+#                         'current_page': page,
+#                         'total_items': paginator.count,
+#                         'page_size': page_size,
+#                         'has_next': False,
+#                         'has_previous': page > 1
+#                     }
+#                 }
+#             })
+        
+#         current_page = paginator.get_page(page)
+#         serializer = AdminReportListSerializer(current_page.object_list, many=True)
+        
+#         return Response({
+#             'success': True,
+#             'data': {
+#                 'reports': serializer.data,
+#                 'pagination': {
+#                     'total_pages': paginator.num_pages,
+#                     'current_page': page,
+#                     'total_items': paginator.count,
+#                     'page_size': page_size,
+#                     'has_next': current_page.has_next(),
+#                     'has_previous': current_page.has_previous()
+#                 }
+#             }
+#         })
+
+# class AdminReportListView(APIView):
+#     """GET /attendance/admin/reports/ - View all daily reports with filters"""
+#     permission_classes = [IsAuthenticated, IsSubAdmin]
+    
+#     def format_time(self, dt):
+#         """Convert UTC time to local timezone"""
+#         if dt:
+#             local_tz = pytz.timezone(settings.TIME_ZONE)
+#             local_time = dt.astimezone(local_tz)
+#             return local_time.strftime("%I:%M %p")
+#         return None
+    
+#     def get(self, request):
+#         company = request.user
+        
+#         # Filters
+#         user_id = request.query_params.get('user_id', '')
+#         date = request.query_params.get('date', '')
+#         from_date = request.query_params.get('from_date', '')
+#         to_date = request.query_params.get('to_date', '')
+#         search = request.query_params.get('search', '')
+        
+#         # Get all company employees
+#         company_users = User.objects.filter(parent_user=company, role='EMPLOYEE')
+        
+#         if user_id:
+#             company_users = company_users.filter(id=user_id)
+        
+#         # Build attendance queryset with filters
+#         attendances = Attendance.objects.filter(
+#             user__in=company_users,
+#             company=company
+#         ).select_related('user')
+        
+#         if date:
+#             attendances = attendances.filter(date=date)
+#         if from_date:
+#             attendances = attendances.filter(date__gte=from_date)
+#         if to_date:
+#             attendances = attendances.filter(date__lte=to_date)
+        
+#         # Prepare response data
+#         reports_data = []
+        
+#         for attendance in attendances:
+#             # Get report for this date (if exists)
+#             report = DailyWorkReport.objects.filter(
+#                 user=attendance.user, 
+#                 date=attendance.date
+#             ).first()
+            
+#             # Apply search filter on report fields
+#             if search:
+#                 if report:
+#                     search_match = (
+#                         (report.work_done and search.lower() in report.work_done.lower()) or
+#                         (report.challenges and search.lower() in report.challenges.lower()) or
+#                         (report.plan_for_tomorrow and search.lower() in report.plan_for_tomorrow.lower())
+#                     )
+#                     if not search_match:
+#                         continue
+#                 else:
+#                     continue  # No report to search
+            
+#             reports_data.append({
+#                 'id': report.id if report else None,
+#                 'user': attendance.user.id,
+#                 'user_name': f"{attendance.user.first_name} {attendance.user.last_name}".strip(),
+#                 'user_email': attendance.user.email,
+#                 'date': attendance.date,
+#                 'work_done': report.work_done if report else None,
+#                 'challenges': report.challenges if report else None,
+#                 'plan_for_tomorrow': report.plan_for_tomorrow if report else None,
+#                 'check_in_time': self.format_time(attendance.check_in),
+#                 'check_out_time': self.format_time(attendance.check_out),
+#                 'attendance_status': attendance.status,
+#                 'attendance_status_display': attendance.get_status_display(),
+#                 'report_submitted': report is not None,
+#                 'work_from': attendance.work_from,
+#                 'location': attendance.location,
+#                 'created_at': report.created_at if report else attendance.created_at,
+#                 'updated_at': report.updated_at if report else attendance.updated_at
+#             })
+        
+#         # Sort by date (recent first)
+#         reports_data.sort(key=lambda x: x['date'] if x['date'] else '', reverse=True)
+        
+#         # Pagination
+#         page = int(request.query_params.get('page', 1))
+#         page_size = int(request.query_params.get('page_size', 20))
+#         paginator = Paginator(reports_data, page_size)
+        
+#         if page > paginator.num_pages:
+#             return Response({
+#                 'success': True,
+#                 'data': {
+#                     'reports': [],
+#                     'employees': list(company_users.values('id', 'first_name', 'last_name', 'email')),
+#                     'pagination': {
+#                         'total_pages': paginator.num_pages,
+#                         'current_page': page,
+#                         'total_items': paginator.count,
+#                         'page_size': page_size,
+#                         'has_next': False,
+#                         'has_previous': page > 1
+#                     }
+#                 }
+#             })
+        
+#         current_page = paginator.get_page(page)
+        
+#         return Response({
+#             'success': True,
+#             'data': {
+#                 'reports': current_page.object_list,
+#                 'employees': list(company_users.values('id', 'first_name', 'last_name', 'email')),
+#                 'pagination': {
+#                     'total_pages': paginator.num_pages,
+#                     'current_page': page,
+#                     'total_items': paginator.count,
+#                     'page_size': page_size,
+#                     'has_next': current_page.has_next(),
+#                     'has_previous': current_page.has_previous()
+#                 }
+#             }
+#         })
+
+
 class AdminReportListView(APIView):
     """GET /attendance/admin/reports/ - View all daily reports with filters"""
     permission_classes = [IsAuthenticated, IsSubAdmin]
+    
+    def format_time(self, dt):
+        """Convert UTC time to local timezone"""
+        if dt:
+            local_tz = pytz.timezone(settings.TIME_ZONE)
+            local_time = dt.astimezone(local_tz)
+            return local_time.strftime("%I:%M %p")
+        return None
     
     def get(self, request):
         company = request.user
@@ -976,47 +1453,95 @@ class AdminReportListView(APIView):
         date = request.query_params.get('date', '')
         from_date = request.query_params.get('from_date', '')
         to_date = request.query_params.get('to_date', '')
-        search = request.query_params.get('search', '')
+        search = request.query_params.get('search', '').lower()
         
-        # Base queryset - company employees reports
+        # Get all company employees
         company_users = User.objects.filter(parent_user=company, role='EMPLOYEE')
-        reports = DailyWorkReport.objects.filter(user__in=company_users, company=company)
         
-        # Apply filters
         if user_id:
-            reports = reports.filter(user_id=user_id)
+            company_users = company_users.filter(id=user_id)
+        
+        # Build attendance queryset with filters
+        attendances = Attendance.objects.filter(
+            user__in=company_users,
+            company=company
+        ).select_related('user')
         
         if date:
-            reports = reports.filter(date=date)
-        
+            attendances = attendances.filter(date=date)
         if from_date:
-            reports = reports.filter(date__gte=from_date)
-        
+            attendances = attendances.filter(date__gte=from_date)
         if to_date:
-            reports = reports.filter(date__lte=to_date)
+            attendances = attendances.filter(date__lte=to_date)
         
-        if search:
-            reports = reports.filter(
-                Q(work_done__icontains=search) |
-                Q(challenges__icontains=search) |
-                Q(plan_for_tomorrow__icontains=search)
-            )
+        # Prepare response data
+        reports_data = []
         
-        # Order by
-        ordering = request.query_params.get('ordering', '-date')
-        reports = reports.order_by(ordering)
+        for attendance in attendances:
+            # Get report for this date (if exists)
+            report = DailyWorkReport.objects.filter(
+                user=attendance.user, 
+                date=attendance.date
+            ).first()
+            
+            # Prepare data
+            user_name = f"{attendance.user.first_name} {attendance.user.last_name}".strip()
+            check_in_time = self.format_time(attendance.check_in)
+            check_out_time = self.format_time(attendance.check_out)
+            work_done = report.work_done if report else None
+            challenges = report.challenges if report else None
+            plan_for_tomorrow = report.plan_for_tomorrow if report else None
+            
+            # Apply search filter on all fields
+            if search:
+                search_match = (
+                    (user_name and search in user_name.lower()) or
+                    (attendance.user.email and search in attendance.user.email.lower()) or
+                    (work_done and search in work_done.lower()) or
+                    (challenges and search in challenges.lower()) or
+                    (plan_for_tomorrow and search in plan_for_tomorrow.lower()) or
+                    (check_in_time and search in check_in_time.lower()) or
+                    (check_out_time and search in check_out_time.lower()) or
+                    (attendance.status and search in attendance.status.lower()) or
+                    (attendance.work_from and search in attendance.work_from.lower())
+                )
+                if not search_match:
+                    continue
+            
+            reports_data.append({
+                'id': report.id if report else None,
+                'user': attendance.user.id,
+                'user_name': user_name,
+                'user_email': attendance.user.email,
+                'date': attendance.date,
+                'work_done': work_done,
+                'challenges': challenges,
+                'plan_for_tomorrow': plan_for_tomorrow,
+                'check_in_time': check_in_time,
+                'check_out_time': check_out_time,
+                'attendance_status': attendance.status,
+                'attendance_status_display': attendance.get_status_display(),
+                'report_submitted': report is not None,
+                'work_from': attendance.work_from,
+                'location': attendance.location,
+                'created_at': report.created_at if report else attendance.created_at,
+                'updated_at': report.updated_at if report else attendance.updated_at
+            })
+        
+        # Sort by date (recent first)
+        reports_data.sort(key=lambda x: x['date'] if x['date'] else '', reverse=True)
         
         # Pagination
         page = int(request.query_params.get('page', 1))
         page_size = int(request.query_params.get('page_size', 20))
-        paginator = Paginator(reports, page_size)
+        paginator = Paginator(reports_data, page_size)
         
-        # Check if page is valid
         if page > paginator.num_pages:
             return Response({
                 'success': True,
                 'data': {
                     'reports': [],
+                    'employees': list(company_users.values('id', 'first_name', 'last_name', 'email')),
                     'pagination': {
                         'total_pages': paginator.num_pages,
                         'current_page': page,
@@ -1029,12 +1554,12 @@ class AdminReportListView(APIView):
             })
         
         current_page = paginator.get_page(page)
-        serializer = AdminReportListSerializer(current_page.object_list, many=True)
         
         return Response({
             'success': True,
             'data': {
-                'reports': serializer.data,
+                'reports': current_page.object_list,
+                'employees': list(company_users.values('id', 'first_name', 'last_name', 'email')),
                 'pagination': {
                     'total_pages': paginator.num_pages,
                     'current_page': page,
@@ -1045,7 +1570,6 @@ class AdminReportListView(APIView):
                 }
             }
         })
-
 
 class AdminReportDeleteView(APIView):
     """DELETE /attendance/admin/reports/<id>/delete/ - Delete daily report"""

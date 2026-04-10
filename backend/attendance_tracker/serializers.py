@@ -168,17 +168,63 @@ class AdminAttendanceUpdateSerializer(serializers.ModelSerializer):
 
 
 # =====================Daily admin respot====================
+# class AdminReportListSerializer(serializers.ModelSerializer):
+#     user_name = serializers.SerializerMethodField()
+#     user_email = serializers.SerializerMethodField()
+    
+#     class Meta:
+#         model = DailyWorkReport
+#         fields = ['id', 'user', 'user_name', 'user_email', 'date', 'work_done', 
+#                   'challenges', 'plan_for_tomorrow', 'created_at', 'updated_at']
+    
+#     def get_user_name(self, obj):
+#         return f"{obj.user.first_name} {obj.user.last_name}".strip()
+    
+#     def get_user_email(self, obj):
+#         return obj.user.email
+
+
 class AdminReportListSerializer(serializers.ModelSerializer):
     user_name = serializers.SerializerMethodField()
     user_email = serializers.SerializerMethodField()
+    check_in_time = serializers.SerializerMethodField()
+    check_out_time = serializers.SerializerMethodField()
     
     class Meta:
         model = DailyWorkReport
-        fields = ['id', 'user', 'user_name', 'user_email', 'date', 'work_done', 
-                  'challenges', 'plan_for_tomorrow', 'created_at', 'updated_at']
+        fields = [
+            'id', 'user', 'user_name', 'user_email', 'date', 
+            'work_done', 'challenges', 'plan_for_tomorrow',
+            'check_in_time', 'check_out_time',
+            'created_at', 'updated_at'
+        ]
     
     def get_user_name(self, obj):
         return f"{obj.user.first_name} {obj.user.last_name}".strip()
     
     def get_user_email(self, obj):
         return obj.user.email
+    
+    def get_check_in_time(self, obj):
+        """Get check-in time for this user on this date"""
+        try:
+            attendance = Attendance.objects.get(user=obj.user, date=obj.date)
+            if attendance.check_in:
+                local_tz = pytz.timezone(settings.TIME_ZONE)
+                local_time = attendance.check_in.astimezone(local_tz)
+                return local_time.strftime("%I:%M %p")
+        except Attendance.DoesNotExist:
+            pass
+        return None
+    
+    def get_check_out_time(self, obj):
+        """Get check-out time for this user on this date"""
+        try:
+            attendance = Attendance.objects.get(user=obj.user, date=obj.date)
+            if attendance.check_out:
+                local_tz = pytz.timezone(settings.TIME_ZONE)
+                local_time = attendance.check_out.astimezone(local_tz)
+                return local_time.strftime("%I:%M %p")
+        except Attendance.DoesNotExist:
+            pass
+        return None

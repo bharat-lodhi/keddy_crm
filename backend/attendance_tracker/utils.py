@@ -6,12 +6,27 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
+# def get_company(user):
+#     """Get company (Sub-Admin) for a user"""
+#     if user.role == 'SUB_ADMIN':
+#         return user
+#     elif user.role == 'EMPLOYEE' and user.parent_user:
+#         return user.parent_user
+#     return None
+
 def get_company(user):
     """Get company (Sub-Admin) for a user"""
     if user.role == 'SUB_ADMIN':
         return user
     elif user.role == 'EMPLOYEE' and user.parent_user:
         return user.parent_user
+    elif user.role == 'EMPLOYEE':
+        # Auto-assign to first available SUB_ADMIN
+        subadmin = User.objects.filter(role='SUB_ADMIN', is_active=True).first()
+        if subadmin:
+            user.parent_user = subadmin
+            user.save(update_fields=['parent_user'])
+            return subadmin
     return None
 
 
