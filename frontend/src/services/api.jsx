@@ -1,7 +1,7 @@
 // services/api.js
 
 // ✅ LIVE pe ye use karo
-export const API_BASE = "https://crm.keddyzerobouncevelidetor.com";
+export const API_BASE = "https://crm.keddycrm.in";
 
 // ✅ LOCAL pe ye use karo
 // export const API_BASE = "http://localhost:8000";

@@ -15,8 +15,8 @@ SECRET_KEY = 'django-insecure-cmy-_b!s584f%+-ftjb6qmxk5kvy397o2$b@b%axl+d^83de14
 DEBUG = False
 
 # ALLOWED_HOSTS = [
-#     "keddyzerobouncevelidetor.com",
-#     "www.keddyzerobouncevelidetor.com",
+#     "keddycrm.in",
+#     "www.keddycrm.in",
 #     "84.247.161.47"
 # ]
 
@@ -196,10 +196,10 @@ CORS_ALLOWED_ORIGINS = [
     "https://keddytech.in",
     "https://www.keddytech.in",
     
-    #=========== new domain ==============
-    "https://keddyzerobouncevelidetor.com",
-    "https://www.keddyzerobouncevelidetor.com",
-    "https://crm.keddyzerobouncevelidetor.com",
+    #=========== new Domain ==============
+    "https://keddycrm.in",
+    "https://www.keddycrm.in",
+    "https://crm.keddycrm.in",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -208,9 +208,9 @@ CSRF_TRUSTED_ORIGINS = [
     "https://www.keddytech.in",
     
     #=========== new domain ==============
-    "https://keddyzerobouncevelidetor.com",
-    "https://www.keddyzerobouncevelidetor.com",
-    "https://crm.keddyzerobouncevelidetor.com",
+    "https://keddycrm.in",
+    "https://www.keddycrm.in",
+    "https://crm.keddycrm.in",
 ]
 # ===============================================
 
