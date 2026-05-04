@@ -536,16 +536,16 @@ export default function CreateInvoice() {
                   <>
                     <div style={{ position: 'relative' }}>
                       <label style={styles.label}>Monthly Rate</label>
-                      <input style={styles.input} type="number" value={item.monthly_rate} onChange={e => updateItem(i, "monthly_rate", Number(e.target.value))} />
+                      <input style={styles.input} type="number" step="any" value={item.monthly_rate} onChange={e => updateItem(i, "monthly_rate", Number(e.target.value))} />
                       {item.monthly_rate > 0 && <small style={styles.wordText}>{numberToWordsIndian(item.monthly_rate)}</small>}
                     </div>
                     <div>
                       <label style={styles.label}>Total Days</label>
-                      <input style={styles.input} type="number" value={item.total_days} onChange={e => updateItem(i, "total_days", Number(e.target.value))} />
+                      <input style={styles.input} type="number" step="any" value={item.total_days} onChange={e => updateItem(i, "total_days", Number(e.target.value))} />
                     </div>
                     <div>
                       <label style={styles.label}>Working Days</label>
-                      <input style={styles.input} type="number" value={item.working_days} onChange={e => updateItem(i, "working_days", Number(e.target.value))} />
+                      <input style={styles.input} type="number" step="any" value={item.working_days} onChange={e => updateItem(i, "working_days", Number(e.target.value))} />
                     </div>
                   </>
                 )}
@@ -554,12 +554,12 @@ export default function CreateInvoice() {
                   <>
                     <div style={{ position: 'relative' }}>
                       <label style={styles.label}>Hourly Rate</label>
-                      <input style={styles.input} type="number" value={item.hourly_rate} onChange={e => updateItem(i, "hourly_rate", Number(e.target.value))} />
+                      <input style={styles.input} type="number" step="any" value={item.hourly_rate} onChange={e => updateItem(i, "hourly_rate", Number(e.target.value))} />
                       {item.hourly_rate > 0 && <small style={styles.wordText}>{numberToWordsIndian(item.hourly_rate)}</small>}
                     </div>
                     <div>
                       <label style={styles.label}>Total Hours</label>
-                      <input style={styles.input} type="number" value={item.total_hours} onChange={e => updateItem(i, "total_hours", Number(e.target.value))} />
+                      <input style={styles.input} type="number" step="any" value={item.total_hours} onChange={e => updateItem(i, "total_hours", Number(e.target.value))} />
                     </div>
                   </>
                 )}
@@ -567,14 +567,14 @@ export default function CreateInvoice() {
                 {item.billing_type === "MANUAL" && (
                   <div style={{ position: 'relative' }}>
                     <label style={styles.label}>Amount</label>
-                    <input style={styles.input} type="number" value={item.amount} onChange={e => updateItem(i, "amount", Number(e.target.value))} />
+                    <input style={styles.input} type="number" step="any" value={item.amount} onChange={e => updateItem(i, "amount", Number(e.target.value))} />
                     {item.amount > 0 && <small style={styles.wordText}>{numberToWordsIndian(item.amount)}</small>}
                   </div>
                 )}
               </div>
               
               <div style={styles.summaryRow}>
-                <div><label style={styles.label}>GST %</label><input style={{ ...styles.input, width: '60px' }} type="number" value={item.gst_rate} onChange={e => updateItem(i, "gst_rate", Number(e.target.value))} /></div>
+                <div><label style={styles.label}>GST %</label><input style={{ ...styles.input, width: '60px' }} type="number" step="any" value={item.gst_rate} onChange={e => updateItem(i, "gst_rate", Number(e.target.value))} /></div>
                 <div><small style={styles.label}>Amount</small><div style={styles.readonlyValue}>₹{item.calc_amount}</div></div>
                 <div><small style={styles.label}>GST</small><div style={styles.readonlyValue}>₹{item.gst_amount}</div></div>
                 <div><small style={styles.label}>Total</small><div style={styles.totalValue}>₹{item.total}</div></div>
