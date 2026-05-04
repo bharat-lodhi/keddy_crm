@@ -233,79 +233,6 @@ class InvoicePaymentSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["created_by", "created_at"]
         
-        
-# class InvoiceListSerializer(serializers.ModelSerializer):
-
-#     candidate_id = serializers.SerializerMethodField()
-#     candidate_name = serializers.SerializerMethodField()
-
-#     # NEW → vendor cost
-#     vendor_cost = serializers.SerializerMethodField()
-
-#     # NEW → profit
-#     profit = serializers.SerializerMethodField()
-
-#     class Meta:
-#         model = Invoice
-#         fields = [
-#             "id",
-#             "candidate_id",
-#             "candidate_name",
-#             "invoice_number",
-#             "invoice_type",
-#             "invoice_date",
-#             "billing_month",
-#             "bill_to_name",
-#             "total_amount",
-#             "vendor_cost",
-#             "profit",
-#             "status",
-#             "pdf_file",
-#         ]
-
-#     def get_candidate_id(self, obj):
-#         return obj.candidate.id if obj.candidate else None
-
-#     def get_candidate_name(self, obj):
-#         return obj.candidate.candidate_name if obj.candidate else None
-
-#     # =========================
-#     # VENDOR COST CALCULATION
-#     # =========================
-#     def get_vendor_cost(self, obj):
-
-#         total = 0
-
-#         for item in obj.items.all():
-
-#             if item.billing_type == "BILLABLE_DAYS":
-
-#                 if item.vendor_rate and item.total_days and item.working_days:
-
-#                     total += (
-#                         item.working_days / item.total_days
-#                     ) * float(item.vendor_rate)
-
-#             elif item.billing_type == "HOURLY":
-
-#                 if item.vendor_rate and item.total_hours:
-
-#                     total += float(item.vendor_rate) * float(item.total_hours)
-
-#         return round(total, 2)
-
-#     # =========================
-#     # PROFIT CALCULATION
-#     # =========================
-#     def get_profit(self, obj):
-
-#         vendor_cost = self.get_vendor_cost(obj)
-
-#         if obj.total_amount:
-#             return round(float(obj.total_amount) - vendor_cost, 2)
-
-#         return 0
-    
 class InvoiceListSerializer(serializers.ModelSerializer):
 
     candidate_names = serializers.SerializerMethodField()
@@ -345,28 +272,6 @@ class InvoiceListSerializer(serializers.ModelSerializer):
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-# class InvoiceUpdateSerializer(serializers.ModelSerializer):
-#     items = InvoiceItemSerializer(many=True)
-
-#     class Meta:
-#         model = Invoice
-#         exclude = ("invoice_number", "created_by", "created_at")
-
-#     def update(self, instance, validated_data):
-#         items_data = validated_data.pop("items", [])
-
-#         # Update invoice fields
-#         for attr, value in validated_data.items():
-#             setattr(instance, attr, value)
-#         instance.version += 1
-#         instance.save()
-
-#         # Replace items (simple & clean approach)
-#         instance.items.all().delete()
-#         for item in items_data:
-#             InvoiceItem.objects.create(invoice=instance, **item)
-
-#         return instance
     
 class InvoiceStatusSerializer(serializers.ModelSerializer):
     class Meta:

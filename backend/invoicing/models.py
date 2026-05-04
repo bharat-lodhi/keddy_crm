@@ -246,8 +246,10 @@ class InvoiceItem(models.Model):
         null=True
     )
 
-    # NEW → actual working days
-    working_days = models.PositiveIntegerField(
+    # NEW → actual working days (decimal to support half days like 21.5)
+    working_days = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
         blank=True,
         null=True
     )
