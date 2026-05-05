@@ -270,6 +270,7 @@ export default function CreateInvoice() {
   const [invoiceDate, setInvoiceDate] = useState(today);
   const [billingMonth, setBillingMonth] = useState(currentMonth);
   const [dueDate, setDueDate] = useState("");
+  const [invoiceGstRate, setInvoiceGstRate] = useState(18);
   const [items, setItems] = useState([]);
 
   const notify = (msg, type = "success") => setToast({ show: true, msg, type });
@@ -325,6 +326,13 @@ export default function CreateInvoice() {
 
   useEffect(() => { if (selectedClient) fetchCandidates(); }, [selectedClient, fetchCandidates]);
 
+  // Update all items' GST rate when invoice GST rate changes
+  useEffect(() => {
+    if (items.length > 0) {
+      setItems(items.map(item => ({ ...item, gst_rate: invoiceGstRate })));
+    }
+  }, [invoiceGstRate]);
+
   const handleClientAdded = (newClient) => {
     setClients(prev => [...prev, newClient]);
     setSelectedClient(newClient);
@@ -341,7 +349,7 @@ export default function CreateInvoice() {
     setItems([...items, {
       billing_type: "MANUAL", title: "", description: "", sac_code: "",
       candidate: null, candidateSearch: "", showDropdown: false, monthly_rate: 0, total_days: 0, working_days: 0,
-      hourly_rate: 0, total_hours: 0, amount: 0, gst_rate: 18, calc_amount: 0, gst_amount: 0, total: 0
+      hourly_rate: 0, total_hours: 0, amount: 0, gst_rate: invoiceGstRate, calc_amount: 0, gst_amount: 0, total: 0
     }]);
   };
 
@@ -401,6 +409,7 @@ export default function CreateInvoice() {
       const payload = {
         client: selectedClient.id, company_bank_account: selectedBank, invoice_type: "CANDIDATE",
         invoice_date: invoiceDate, billing_month: billingMonth, due_date: dueDate,
+        gst_rate: invoiceGstRate,
         items: items.map(i => ({
           candidate: i.candidate, title: i.title, description: i.description, sac_code: i.sac_code,
           billing_type: i.billing_type, monthly_rate: i.monthly_rate, total_days: i.total_days,
@@ -486,6 +495,10 @@ export default function CreateInvoice() {
           <div><label style={styles.label}>Invoice Date</label><input type="date" style={styles.input} value={invoiceDate} onChange={e => setInvoiceDate(e.target.value)} /></div>
           <div><label style={styles.label}>Billing Month</label><input type="date" style={styles.input} value={billingMonth} onChange={e => setBillingMonth(e.target.value)} /></div>
           <div><label style={styles.label}>Due Date</label><input type="date" style={styles.input} value={dueDate} onChange={e => setDueDate(e.target.value)} /></div>
+        </div>
+
+        <div style={styles.grid3}>
+          <div><label style={styles.label}>Invoice GST Rate (%)</label><input type="number" step="0.01" style={styles.input} value={invoiceGstRate} onChange={e => setInvoiceGstRate(Number(e.target.value) || 0)} /></div>
         </div>
 
         <div style={{ marginTop: '30px' }}>
@@ -574,7 +587,7 @@ export default function CreateInvoice() {
               </div>
               
               <div style={styles.summaryRow}>
-                <div><label style={styles.label}>GST %</label><input style={{ ...styles.input, width: '60px' }} type="number" step="any" value={item.gst_rate} onChange={e => updateItem(i, "gst_rate", Number(e.target.value))} /></div>
+                <div><label style={styles.label}>GST %</label><input style={{ ...styles.input, width: '60px' }} type="number" step="any" value={item.gst_rate} disabled /></div>
                 <div><small style={styles.label}>Amount</small><div style={styles.readonlyValue}>₹{item.calc_amount}</div></div>
                 <div><small style={styles.label}>GST</small><div style={styles.readonlyValue}>₹{item.gst_amount}</div></div>
                 <div><small style={styles.label}>Total</small><div style={styles.totalValue}>₹{item.total}</div></div>

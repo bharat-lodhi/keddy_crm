@@ -12,6 +12,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import Q
 from rest_framework.exceptions import PermissionDenied
 from django.db.models import Q as models_Q
+from decimal import Decimal
 
 UserModel = get_user_model()
 
@@ -63,13 +64,16 @@ class CreateInvoiceAPIView(APIView):
         # =========================
         # DEFAULT GST APPLY
         # =========================
-        if not invoice.gst_rate or invoice.gst_rate == 0:
+        # If gst_rate is 0 or None, apply company default
+        if not invoice.gst_rate or invoice.gst_rate == Decimal("0") or invoice.gst_rate is None:
             company_settings = CompanyFinanceSettings.objects.filter(
                 created_by=company_root
             ).first()
 
             if company_settings and company_settings.default_gst_rate:
                 invoice.gst_rate = company_settings.default_gst_rate
+            else:
+                invoice.gst_rate = Decimal("0.00")
                 
         # calculate_invoice_totals logic will handle Billable Days vs Hourly
         subtotal, gst_amount, total_amount, gst_rate = calculate_invoice_totals(invoice)

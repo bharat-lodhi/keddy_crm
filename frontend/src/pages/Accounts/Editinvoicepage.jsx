@@ -215,6 +215,7 @@ export default function EditInvoicePage() {
   const [dueDate, setDueDate]           = useState("");
   const [notes, setNotes]               = useState("");
   const [items, setItems]               = useState([]);
+  const [invoiceGstRate, setInvoiceGstRate] = useState(18);
 
   // ── Invoice summary (read-only display from API) ──
   const [invoiceSummary, setInvoiceSummary] = useState(null);
@@ -235,6 +236,13 @@ export default function EditInvoicePage() {
     } catch (e) { console.error(e); }
     finally { setLoadingClients(false); }
   }, []);
+
+  // Update all items' GST rate when invoice GST rate changes
+  useEffect(() => {
+    if (items.length > 0) {
+      setItems(items.map(item => ({ ...item, gst_rate: invoiceGstRate })));
+    }
+  }, [invoiceGstRate]);
 
   // ── Fetch candidates for selected client ──
   const fetchCandidates = useCallback(async (search = "") => {
@@ -298,6 +306,9 @@ export default function EditInvoicePage() {
             invoice_number: invoiceRes.invoice_number,
             status:       invoiceRes.status,
           });
+          
+          // ── GST Rate ──
+          setInvoiceGstRate(invoiceRes.gst_rate || 18);
         }
       } catch (e) {
         notify("Failed to load invoice data.", "error");
@@ -325,8 +336,15 @@ export default function EditInvoicePage() {
     candidate: null, candidateSearch: "", showDropdown: false,
     monthly_rate: 0, total_days: 0, working_days: 0,
     hourly_rate: 0, total_hours: 0, amount: 0,
-    gst_rate: 18, calc_amount: 0, gst_amount: 0, total: 0,
+    gst_rate: invoiceGstRate, calc_amount: 0, gst_amount: 0, total: 0,
   }]);
+
+  // Update all items' GST rate when invoice GST rate changes
+  useEffect(() => {
+    if (items.length > 0) {
+      setItems(items.map(item => ({ ...item, gst_rate: invoiceGstRate })));
+    }
+  }, [invoiceGstRate]);
 
   const removeItem = (i) => setItems(prev => prev.filter((_, idx) => idx !== i));
 
@@ -383,6 +401,7 @@ export default function EditInvoicePage() {
         billing_month:         billingMonth,
         due_date:              dueDate,
         notes,
+        gst_rate:              invoiceGstRate,
         // Sync bill_to_* from selected client
         bill_to_name:          selectedClient.client_name,
         bill_to_company:       selectedClient.company_name,
@@ -406,8 +425,7 @@ export default function EditInvoicePage() {
           hourly_rate:  item.hourly_rate,
           total_hours:  item.total_hours,
           // MANUAL field
-          amount:       item.billing_type === "MANUAL" ? item.amount : item.calc_amount,
-          gst_rate:     item.gst_rate,
+          amount:       item.billing_type === "MANUAL" ? item.amount : item.calc_amount
         })),
       };
 
@@ -559,6 +577,12 @@ export default function EditInvoicePage() {
             value={notes} onChange={e => setNotes(e.target.value)} />
         </div>
 
+        {/* ── GST Rate ── */}
+        <div style={styles.grid3}>
+          <div><label style={styles.label}>Invoice GST Rate (%)</label>
+            <input type="number" step="0.01" style={styles.input} value={invoiceGstRate} onChange={e => setInvoiceGstRate(Number(e.target.value) || 0)} /></div>
+        </div>
+
         {/* ── Invoice Items ── */}
         <div style={{ marginTop: "30px" }}>
           <h3 style={{ fontSize: "18px", color: "#1E293B", marginBottom: "15px" }}>Invoice Items</h3>
@@ -658,7 +682,7 @@ export default function EditInvoicePage() {
                 <div>
                   <label style={styles.label}>GST %</label>
                   <input style={{ ...styles.input, width: "60px" }} type="number"
-                    value={item.gst_rate} onChange={e => updateItem(i, "gst_rate", Number(e.target.value))} />
+                    value={item.gst_rate} disabled />
                 </div>
                 <div><small style={styles.label}>Amount</small>
                   <div style={styles.readonlyValue}>₹{item.calc_amount.toLocaleString("en-IN")}</div></div>
