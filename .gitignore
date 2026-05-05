@@ -5,3 +5,4 @@ frontend/build/
 .env
 *.sqlite3
 *.pyc
+backend/media/invoices/generated/
