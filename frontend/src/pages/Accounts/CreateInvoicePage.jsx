@@ -515,6 +515,7 @@ export default function CreateInvoice() {
                     <option value="BILLABLE_DAYS">Billable Days</option><option value="HOURLY">Hourly</option><option value="MANUAL">Manual</option>
                   </select>
                 </div>
+                
                 {item.billing_type !== "MANUAL" && (
                   <div style={{ ...styles.inputGroup, position: 'relative' }}><label style={styles.label}>Candidate</label>
                     <input style={styles.inputSearch} placeholder="Search Candidate..." value={item.candidateSearch} disabled={!selectedClient} onChange={e => { updateItem(i, "candidateSearch", e.target.value); updateItem(i, "showDropdown", true); fetchCandidates(e.target.value); }} onFocus={() => updateItem(i, "showDropdown", true)} />

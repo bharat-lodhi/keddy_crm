@@ -237,6 +237,7 @@ export default function EditInvoicePage() {
     finally { setLoadingClients(false); }
   }, []);
 
+  
   // Update all items' GST rate when invoice GST rate changes
   useEffect(() => {
     if (items.length > 0) {
