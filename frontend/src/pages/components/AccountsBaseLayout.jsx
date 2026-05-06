@@ -8,18 +8,18 @@ const AccountsBaseLayout = ({ children }) => {
     const [userName, setUserName] = useState("Accountant");
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-    useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                // Same API endpoint as Recruiter for profile info
-                const data = await apiRequest("/employee-portal/dashboard/stats/");
-                if (data && data.user_name) setUserName(data.user_name);
-            } catch (error) {
-                console.error("Error fetching user data:", error);
-            }
-        };
-        fetchUserData();
-    }, []);
+    // useEffect(() => {
+    //     const fetchUserData = async () => {
+    //         try {
+    //             // Same API endpoint as Recruiter for profile info
+    //             const data = await apiRequest("/employee-portal/dashboard/stats/");
+    //             if (data && data.user_name) setUserName(data.user_name);
+    //         } catch (error) {
+    //             console.error("Error fetching user data:", error);
+    //         }
+    //     };
+    //     fetchUserData();
+    // }, []);
 
     const handleLogout = () => {
         localStorage.removeItem("accessToken");
