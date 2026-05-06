@@ -5,6 +5,8 @@ from .views_payments import InvoicePaymentListCreateAPIView
 from .views_reports import FinanceDashboardAPIView
 from .views_clients import InvoiceClientListCreateAPIView,InvoiceClientRetrieveUpdateAPIView
 from .views_candidates import ClientCandidateListAPIView
+from .views_dashboard import FinanceDashboardAPIView
+from .views_invoice_actions import InvoiceStatusUpdateAPIView, InvoiceSoftDeleteAPIView, InvoiceHardDeleteAPIView
 
 app_name = 'invoice'
 
@@ -33,5 +35,18 @@ urlpatterns = [
     path("api/clients/", InvoiceClientListCreateAPIView.as_view(), name="invoice-clients"),  # list , create
     path("api/clients/<int:id>/", InvoiceClientRetrieveUpdateAPIView.as_view()),  #update- client detail details
     path("api/clients/<int:client_id>/candidates/", ClientCandidateListAPIView.as_view()),  #UN
+    
+    # Dashboard API 
+    path("api/dashboard/all/", FinanceDashboardAPIView.as_view(), name="finance-dashboard-all"),
+     # ========== INVOICE ACTIONS APIs ==========
+    # Status Update
+    path("api/invoices/<int:id>/status/", InvoiceStatusUpdateAPIView.as_view(), name="invoice-status-update"),
+    
+    # Soft Delete (mark as deleted)
+    path("api/invoices/<int:id>/soft-delete/", InvoiceSoftDeleteAPIView.as_view(), name="invoice-soft-delete"),
+    
+    # Hard Delete (permanent)
+    path("api/invoices/<int:id>/hard-delete/", InvoiceHardDeleteAPIView.as_view(), name="invoice-hard-delete"),
+        
     
 ]

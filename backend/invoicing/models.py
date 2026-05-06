@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from employee_portal.models import Candidate, Client, Vendor
 User = settings.AUTH_USER_MODEL
+from django.utils import timezone
 
 
 class CompanyFinanceSettings(models.Model):
@@ -196,6 +197,64 @@ class Invoice(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    
+    # ========= NEW FIELDS FOR DASHBOARD =========
+    payment_status = models.CharField(
+        max_length=20,
+        choices=[
+            ("PAID", "Paid"),
+            ("PENDING", "Pending"),
+            ("OVERDUE", "Overdue"),
+        ],
+        default="PENDING",
+        blank=True,
+        null=True
+    )
+    
+    tds = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=0,
+        help_text="TDS percentage (0-15%)"
+    )
+    
+    vendor_cost = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+        help_text="Cost paid to vendor for this invoice"
+    )
+    
+    margin = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+        blank=True
+    )
+    
+    tds_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+        blank=True
+    )
+    
+    def save(self, *args, **kwargs):
+        # Calculate TDS Amount
+        self.tds_amount = (self.total_amount * self.tds) / 100 if self.tds else 0
+        
+        # Calculate Margin = Total Amount - Vendor Cost - TDS Amount
+        self.margin = self.total_amount - (self.vendor_cost or 0) - (self.tds_amount or 0)
+        
+        # Update payment_status based on due_date (if overdue and not paid)
+        if self.due_date and self.due_date < timezone.now().date():
+            if self.payment_status != "PAID":
+                self.payment_status = "OVERDUE"
+        
+        super().save(*args, **kwargs)
+        
+    # -------------------------------------
 
     def __str__(self):
         return self.invoice_number
