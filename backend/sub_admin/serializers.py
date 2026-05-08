@@ -120,6 +120,130 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
 #============================================
 
+# serializers.py - Complete UserUpdateSerializer
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    confirm_password = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "first_name",
+            "last_name",
+            "email",
+            "number",
+            "role",
+            "profile_picture",
+            "password",
+            "confirm_password",
+        ]
+        read_only_fields = ["id", "role"]
+    
+    def validate(self, data):
+        # Password validation
+        password = data.get("password")
+        confirm_password = data.get("confirm_password")
+        
+        if password or confirm_password:
+            if not password:
+                raise serializers.ValidationError({"password": "Password is required to update password"})
+            if not confirm_password:
+                raise serializers.ValidationError({"confirm_password": "Please confirm your password"})
+            if password != confirm_password:
+                raise serializers.ValidationError({"confirm_password": "Passwords do not match"})
+            if len(password) < 8:
+                raise serializers.ValidationError({"password": "Password must be at least 8 characters long"})
+        
+        return data
+    
+    def update(self, instance, validated_data):
+        # Remove confirm_password from validated_data
+        validated_data.pop("confirm_password", None)
+        
+        # Handle password update
+        password = validated_data.pop("password", None)
+        if password:
+            instance.set_password(password)
+        
+        # Update other fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        
+        instance.save()
+        return instance
+    
+
+
+# serializers.py - Complete updated serializer
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    confirm_password = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "first_name",
+            "last_name",
+            "email",
+            "number",
+            "role",
+            "profile_picture",
+            "password",
+            "confirm_password",
+        ]
+        read_only_fields = ["id"]
+    
+    def validate(self, data):
+        password = data.get("password")
+        confirm_password = data.get("confirm_password")
+        
+        if password or confirm_password:
+            if not password:
+                raise serializers.ValidationError({"password": "Password is required to update password"})
+            if not confirm_password:
+                raise serializers.ValidationError({"confirm_password": "Please confirm your password"})
+            if password != confirm_password:
+                raise serializers.ValidationError({"confirm_password": "Passwords do not match"})
+            if len(password) < 8:
+                raise serializers.ValidationError({"password": "Password must be at least 8 characters long"})
+        
+        # Validate role
+        role = data.get("role")
+        if role and role not in ["EMPLOYEE", "ACCOUNTANT"]:
+            raise serializers.ValidationError({"role": "Role must be EMPLOYEE or ACCOUNTANT"})
+        
+        return data
+    
+    def validate_email(self, value):
+        """Ensure email is unique except for current user"""
+        if self.instance and self.instance.email == value:
+            return value
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("User with this email already exists")
+        return value
+    
+    def update(self, instance, validated_data):
+        # Remove confirm_password
+        validated_data.pop("confirm_password", None)
+        
+        # Handle password
+        password = validated_data.pop("password", None)
+        if password:
+            instance.set_password(password)
+        
+        # Update all other fields including role
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        
+        instance.save()
+        return instance
+    
+
+
 from rest_framework import serializers
 from employee_portal.models import Client
 

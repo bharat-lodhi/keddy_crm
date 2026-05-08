@@ -145,7 +145,7 @@ function EditVendor() {
                     <div style={styles.inputGroup}>
                         <label style={styles.label}>POC 1 Number</label>
                         <input style={styles.input} name="poc1_number" value={form.poc1_number} onChange={handleChange} />
-                    </div>
+                    </div><br />
                     <div style={styles.inputGroup}>
                         <label style={styles.label}>POC 2 Name</label>
                         <input style={styles.input} name="poc2_name" value={form.poc2_name} onChange={handleChange} />

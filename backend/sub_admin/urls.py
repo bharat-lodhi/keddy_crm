@@ -23,8 +23,8 @@ urlpatterns = [
     path("api/users/<int:user_id>/hard-delete/", views.SubAdminUserHardDeleteAPIView.as_view(), name="subadmin-user-hard-delete"),   #U
     path("api/users/<int:user_id>/restore/", views.SubAdminUserRestoreAPIView.as_view(), name="subadmin-user-restore"),  #U
     # UPDATE (employee only)
-    path("api/users/<int:pk>/", views.SubAdminUserUpdateAPIView.as_view(), name="subadmin-user-update"),  #U
-    
+    # path("api/users/<int:pk>/", views.SubAdminUserUpdateAPIView.as_view(), name="subadmin-user-update"),  #U
+    path('api/users/<int:pk>/', views.SubAdminUserUpdateAPIView.as_view(), name='subadmin-user-update'),
     #=================All-profiles=============================
     path("api/admin-candidates/",views.AdminCandidateListAPIView.as_view(),name="admin-candidate-list",),
     # All Vendors

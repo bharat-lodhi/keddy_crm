@@ -207,10 +207,42 @@ User = settings.AUTH_USER_MODEL
 
 class Candidate(models.Model):
     class RateType(models.TextChoices):
-        LPM = "LPM", "LPM"
-        KPM = "KPM", "KPM"
-        PHR = "PHR", "PHR"
-        LPA = "LPA", "LPA"
+        # --- Local/Standard Rates ---
+        LPA = "LPA", "LPA (Lakh Per Annum)"
+        LPM = "LPM", "LPM (Lakh Per Month)"
+        KPM = "KPM", "KPM (Thousand Per Month)"
+        PHR = "PHR", "PHR (Per Hour - INR)"
+        
+        # --- International Rates (Fixed & Per Hour) ---
+        USD = "USD", "USD (US Dollar)"
+        USD_PH = "USD_PH", "USD/hr (US Dollar Per Hour)"
+        
+        EUR = "EUR", "EUR (Euro)"
+        EUR_PH = "EUR_PH", "EUR/hr (Euro Per Hour)"
+        
+        GBP = "GBP", "GBP (Great Britain Pound)"
+        GBP_PH = "GBP_PH", "GBP/hr (Pound Per Hour)"
+
+        AED = "AED", "AED (UAE Dirham)"
+        SGD = "SGD", "SGD (Singapore Dollar)"
+        SAR = "SAR", "SAR (Saudi Riyal)"
+        CNY = "CNY", "CNY (Chinese Yuan)"
+        JPY = "JPY", "JPY (Japanese Yen)"
+        AUD = "AUD", "AUD (Australian Dollar)"
+        CAD = "CAD", "CAD (Canadian Dollar)"
+        CHF = "CHF", "CHF (Swiss Franc)"
+        HKD = "HKD", "HKD (Hong Kong Dollar)"
+        THB = "THB", "THB (Thai Baht)"
+        MYR = "MYR", "MYR (Malaysian Ringgit)"
+        KRW = "KRW", "KRW (South Korean Won)"
+        NZD = "NZD", "NZD (New Zealand Dollar)"
+        NOK = "NOK", "NOK (Norwegian Krone)"
+        SEK = "SEK", "SEK (Swedish Krona)"
+        DKK = "DKK", "DKK (Danish Krone)"
+        ZAR = "ZAR", "ZAR (South African Rand)"
+        RUB = "RUB", "RUB (Russian Ruble)"
+        KWD = "KWD", "KWD (Kuwaiti Dinar)"
+        QAR = "QAR", "QAR (Qatari Riyal)"
 
     # ================= RESUME =================
     resume = models.FileField(upload_to="candidates/resumes/", blank=True, null=True)

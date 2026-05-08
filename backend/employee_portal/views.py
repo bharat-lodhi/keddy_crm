@@ -91,7 +91,72 @@ class VendorUpdateAPIView(APIView):
             {"message": "Vendor updated successfully"},
             status=status.HTTP_200_OK
         )
+
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+class IsSubAdmin:
+    """
+    Custom permission class for SUB_ADMIN role only
+    """
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and getattr(request.user, 'role', None) == 'SUB_ADMIN'
+
+
+class VendorToggleVerifyAPIView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, IsSubAdmin]
+
+    def post(self, request, vendor_id):
+        """
+        Toggle vendor is_verified status (SUB_ADMIN only)
+        """
+        user = request.user
+
+        # Validate vendor_id
+        try:
+            vendor_id = int(vendor_id)
+        except (ValueError, TypeError):
+            return Response(
+                {
+                    "success": False,
+                    "error": "INVALID_VENDOR_ID",
+                    "message": "Vendor ID must be a valid integer"
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Get vendor (only not deleted)
+        vendor = get_object_or_404(Vendor, id=vendor_id, is_deleted=False)
+
+        # Toggle verification status
+        old_status = vendor.is_verified
+        vendor.is_verified = not vendor.is_verified
+        vendor.save()
+
+        # Log action
+        logger.info(
+            f"SUB_ADMIN {user.email} (ID: {user.id}) | "
+            f"Vendor {vendor.company_name} (ID: {vendor.id}) | "
+            f"Status changed: {old_status} -> {vendor.is_verified}"
+        )
+
+        return Response(
+            {
+                "success": True,
+                "message": f"Vendor { 'verified' if vendor.is_verified else 'unverified' } successfully",
+                "data": {
+                    "vendor_id": vendor.id,
+                    "vendor_name": vendor.company_name,
+                    "is_verified": vendor.is_verified
+                }
+            },
+            status=status.HTTP_200_OK
+        )
         
+    
 class VendorCompanyPoolAPIView(ListAPIView):
     # authentication_classes = (CsrfExemptSessionAuthentication,)
     authentication_classes = (JWTAuthentication,)
@@ -292,6 +357,72 @@ class ClientUpdateAPIView(APIView):
         serializer.save()
 
         return Response({"message": "Client updated successfully."})
+
+
+
+
+class ClientToggleVerifyAPIView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, client_id):
+        """
+        Toggle client is_verified status (SUB_ADMIN only)
+        """
+        user = request.user
+
+        # Check SUB_ADMIN role
+        if user.role != "SUB_ADMIN":
+            return Response(
+                {
+                    "success": False,
+                    "error": "PERMISSION_DENIED",
+                    "message": "Only SUB_ADMIN can verify or unverify clients"
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Validate client_id
+        try:
+            client_id = int(client_id)
+        except (ValueError, TypeError):
+            return Response(
+                {
+                    "success": False,
+                    "error": "INVALID_CLIENT_ID",
+                    "message": "Client ID must be a valid integer"
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Get client (only not deleted)
+        client = get_object_or_404(Client, id=client_id, is_deleted=False)
+
+        # Toggle verification status
+        old_status = client.is_verified
+        client.is_verified = not client.is_verified
+        client.save()
+
+        # Log action
+        logger.info(
+            f"SUB_ADMIN {user.email} (ID: {user.id}) | "
+            f"Client {client.company_name} (ID: {client.id}) | "
+            f"Status changed: {old_status} -> {client.is_verified}"
+        )
+
+        return Response(
+            {
+                "success": True,
+                "message": f"Client {'verified' if client.is_verified else 'unverified'} successfully",
+                "data": {
+                    "client_id": client.id,
+                    "client_name": client.client_name,
+                    "company_name": client.company_name,
+                    "is_verified": client.is_verified
+                }
+            },
+            status=status.HTTP_200_OK
+        )
     
     
 from rest_framework import generics

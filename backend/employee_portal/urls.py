@@ -6,6 +6,9 @@ urlpatterns = [
     #=================================Venders===============================
     path("api/vendors/create/",views.VendorCreateAPIView.as_view(),name="vendor-create"),  #U
     path("api/vendors/<int:vendor_id>/update/",views.VendorUpdateAPIView.as_view(),name="vendor-update"), #U
+
+    path('api/vendors/<int:vendor_id>/toggle-verify/', views.VendorToggleVerifyAPIView.as_view(), name='vendor-toggle-verify'),
+    
     path("api/comapany/vendors/pool/",views.VendorCompanyPoolAPIView.as_view(),name="vendor-list-pool"),  #U
     path("api/vendors/<int:vendor_id>/",views.VendorDetailAPIView.as_view(),name="vendor-detail"),  #U
     path("api/vendors/<int:vendor_id>/delete/",views.VendorSoftDeleteAPIView.as_view(),name="vendor-delete"), #U
@@ -13,6 +16,7 @@ urlpatterns = [
     #===============================Client========================================
     path('clients/create/', views.ClientCreateAPIView.as_view(), name='client-create'),  #U
     path("api/clients/<int:client_id>/update/",views.ClientUpdateAPIView.as_view(),name="client-update"),  # U N
+    path('api/clients/<int:client_id>/toggle-verify/', views.ClientToggleVerifyAPIView.as_view(), name='client-toggle-verify'),
     path('clients/list/', views.ClientListAPIView.as_view(), name='client-list'),   #U
     path("api/clients/<int:client_id>/",views.ClientDetailAPIView.as_view(),name="client-detail"),  #U N
     path("api/clients/<int:client_id>/delete/",views.ClientSoftDeleteAPIView.as_view(),name="client-soft-delete"), #U N

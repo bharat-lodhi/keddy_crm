@@ -518,6 +518,7 @@ class SubAdminUserListCreateAPIView(generics.ListCreateAPIView):
             status=400
         )
 
+
 # class SubAdminUserUpdateAPIView(generics.RetrieveUpdateAPIView):
 #     authentication_classes = (JWTAuthentication,)
 #     permission_classes = [IsAuthenticated, IsSubAdmin]
@@ -526,7 +527,7 @@ class SubAdminUserListCreateAPIView(generics.ListCreateAPIView):
 #     def get_queryset(self):
 #         user = self.request.user
 #         return User.objects.filter(
-#             role="EMPLOYEE",
+#             role__in=["EMPLOYEE", "ACCOUNTANT"],
 #             parent_user=user
 #         )
 
@@ -536,8 +537,15 @@ class SubAdminUserListCreateAPIView(generics.ListCreateAPIView):
 #         return context
 
 #     def update(self, request, *args, **kwargs):
-#         partial = True  # ✅ allow partial updates
+#         partial = True
 #         instance = self.get_object()
+
+#         role = request.data.get("role")
+#         if role and role not in ["EMPLOYEE", "ACCOUNTANT"]:
+#             return Response(
+#                 {"message": "Only EMPLOYEE or ACCOUNTANT role allowed."},
+#                 status=400
+#             )
 
 #         serializer = self.get_serializer(
 #             instance,
@@ -549,68 +557,144 @@ class SubAdminUserListCreateAPIView(generics.ListCreateAPIView):
 #         serializer.is_valid(raise_exception=True)
 #         self.perform_update(serializer)
 
+#         updated_user = serializer.instance
+
+#         if updated_user.role == "EMPLOYEE":
+#             message = "Recruiter updated successfully."
+#         elif updated_user.role == "ACCOUNTANT":
+#             message = "Accountant updated successfully."
+#         else:
+#             message = "User updated successfully."
+
 #         return Response(
 #             {
-#                 "message": "Employee updated successfully",
+#                 "success": True,
+#                 "message": message,
 #                 "data": serializer.data
 #             }
 #         )
 
-class SubAdminUserUpdateAPIView(generics.RetrieveUpdateAPIView):
-    authentication_classes = (JWTAuthentication,)
-    permission_classes = [IsAuthenticated, IsSubAdmin]
-    serializer_class = UserCreateSerializer
+from .serializers import UserUpdateSerializer
 
+from django.contrib.auth import get_user_model
+import logging
+
+logger = logging.getLogger(__name__)
+
+User = get_user_model()
+
+
+# views.py - Updated view with proper update handling
+
+class SubAdminUserUpdateAPIView(generics.RetrieveUpdateAPIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, IsSubAdmin]
+    serializer_class = UserUpdateSerializer
+    
     def get_queryset(self):
         user = self.request.user
         return User.objects.filter(
             role__in=["EMPLOYEE", "ACCOUNTANT"],
             parent_user=user
         )
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context["request"] = self.request
-        return context
-
-    def update(self, request, *args, **kwargs):
-        partial = True
-        instance = self.get_object()
-
-        role = request.data.get("role")
-        if role and role not in ["EMPLOYEE", "ACCOUNTANT"]:
+    
+    def get_object(self):
+        user_id = self.kwargs.get('pk')
+        queryset = self.get_queryset()
+        obj = get_object_or_404(queryset, id=user_id)
+        return obj
+    
+    def retrieve(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            serializer = self.get_serializer(instance)
+            
+            role_name = "Recruiter" if instance.role == "EMPLOYEE" else "Accountant"
+            
             return Response(
-                {"message": "Only EMPLOYEE or ACCOUNTANT role allowed."},
-                status=400
+                {
+                    "success": True,
+                    "message": f"{role_name} data retrieved successfully",
+                    "data": serializer.data
+                },
+                status=status.HTTP_200_OK
             )
-
-        serializer = self.get_serializer(
-            instance,
-            data=request.data,
-            partial=partial,
-            context={"request": request}
-        )
-
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-
-        updated_user = serializer.instance
-
-        if updated_user.role == "EMPLOYEE":
-            message = "Recruiter updated successfully."
-        elif updated_user.role == "ACCOUNTANT":
-            message = "Accountant updated successfully."
-        else:
-            message = "User updated successfully."
-
-        return Response(
-            {
-                "success": True,
-                "message": message,
-                "data": serializer.data
+        except Exception as e:
+            return Response(
+                {
+                    "success": False,
+                    "error": "NOT_FOUND",
+                    "message": str(e)
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+    
+    def update(self, request, *args, **kwargs):
+        try:
+            partial = kwargs.pop('partial', True)
+            instance = self.get_object()
+            
+            # Get current data for logging
+            old_role = instance.role
+            
+            serializer = self.get_serializer(
+                instance,
+                data=request.data,
+                partial=partial
+            )
+            
+            if not serializer.is_valid():
+                return Response(
+                    {
+                        "success": False,
+                        "error": "VALIDATION_ERROR",
+                        "message": "Invalid data provided",
+                        "errors": serializer.errors
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Save the updated user
+            updated_user = serializer.save()
+            
+            # Log role change if happened
+            if old_role != updated_user.role:
+                logger.info(
+                    f"SUB_ADMIN {request.user.email} changed role of "
+                    f"{updated_user.email} from {old_role} to {updated_user.role}"
+                )
+            
+            # Prepare response (exclude password fields)
+            response_data = {
+                "id": updated_user.id,
+                "first_name": updated_user.first_name,
+                "last_name": updated_user.last_name,
+                "email": updated_user.email,
+                "number": updated_user.number,
+                "role": updated_user.role,
+                "profile_picture": updated_user.profile_picture.url if updated_user.profile_picture else None,
             }
-        )
-
+            
+            role_name = "Recruiter" if updated_user.role == "EMPLOYEE" else "Accountant"
+            
+            return Response(
+                {
+                    "success": True,
+                    "message": f"{role_name} updated successfully",
+                    "data": response_data
+                },
+                status=status.HTTP_200_OK
+            )
+        except Exception as e:
+            logger.error(f"Update error: {str(e)}")
+            return Response(
+                {
+                    "success": False,
+                    "error": "UPDATE_FAILED",
+                    "message": str(e)
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
       
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated

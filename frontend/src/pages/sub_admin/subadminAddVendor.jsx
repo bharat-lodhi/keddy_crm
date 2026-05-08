@@ -121,7 +121,7 @@ function AddVendor() {
                     </div>
                     <div style={styles.inputGroup}>
                         <label style={styles.label}>Phone Number *</label>
-                        <input style={styles.input} name="number" value={form.number} onChange={handleChange} required placeholder="9876543210" />
+                        <input style={styles.input} name="number" value={form.number} onChange={handleChange} required placeholder="9876543220" />
                     </div>
                     <div style={styles.inputGroup}>
                         <label style={styles.label}>Company Name *</label>
@@ -130,10 +130,10 @@ function AddVendor() {
 
                     {/* SECTION 2: EMAILS & WEB */}
                     <div style={styles.sectionHeader}>Contact & Online Presence</div>
-                    <div style={styles.inputGroup}>
+                    {/* <div style={styles.inputGroup}>
                         <label style={styles.label}>Personal/Contact Email</label>
                         <input style={styles.input} type="email" name="email" value={form.email} onChange={handleChange} />
-                    </div>
+                    </div> */}
                     <div style={styles.inputGroup}>
                         <label style={styles.label}>Vendor Official Email</label>
                         <input style={styles.input} type="email" name="vendor_official_email" value={form.vendor_official_email} onChange={handleChange} />
@@ -164,7 +164,7 @@ function AddVendor() {
                     <div style={styles.inputGroup}>
                         <label style={styles.label}>POC 1 Number</label>
                         <input style={styles.input} name="poc1_number" value={form.poc1_number} onChange={handleChange} />
-                    </div>
+                    </div> <br />
                     <div style={styles.inputGroup}>
                         <label style={styles.label}>POC 2 Name</label>
                         <input style={styles.input} name="poc2_name" value={form.poc2_name} onChange={handleChange} />

@@ -153,7 +153,7 @@ function UpdateCandidate() {
                         </div>
 
                         <div style={styles.inputGroup}>
-                            <label style={styles.label}>Vendor Rate Type</label>
+                            {/* <label style={styles.label}>Vendor Rate Type</label>
                             <select
                                 name="vendor_rate_type"
                                 style={styles.input}
@@ -165,7 +165,58 @@ function UpdateCandidate() {
                                 <option value="KPM">KPM</option>
                                 <option value="PHR">PHR</option>
                                 <option value="LPA">LPA</option>
-                            </select>
+                            </select> */}
+                            
+                            <label style={styles.label}> Vendor Rate Type</label>
+<select 
+    name="vendor_rate_type" 
+    value={form.vendor_rate_type} 
+    onChange={handleChange} 
+    style={{
+        ...styles.input, 
+        width: '100%',       // Poori jagah lega container ki
+        maxWidth: '250px',   // Isse zyada bada nahi hoga
+        padding: '5px',      // Thoda compact dikhega
+        fontSize: '14px'     // Font size chhota karne ke liye
+    }} 
+    required
+>
+    <option value="">Select Type</option>
+    
+    {/* --- Domestic / Local --- */}
+    <option value="LPA">LPA (Lakh/Year)</option>
+    <option value="LPM">LPM (Lakh/Month)</option>
+    <option value="KPM">KPM (Thousand/Month)</option>
+    <option value="PHR">PHR (Per Hour - ₹)</option>
+
+    {/* --- Global Major --- */}
+    <option value="USD">USD ($)</option>
+    <option value="USD_PH">USD/hr ($)</option>
+    
+    <option value="EUR">EUR (€)</option>
+    <option value="EUR_PH">EUR/hr (€)</option>
+    
+    <option value="GBP">GBP (£)</option>
+    <option value="GBP_PH">GBP/hr (£)</option>
+
+    {/* --- Others (Inhe thoda short kar diya hai) --- */}
+    <option value="AED">AED (UAE)</option>
+    <option value="SGD">SGD (Singapore)</option>
+    <option value="SAR">SAR (Saudi)</option>
+    <option value="CNY">CNY (China)</option>
+    <option value="JPY">JPY (Japan)</option>
+    <option value="AUD">AUD (Australia)</option>
+    <option value="CAD">CAD (Canada)</option>
+    <option value="CHF">CHF (Swiss)</option>
+    <option value="HKD">HKD (Hong Kong)</option>
+    <option value="THB">THB (Thailand)</option>
+    <option value="MYR">MYR (Malaysia)</option>
+    <option value="KRW">KRW (S. Korea)</option>
+    <option value="NZD">NZD (NZ)</option>
+    <option value="ZAR">ZAR (S. Africa)</option>
+    <option value="KWD">KWD (Kuwait)</option>
+    <option value="QAR">QAR (Qatar)</option>
+</select>
                         </div>
 
                         {/* <div style={styles.inputGroup}>
@@ -212,12 +263,55 @@ function UpdateCandidate() {
                                 style={styles.input}
                                 value={form.client_rate_type || ""}
                                 onChange={handleChange}
+                                style={{
+                                    ...styles.input, 
+                                    width: '100%',       // Poori jagah lega container ki
+                                    maxWidth: '250px',   // Isse zyada bada nahi hoga
+                                    padding: '5px',      // Thoda compact dikhega
+                                    fontSize: '14px'     // Font size chhota karne ke liye
+                                }} 
+                                required
                             >
-                                <option value="">Select Type</option>
+                                {/* <option value="">Select Type</option>
                                 <option value="LPM">LPM</option>
                                 <option value="KPM">KPM</option>
                                 <option value="PHR">PHR</option>
-                                <option value="LPA">LPA</option>
+                                <option value="LPA">LPA</option> */}
+                                <option value="">Select Type</option>
+    
+    {/* --- Domestic / Local --- */}
+    <option value="LPA">LPA (Lakh/Year)</option>
+    <option value="LPM">LPM (Lakh/Month)</option>
+    <option value="KPM">KPM (Thousand/Month)</option>
+    <option value="PHR">PHR (Per Hour - ₹)</option>
+
+    {/* --- Global Major --- */}
+    <option value="USD">USD ($)</option>
+    <option value="USD_PH">USD/hr ($)</option>
+    
+    <option value="EUR">EUR (€)</option>
+    <option value="EUR_PH">EUR/hr (€)</option>
+    
+    <option value="GBP">GBP (£)</option>
+    <option value="GBP_PH">GBP/hr (£)</option>
+
+    {/* --- Others (Inhe thoda short kar diya hai) --- */}
+    <option value="AED">AED (UAE)</option>
+    <option value="SGD">SGD (Singapore)</option>
+    <option value="SAR">SAR (Saudi)</option>
+    <option value="CNY">CNY (China)</option>
+    <option value="JPY">JPY (Japan)</option>
+    <option value="AUD">AUD (Australia)</option>
+    <option value="CAD">CAD (Canada)</option>
+    <option value="CHF">CHF (Swiss)</option>
+    <option value="HKD">HKD (Hong Kong)</option>
+    <option value="THB">THB (Thailand)</option>
+    <option value="MYR">MYR (Malaysia)</option>
+    <option value="KRW">KRW (S. Korea)</option>
+    <option value="NZD">NZD (NZ)</option>
+    <option value="ZAR">ZAR (S. Africa)</option>
+    <option value="KWD">KWD (Kuwait)</option>
+    <option value="QAR">QAR (Qatar)</option>
                             </select>
                         </div>
 

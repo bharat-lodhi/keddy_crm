@@ -131,6 +131,7 @@ class VendorDetailSerializer(serializers.ModelSerializer):
             "specialized_tech_developers",
 
             "bench_list",
+            "is_verified",
             "uploaded_by",
             "created_by",
             "created_at",

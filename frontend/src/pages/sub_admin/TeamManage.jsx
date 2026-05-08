@@ -135,8 +135,8 @@ function UserManagement() {
                                             </span>
                                         </td>
                                         <td style={styles.actionTd}>
-                                            <button onClick={() => navigate(`/sub-admin/users/view/${user.id}`)} style={styles.viewBtn}>View</button>
-                                            <button onClick={() => navigate(`/sub-admin/users/edit/${user.id}`)} style={styles.editBtn}>Edit</button>
+                                            <button onClick={() => navigate(`/sub-admin/user/detail/${user.id}`)} style={styles.viewBtn}>View</button>
+                                            <button onClick={() => navigate(`/sub-admin/user/update/${user.id}`)} style={styles.editBtn}>Edit</button>
                                             <button onClick={() => setShowDeleteModal({show: true, userId: user.id})} style={styles.deleteBtn}>Delete</button>
                                         </td>
                                     </tr>

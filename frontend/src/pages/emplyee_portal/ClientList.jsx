@@ -144,7 +144,7 @@ function ClientList() {
                                         <td style={styles.actionTd}>
                                             <div style={styles.actionGroup}>
                                                 <button style={styles.viewBtn} onClick={() => navigate(`/employee/client/view/${client.id}`)}>View</button>
-                                                <button style={styles.editBtn} onClick={() => navigate(`/employee/client/edit/${client.id}`)}>Edit</button>
+                                                <button style={styles.editBtn} onClick={() => navigate(`/employee/client/update/${client.id}`)}>Edit</button>
                                                 <button style={styles.deleteBtn} onClick={() => handleDelete(client.id, client.client_name)}>Del</button>
                                             </div>
                                         </td>
