@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { apiRequest } from "../../services/api";
+import { apiRequest,API_BASE } from "../../services/api";
 import BaseLayout from "../components/SubAdminLayout";
 
 // ─── SVG Icons ────────────────────────────────────────────────────────────────
@@ -259,8 +259,11 @@ function UserDetail() {
             <div className="ud-card" style={styles.profileCard}>
                 <div style={styles.profileLeft}>
                     <div style={styles.avatarRing}>
+                        {/* {user.profile_picture ? (
+                            <img src={user.profile_picture} alt="avatar" style={styles.avatar} /> */}
                         {user.profile_picture ? (
-                            <img src={user.profile_picture} alt="avatar" style={styles.avatar} />
+                            <img src={`${API_BASE}${user.profile_picture}`} alt="avatar" style={styles.avatar} />
+
                         ) : (
                             <div style={styles.avatarFallback}>
                                 {user.first_name?.[0]?.toUpperCase()}{user.last_name?.[0]?.toUpperCase()}

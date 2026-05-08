@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { apiRequest,API_BASE } from "../../services/api";
+import { apiRequest } from "../../services/api";
 import BaseLayout from "../components/SubAdminLayout";
 
 // ─── SVG Icons ───────────────────────────────────────────────────────────────
@@ -329,7 +329,7 @@ const handleSubmit = async (e) => {
 
 
     const avatarSrc = originalData?.profile_picture
-        ? `${API_BASE}${originalData.profile_picture}`
+        ? `${originalData.profile_picture}`
         : null;
 
     // Role options for dropdown
