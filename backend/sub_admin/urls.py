@@ -49,4 +49,7 @@ urlpatterns = [
     path("api/candidates/submitted/",views.SubAdminSubmittedProfilesAPIView.as_view(),name="subadmin-submitted-profiles",),
 
     path("api/candidates/onboard/",views.SubAdminOnboardProfilesAPIView.as_view(),name="subadmin-onboard-profiles",),
+
+    path("api/candidates/offboarded/",views.OffboardedProfilesAPIView.as_view(),name="offboarded-profiles",),
+    path("candidates/<int:candidate_id>/remove-from-offboarded/",views.RemoveFromOffboardedAPIView.as_view(),name="remove-from-offboarded",),
 ]

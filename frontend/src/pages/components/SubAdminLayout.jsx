@@ -34,6 +34,7 @@ const SubAdminLayout = ({ children }) => {
         { label: "Overview", path: "/sub-admin" },
         { label: "Manage Team", path: "/sub-admin/team-manage" },
         { label: "Total Profiles", path: "/sub-admin/all-candidates" },
+        // { label: "Offboarded Profiles", path: "/sub-admin/offboarded-profiles" },
         { label: "Clients", path: "/sub-admin/clients" },
         { label: "Vendors", path: "/sub-admin/all-Vendors" },
     ];

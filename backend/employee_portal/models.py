@@ -299,6 +299,8 @@ class Candidate(models.Model):
         ON_HOLD  ="ON_HOLD", "On Hold"
         WITHDRAWN = "WITHDRAWN", "Withdrawn"
         REJECTED ="REJECTED","Rejected"
+        OFFBOARDED = "OFFBOARDED", "Offboarded"
+        NONE = "NONE","None"
 
 
     class SubStatus(models.TextChoices):

@@ -1598,4 +1598,81 @@ class SubAdminOnboardProfilesAPIView(generics.ListAPIView):
             )
             .order_by("-created_at")
         )
-        
+
+
+class OffboardedProfilesAPIView(generics.ListAPIView):
+    serializer_class = CandidateListSerializer
+    permission_classes = [IsAuthenticated]
+
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    filterset_class = CandidateFilter
+
+    search_fields = [
+        "candidate_name",
+        "candidate_email",
+        "skills",
+        "technology",
+        "vendor__company_name",
+    ]
+
+    ordering_fields = "__all__"
+
+    def get_queryset(self):
+        user = self.request.user
+        UserModel = get_user_model()
+
+        if user.role != "SUB_ADMIN":
+            raise PermissionDenied("You do not have permission to access this data.")
+
+        company_users = UserModel.objects.filter(
+            Q(id=user.id) | Q(parent_user=user)
+        )
+
+        return (
+            Candidate.objects.select_related(
+                "vendor",
+                "client",
+                "created_by",
+                "submitted_to",
+            )
+            .filter(
+                created_by__in=company_users,
+                main_status="OFFBOARDED",
+                is_deleted=False,
+            )
+            .order_by("-created_at")
+        )
+
+
+class RemoveFromOffboardedAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, candidate_id):
+        user = request.user
+
+        if user.role != "SUB_ADMIN":
+            return Response(
+                {"error": "Only SubAdmin can remove offboarded candidates."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        company_users = User.objects.filter(
+            Q(id=user.id) | Q(parent_user=user)
+        )
+
+        candidate = get_object_or_404(
+            Candidate,
+            id=candidate_id,
+            created_by__in=company_users,
+            main_status="OFFBOARDED",
+            is_deleted=False
+        )
+
+        candidate.main_status = "NONE"
+        candidate.changed_by = user
+        candidate.save(update_fields=["main_status", "changed_by"])
+
+        return Response(
+            {"message": "Candidate removed from offboarded successfully"},
+            status=status.HTTP_200_OK
+        )

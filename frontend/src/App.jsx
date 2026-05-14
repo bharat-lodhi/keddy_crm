@@ -58,6 +58,7 @@ import SubadminTotalOnbording from "./pages/sub_admin/TotalOnbording";
 import SubadminTodaysSubmittedProfiles from "./pages/sub_admin/TodaysSubmittedProfiles";
 import SubadminTodaysNewProfiles from "./pages/sub_admin/TodaysNewProfiles";
 import SubadminPipeline from "./pages/sub_admin/Pipeline";
+import OffboardedProfiles from "./pages/sub_admin/OffboardedProfiles";
 
 // -------Invoice---
 import SubadminCreateInvoice from "./pages/sub_admin/invoice/CreateInvoice";
@@ -184,6 +185,8 @@ function App() {
                 <Route path="/sub-admin/todays-New-Profiles" element={<ProtectedRoute><SubadminTodaysNewProfiles /></ProtectedRoute>} />
 
                 <Route path="/sub-admin/Pipeline" element={<ProtectedRoute><SubadminPipeline /></ProtectedRoute>} />
+
+                <Route path="/sub-admin/offboarded-profiles" element={<ProtectedRoute><OffboardedProfiles /></ProtectedRoute>} />
                 
                 <Route path="/sub-admin/create-invoice" element={<ProtectedRoute><SubadminCreateInvoice /></ProtectedRoute>} />
 
