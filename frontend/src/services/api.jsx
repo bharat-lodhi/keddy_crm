@@ -1,10 +1,10 @@
 // services/api.js
 
-// ✅ LIVE pe ye use karo
-// export const API_BASE = "https://crm.keddycrm.in";
+// ✅ Use it on LIVE 
+export const API_BASE = "https://crm.keddycrm.in";
 
-// ✅ LOCAL pe ye use karo
-export const API_BASE = "http://localhost:8000"
+// ✅ Use it on LOCAL
+// export const API_BASE = "http://localhost:8000"
 
 export async function apiRequest(url, method = "GET", data = null) {
     const token = localStorage.getItem("access");
