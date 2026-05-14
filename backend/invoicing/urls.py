@@ -48,5 +48,5 @@ urlpatterns = [
     # Hard Delete (permanent)
     path("api/invoices/<int:id>/hard-delete/", InvoiceHardDeleteAPIView.as_view(), name="invoice-hard-delete"),
         
-    
+   
 ]

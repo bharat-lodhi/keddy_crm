@@ -65,6 +65,6 @@ class ClientCandidateListAPIView(ListAPIView):
         return Candidate.objects.filter(
             client=client,
             is_deleted=False,
-            main_status=Candidate.MainStatus.ONBORD
+            main_status=Candidate.MainStatus.ONBORD or Candidate.MainStatus.OFFBORDED
         ).order_by("-created_at")
         
