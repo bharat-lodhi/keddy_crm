@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { apiRequest, API_BASE } from "../../services/api";
 import BaseLayout from "../components/SubAdminLayout";
+import StatusUpdateModal from "../../components/StatusUpdateModal";
 
 // Dashboard se Icons reuse kar rahe hain
 const Icons = {
@@ -465,53 +466,13 @@ function DetailedViewCandidate() {
                 </div>
             </div>
 
-            {/* Update Status Modal */}
-            {showModal && (
-                <div style={styles.modalOverlay}>
-                    <div style={styles.modalContent}>
-                        <h3 style={{color:'#25343F', marginBottom:'20px'}}>Update Status</h3>
-                        <div style={styles.inputGroup}>
-                            <label style={styles.modalLabel}>Main Status</label>
-                            <select style={styles.select} value={editForm.main_status} onChange={e => setEditForm({...editForm, main_status: e.target.value})}>
-                                <option value="SUBMITTED">Submitted</option>
-                                <option value="SCREENING">Screening</option>
-                                <option value="L1">L1</option>
-                                <option value="L2">L2</option>
-                                <option value="L3">L3</option>
-                                <option value="OTHER">Other</option>
-                                <option value="OFFERED">Offered</option>
-                                <option value="ONBORD">Onbord</option>
-                                <option value="ON_HOLD">On Hold</option>
-                                <option value="REJECTED">Rejected</option>
-                                <option value="WITHDRAWN">Withdrawn</option>
-                            </select>
-                        </div>
-                        <div style={styles.inputGroup}>
-                            <label style={styles.modalLabel}>Sub Status</label>
-                            <select style={styles.select} value={editForm.sub_status} onChange={e => setEditForm({...editForm, sub_status: e.target.value})}>
-                                <option value="NONE">None</option>
-                                <option value="SCHEDULED">Scheduled</option>
-                                <option value="COMPLETED">Completed</option>
-                                <option value="FEEDBACK_PENDING">Feedback Pending</option>
-                                <option value="CLEARED">Cleared</option>
-                                <option value="REJECTED">Rejected</option>
-                                <option value="ON_HOLD">On Hold</option>
-                                <option value="POSTPONED">Postponed</option>    
-                                <option value="NO_SHOW">No Show</option>
-                                <option value="INTERVIEW_PENDING">Interview Pending</option>
-                            </select>
-                        </div>
-                        <div style={styles.inputGroup}>
-                            <label style={styles.modalLabel}>Remark</label>
-                            <textarea style={styles.textarea} value={editForm.remark} onChange={e => setEditForm({...editForm, remark: e.target.value})} placeholder="Internal notes..." />
-                        </div>
-                        <div style={{display:'flex', gap:'10px', marginTop:'20px'}}>
-                            <button style={styles.saveBtn} onClick={handleUpdateSubmit}>Save Changes</button>
-                            <button style={styles.cancelBtn} onClick={() => setShowModal(false)}>Cancel</button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <StatusUpdateModal
+                isOpen={showModal}
+                onClose={() => setShowModal(false)}
+                formData={editForm}
+                setFormData={setEditForm}
+                onSave={handleUpdateSubmit}
+            />
 
             {/* Upload Modal */}
             {uploadModal.show && (

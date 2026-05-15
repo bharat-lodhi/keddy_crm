@@ -62,9 +62,14 @@ class ClientCandidateListAPIView(ListAPIView):
             raise NotFound("Client not found or doesn't belong to your company.")
 
         # ✅ CANDIDATES (ONLY BY CLIENT)
+        # return Candidate.objects.filter(
+        #     client=client,
+        #     is_deleted=False,
+        #     main_status=Candidate.MainStatus.ONBORD or Candidate.MainStatus.OFFBORDED
+        # ).order_by("-created_at")
+        
         return Candidate.objects.filter(
             client=client,
             is_deleted=False,
-            main_status=Candidate.MainStatus.ONBORD or Candidate.MainStatus.OFFBORDED
+            main_status__in=[Candidate.MainStatus.ONBORD, Candidate.MainStatus.OFFBOARDED]
         ).order_by("-created_at")
-        
