@@ -45,5 +45,14 @@ urlpatterns = [
     path("dashboard/last-7-days-verified/",views.last_7_days_verified_candidates,name="last_7_days_verified_candidates",),  #U N
     # ------
     path("team/all-submissions/", views.all_team_submissions),  #U
+    
+    
+    # ================= TIME SHEET & VENDOR INVOICE =================
+    path("api/candidates/<int:candidate_id>/timesheets/", views.CandidateTimeSheetListCreateView.as_view(), name="candidate-timesheets"),
+    path("api/timesheets/<int:pk>/delete/", views.TimeSheetDeleteView.as_view(), name="timesheet-delete"),
 
+    path("api/candidates/<int:candidate_id>/vendor-invoices/", views.CandidateVendorInvoiceListCreateView.as_view(), name="candidate-vendor-invoices"),
+    path("api/vendor-invoices/<int:pk>/delete/", views.VendorInvoiceDeleteView.as_view(), name="vendor-invoice-delete"),
+
+    path("api/candidates/<int:candidate_id>/client-invoices/", views.CandidateClientInvoiceListView.as_view(), name="candidate-client-invoices"),
 ]

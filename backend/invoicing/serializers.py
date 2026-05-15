@@ -124,9 +124,13 @@ class InvoiceCreateSerializer(serializers.ModelSerializer):
         from django.utils import timezone
 
         validated_data["invoice_date"] = timezone.now().date()
+        
+        first_item = items_data[0] if items_data else None
+        candidate_obj = first_item.get("candidate") if first_item else None
 
         invoice = Invoice.objects.create(
             created_by=request.user,
+            candidate=candidate_obj,
             **validated_data
         )
 

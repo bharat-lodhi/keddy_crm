@@ -1433,3 +1433,164 @@ def all_team_submissions(request):
     serializer = TodayCandidateSerializer(candidates, many=True)
     return Response(serializer.data)
 
+
+
+#===========================================================================
+# ================= TIME SHEET VIEWS =================
+from rest_framework.parsers import MultiPartParser, FormParser
+from .models import TimeSheet, VendorInvoice
+from .serializers import TimeSheetSerializer, VendorInvoiceSerializer
+# class CandidateTimeSheetListCreateView(generics.ListCreateAPIView):
+#     serializer_class = TimeSheetSerializer
+#     permission_classes = [IsAuthenticated]
+#     parser_classes = [MultiPartParser, FormParser]
+    
+#     def get_queryset(self):
+#         candidate_id = self.kwargs.get('candidate_id')
+#         return TimeSheet.objects.filter(candidate_id=candidate_id).order_by('-month')
+    
+#     def create(self, request, *args, **kwargs):
+#         print("=== TIMESHEET UPLOAD DEBUG ===")
+#         print("POST data:", request.POST)
+#         print("FILES:", request.FILES)
+#         print("User:", request.user)
+
+#         candidate_id = self.kwargs.get('candidate_id')
+#         data = request.data.copy()
+#         data['candidate'] = candidate_id
+
+#         serializer = self.get_serializer(data=data)
+#         serializer.is_valid(raise_exception=True)
+#         self.perform_create(serializer)
+#         headers = self.get_success_headers(serializer.data)
+#         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    
+#     def perform_create(self, serializer):
+#         serializer.save(uploaded_by=self.request.user)
+
+# class CandidateVendorInvoiceListCreateView(generics.ListCreateAPIView):
+#     serializer_class = VendorInvoiceSerializer
+#     permission_classes = [IsAuthenticated]
+#     parser_classes = [MultiPartParser, FormParser]
+    
+#     def get_queryset(self):
+#         candidate_id = self.kwargs.get('candidate_id')
+#         return VendorInvoice.objects.filter(candidate_id=candidate_id).order_by('-month')
+    
+#     def create(self, request, *args, **kwargs):
+#         candidate_id = self.kwargs.get('candidate_id')
+#         data = request.data.copy()
+#         data['candidate'] = candidate_id
+
+#         serializer = self.get_serializer(data=data)
+#         serializer.is_valid(raise_exception=True)
+#         self.perform_create(serializer)
+#         headers = self.get_success_headers(serializer.data)
+#         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+#     def perform_create(self, serializer):
+#         serializer.save(uploaded_by=self.request.user)
+
+class CandidateTimeSheetListCreateView(generics.ListCreateAPIView):
+    serializer_class = TimeSheetSerializer
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+    
+    def get_queryset(self):
+        candidate_id = self.kwargs.get('candidate_id')
+        return TimeSheet.objects.filter(candidate_id=candidate_id).order_by('-uploaded_at')
+    
+    def create(self, request, *args, **kwargs):
+        candidate_id = self.kwargs.get('candidate_id')
+        data = request.data.copy()
+        data['candidate'] = candidate_id
+        
+        # Calculate leave_days
+        total_working_days = int(request.data.get('total_working_days', 0))
+        working_days = int(request.data.get('working_days', 0))
+        data['leave_days'] = total_working_days - working_days
+
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    
+    def perform_create(self, serializer):
+        serializer.save(uploaded_by=self.request.user)
+
+
+class CandidateVendorInvoiceListCreateView(generics.ListCreateAPIView):
+    serializer_class = VendorInvoiceSerializer
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+    
+    def get_queryset(self):
+        candidate_id = self.kwargs.get('candidate_id')
+        return VendorInvoice.objects.filter(candidate_id=candidate_id).order_by('-uploaded_at')
+    
+    def create(self, request, *args, **kwargs):
+        candidate_id = self.kwargs.get('candidate_id')
+        data = request.data.copy()
+        data['candidate'] = candidate_id
+        
+        # Calculate amount without GST
+        total_amount_with_gst = float(request.data.get('total_amount_with_gst', 0))
+        gst_rate = float(request.data.get('gst_rate', 0))
+        
+        if total_amount_with_gst and gst_rate:
+            total_amount_without_gst = total_amount_with_gst / (1 + (gst_rate / 100))
+            data['total_amount_without_gst'] = round(total_amount_without_gst, 2)
+
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def perform_create(self, serializer):
+        serializer.save(uploaded_by=self.request.user)
+
+class TimeSheetDeleteView(generics.DestroyAPIView):
+    queryset = TimeSheet.objects.all()
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'pk'
+
+
+class VendorInvoiceDeleteView(generics.DestroyAPIView):
+    queryset = VendorInvoice.objects.all()
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'pk'
+
+
+# ================= CLIENT INVOICE VIEW (from invoicing app) =================
+from invoicing.models import Invoice
+class CandidateClientInvoiceListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        candidate_id = self.kwargs.get('candidate_id')
+        from datetime import datetime
+        current_month = datetime.now().replace(day=1).date()
+        
+        return Invoice.objects.filter(
+            candidate_id=candidate_id,  # Django automatically creates candidate_id field
+            invoice_date__year=current_month.year,
+            invoice_date__month=current_month.month
+        ).order_by('-invoice_date')
+    
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        print("QUERYSET COUNT:", queryset.count())  # Debug
+        data = []
+        for inv in queryset:
+            data.append({
+                'id': inv.id,
+                'invoice_number': inv.invoice_number,
+                'amount': inv.total_amount,
+                'invoice_date': inv.invoice_date,
+                'status': inv.status,
+                'pdf_file': inv.pdf_file.url if inv.pdf_file else None,
+            })
+        print("DATA:", data)  # Debug
+        return Response(data)

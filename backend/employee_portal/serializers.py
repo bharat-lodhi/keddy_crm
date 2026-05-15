@@ -702,3 +702,62 @@ class TodayCandidateSerializer(serializers.ModelSerializer):
         if obj.created_by:
             return f"{obj.created_by.first_name} {obj.created_by.last_name}".strip()
         return ""
+    
+
+#=============================================================================================
+from rest_framework import serializers
+from .models import TimeSheet, VendorInvoice
+
+
+# class TimeSheetSerializer(serializers.ModelSerializer):
+#     uploaded_by_name = serializers.CharField(source='uploaded_by.username', read_only=True)
+#     month_year = serializers.SerializerMethodField()
+#     month = serializers.DateField(input_formats=['%Y-%m'], required=True)
+    
+#     class Meta:
+#         model = TimeSheet
+#         fields = ['id', 'candidate', 'month', 'month_year', 'file', 'uploaded_at', 'uploaded_by', 'uploaded_by_name']
+#         read_only_fields = ['uploaded_at', 'uploaded_by']
+    
+#     def get_month_year(self, obj):
+#         return obj.month.strftime('%B %Y')
+
+# class VendorInvoiceSerializer(serializers.ModelSerializer):
+#     uploaded_by_name = serializers.CharField(source='uploaded_by.username', read_only=True)
+#     month_year = serializers.SerializerMethodField()
+#     month = serializers.DateField(input_formats=['%Y-%m'], required=True)
+    
+#     class Meta:
+#         model = VendorInvoice
+#         fields = ['id', 'candidate', 'month', 'month_year', 'file', 'uploaded_at', 'uploaded_by', 'uploaded_by_name']
+#         read_only_fields = ['uploaded_at', 'uploaded_by']
+    
+#     def get_month_year(self, obj):
+#         return obj.month.strftime('%B %Y')
+
+class TimeSheetSerializer(serializers.ModelSerializer):
+    uploaded_by_name = serializers.CharField(source='uploaded_by.username', read_only=True)
+    month_year = serializers.SerializerMethodField()
+    month = serializers.DateField(input_formats=['%Y-%m'], required=True)
+    
+    class Meta:
+        model = TimeSheet
+        fields = ['id', 'candidate', 'month', 'month_year', 'total_working_days', 'working_days', 'leave_days', 'file', 'uploaded_at', 'uploaded_by', 'uploaded_by_name']
+        read_only_fields = ['uploaded_at', 'uploaded_by', 'leave_days']
+    
+    def get_month_year(self, obj):
+        return obj.month.strftime('%B %Y')
+
+
+class VendorInvoiceSerializer(serializers.ModelSerializer):
+    uploaded_by_name = serializers.CharField(source='uploaded_by.username', read_only=True)
+    month_year = serializers.SerializerMethodField()
+    month = serializers.DateField(input_formats=['%Y-%m'], required=True)
+    
+    class Meta:
+        model = VendorInvoice
+        fields = ['id', 'candidate', 'month', 'month_year', 'total_amount_with_gst', 'gst_rate', 'total_amount_without_gst', 'file', 'uploaded_at', 'uploaded_by', 'uploaded_by_name']
+        read_only_fields = ['uploaded_at', 'uploaded_by', 'total_amount_without_gst']
+    
+    def get_month_year(self, obj):
+        return obj.month.strftime('%B %Y')
